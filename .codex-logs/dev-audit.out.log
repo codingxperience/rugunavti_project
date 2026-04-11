@@ -1,0 +1,11 @@
+▲ Next.js 16.2.3 (webpack)
+- Local:         http://127.0.0.1:3000
+- Network:       http://127.0.0.1:3000
+✓ Ready in 6.4s
+
+○ Compiling / ...
+ GET / 200 in 59s (next.js: 44s, application-code: 15.4s)
+ GET / 200 in 49s (next.js: 32.5s, application-code: 16.7s)
+ GET / 200 in 49s (next.js: 32.5s, application-code: 17.0s)
+ GET / 200 in 46s (next.js: 28.7s, application-code: 17.1s)
+ GET / 200 in 1950ms (next.js: 312ms, application-code: 1637ms)
