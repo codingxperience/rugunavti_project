@@ -14,5 +14,6 @@ yarn.lock
 .env.*.local
 /.idea
 .vscode
+.codex-logs/
 coverage
 dist
