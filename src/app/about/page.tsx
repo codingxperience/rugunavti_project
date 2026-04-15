@@ -17,21 +17,15 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About Ruguna"
-        title="Practical, future-ready vocational education for Uganda and beyond"
-        description="Ruguna Vocational Training Institute is positioned as a modern institute that helps learners move from aspiration to study, certification, internship readiness, and meaningful work."
+        title="Practical, future-ready vocational education for Uganda and the wider region"
+        description="Ruguna Vocational Training Institute positions technical and professional education around employability, entrepreneurship, flexible access, and credible digital delivery."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Mission</p>
-            <p>
-              To equip learners with practical, future-ready skills for employment, entrepreneurship,
-              and community transformation.
-            </p>
+            <p>Equip learners with practical, future-ready skills for employment, entrepreneurship, and community transformation.</p>
             <div className="h-px bg-[var(--color-border)]" />
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Vision</p>
-            <p>
-              To become a leading African institute for practical, technology-enabled vocational and
-              professional education.
-            </p>
+            <p>Become a leading African institute for practical, technology-enabled vocational and professional education.</p>
           </div>
         }
       />
@@ -39,9 +33,9 @@ export default function AboutPage() {
       <section className="section-padding pt-0">
         <div className="container-width grid gap-4 lg:grid-cols-3">
           {[
-            "A student journey designed for discoverability, trust, and conversion.",
-            "A brand direction that blends youthful energy, premium simplicity, and vocational credibility.",
-            "A future-ready platform structured for public marketing, admissions, and secure student services.",
+            "Institutional delivery designed for credibility, practical skill-building, and learner trust.",
+            "Academic pathways that balance workshop and practical learning with structured digital support.",
+            "A mobile-aware digital platform that supports admissions, learning delivery, certificates, and student services.",
           ].map((point) => (
             <Card key={point}>
               <CardContent>
@@ -56,8 +50,8 @@ export default function AboutPage() {
         <div className="container-width grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)]">
           <SectionHeading
             eyebrow="Why TVET matters"
-            title="A vocational pathway that meets real market needs"
-            description="The institute narrative centers employability, practical competence, affordability, flexible study options, and digital readiness for a changing economy."
+            title="A vocational pathway that meets market demand and local economic realities"
+            description="Ruguna centres employability, applied competence, affordability, flexible study options, and digital readiness for a changing economy."
           />
           <div className="grid gap-4 sm:grid-cols-2">
             {[
@@ -80,8 +74,8 @@ export default function AboutPage() {
         <div className="container-width">
           <SectionHeading
             eyebrow="Core values"
-            title="The culture behind the institute experience"
-            description="These values support both the public brand and the future internal workflows for students, instructors, and administrators."
+            title="The culture behind the Ruguna learning experience"
+            description="These values shape admissions service, teaching quality, learner support, and internal platform operations."
           />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {values.map((value) => (
@@ -96,11 +90,11 @@ export default function AboutPage() {
       </section>
 
       <CtaBanner
-        title="Explore schools, compare pathways, and understand the Ruguna direction in detail"
-        description="This scaffold is ready for leadership profiles, partnership highlights, accreditation notes, and more detailed institute storytelling."
+        title="Explore schools, compare pathways, and understand the Ruguna model in detail"
+        description="Move from institutional overview into schools, programmes, admissions, or the eLearning platform."
         primaryLabel="Explore Schools"
         primaryHref="/schools"
-        secondaryLabel="View Programs"
+        secondaryLabel="View Programmes"
         secondaryHref="/programs"
       />
     </>

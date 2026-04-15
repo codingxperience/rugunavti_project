@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, ChevronDown, PhoneCall } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +22,17 @@ const primaryLinks = [
 ];
 
 export function SiteHeader() {
+  const pathname = usePathname();
+  const isElearning = pathname.startsWith("/elearning");
+  const logoHref = isElearning ? "/elearning" : "/";
+  const logoAlt = isElearning
+    ? "Ruguna eLearning logo"
+    : "Ruguna Vocational Training Institute logo";
+  const logoTitle = isElearning ? "Ruguna eLearning" : "Ruguna";
+  const logoSubtitle = isElearning ? "Online Learning Platform" : "Vocational Training Institute";
+  const primaryCtaHref = isElearning ? "/elearning/login" : "/apply";
+  const primaryCtaLabel = isElearning ? "Log In" : "Apply Now";
+
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-[rgba(252,252,252,0.92)] backdrop-blur-xl">
       <div className="hidden border-b border-white/8 bg-[var(--color-ink)] text-white lg:block">
@@ -49,11 +63,11 @@ export function SiteHeader() {
       </div>
 
       <div className="container-width flex items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
-        <Link href="/" className="flex min-w-0 flex-1 items-center gap-3 xl:flex-none">
+        <Link href={logoHref} className="flex min-w-0 flex-1 items-center gap-3 xl:flex-none">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
             <Image
               src="/brand/ruguna-logo.png"
-              alt="Ruguna Vocational Training Institute logo"
+              alt={logoAlt}
               width={30}
               height={30}
               className="h-7 w-7 object-contain"
@@ -61,10 +75,10 @@ export function SiteHeader() {
           </div>
           <div className="min-w-0">
             <p className="font-heading truncate text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-ink)] sm:text-sm">
-              Ruguna
+              {logoTitle}
             </p>
             <p className="hidden truncate text-[11px] text-[var(--color-muted)] sm:block sm:text-xs">
-              Vocational Training Institute
+              {logoSubtitle}
             </p>
           </div>
         </Link>
@@ -109,7 +123,7 @@ export function SiteHeader() {
             <p className="text-sm font-semibold text-[var(--color-ink)]">Jan | May | Sep</p>
           </div>
           <Button asChild>
-            <Link href="/apply">Apply Now</Link>
+            <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
           </Button>
         </div>
 
@@ -146,7 +160,7 @@ export function SiteHeader() {
 
             <div className="mt-5 grid gap-3">
               <Button asChild>
-                <Link href="/apply">Apply Now</Link>
+                <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
               </Button>
               <p className="text-xs leading-6 text-[var(--color-muted)]">
                 {siteConfig.phone} | {siteConfig.email}

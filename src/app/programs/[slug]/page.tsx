@@ -5,6 +5,9 @@ import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProgramBySlug, getSchoolBySlug, programs } from "@/data";
 
+const defaultAssessments = ["Quizzes", "Assignments", "Practical tasks", "Final assessment"];
+const defaultTools = ["Smartphone or laptop", "Internet access for selected sessions", "Notebook and practical materials where relevant"];
+
 export function generateStaticParams() {
   return programs.map((program) => ({ slug: program.slug }));
 }
@@ -26,7 +29,7 @@ export default async function ProgramDetailPage({
   return (
     <>
       <PageHero
-        eyebrow="Program detail"
+        eyebrow="Programme detail"
         title={program.title}
         description={program.overview}
         aside={
@@ -40,7 +43,7 @@ export default async function ProgramDetailPage({
               <p className="mt-1 font-semibold text-[var(--color-ink)]">{program.durationText}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.22em]">Study mode</p>
+              <p className="text-xs uppercase tracking-[0.22em]">Learning mode</p>
               <p className="mt-1 font-semibold text-[var(--color-ink)]">{program.studyMode}</p>
             </div>
           </div>
@@ -56,7 +59,7 @@ export default async function ProgramDetailPage({
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
                     {school?.name}
                   </p>
-                  <h2 className="font-heading mt-4 text-3xl font-bold">Who it is for</h2>
+                  <h2 className="font-heading mt-4 text-3xl font-bold text-[var(--color-ink)]">Who it is for</h2>
                   <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">{program.whoItsFor}</p>
                 </div>
 
@@ -81,7 +84,7 @@ export default async function ProgramDetailPage({
 
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <h3 className="font-heading text-xl font-bold">Modules</h3>
+                    <h3 className="font-heading text-xl font-bold">Module structure</h3>
                     <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
                       {program.modules.map((item) => (
                         <li key={item}>• {item}</li>
@@ -97,6 +100,25 @@ export default async function ProgramDetailPage({
                     </ul>
                   </div>
                 </div>
+
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <h3 className="font-heading text-xl font-bold">Assessment model</h3>
+                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                      {defaultAssessments.map((item) => (
+                        <li key={item}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="font-heading text-xl font-bold">Tools and equipment</h3>
+                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                      {defaultTools.map((item) => (
+                        <li key={item}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -104,18 +126,16 @@ export default async function ProgramDetailPage({
           <div className="grid gap-4">
             <Card className="bg-[var(--color-ink)] text-white">
               <CardContent>
-                <p className="text-xs uppercase tracking-[0.22em] text-white/56">Tuition</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-white/56">Tuition and intakes</p>
                 <p className="font-heading mt-3 text-2xl font-bold">{program.tuitionText}</p>
                 <p className="mt-4 text-sm leading-7 text-white/72">
-                  Intake months: {program.intakeMonths.join(", ")}
+                  Planned intake months: {program.intakeMonths.join(", ")}
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent>
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  Certification outcome
-                </p>
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-muted)]">Certification</p>
                 <p className="font-heading mt-3 text-xl font-bold text-[var(--color-ink)]">
                   {program.certificationOutcome}
                 </p>
@@ -126,12 +146,12 @@ export default async function ProgramDetailPage({
       </section>
 
       <CtaBanner
-        title={`Start your ${program.title} application`}
-        description="This detail template is ready for semester structures, downloadable fee schedules, and form-connected application actions."
+        title={`Ready to apply for ${program.title}?`}
+        description="Review requirements, download the prospectus, or continue directly into the admissions form."
         primaryLabel="Apply Now"
         primaryHref="/apply"
-        secondaryLabel="Back to Programs"
-        secondaryHref="/programs"
+        secondaryLabel="Download Prospectus"
+        secondaryHref="/prospectus"
       />
     </>
   );

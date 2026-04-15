@@ -18,12 +18,12 @@ export default async function VerificationPage({
     <>
       <PageHero
         eyebrow="Verification"
-        title="Verify certificate and admission authenticity with a simple lookup flow"
-        description="The verification page is designed for privacy-aware document checking and can later connect to real certificate, admissions, and audit-log records."
+        title="Verify certificates and completion records using a unique Ruguna reference"
+        description="Every issued certificate or official completion record can be checked against a unique reference code to confirm status, programme, and award."
         aside={
           <div className="grid gap-3 text-sm text-[var(--color-muted)]">
-            <p className="font-heading text-3xl font-bold text-[var(--color-ink)]">Lookup-ready</p>
-            <p>Search by certificate code, admission token, or student identifier when the backend goes live.</p>
+            <p className="font-heading text-3xl font-bold text-[var(--color-ink)]">Live lookup</p>
+            <p>Use a certificate code or official reference exactly as provided on the document.</p>
           </div>
         }
       />
@@ -46,24 +46,20 @@ export default async function VerificationPage({
                 </Button>
               </form>
               <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-                Try sample code: <span className="font-semibold text-[var(--color-ink)]">RUG-CERT-2025-1142</span>
+                Sample code: <span className="font-semibold text-[var(--color-ink)]">RUG-CERT-2025-1142</span>
               </p>
             </CardContent>
           </Card>
 
-          <Card className={match ? "border-[var(--color-ink)]/10" : ""}>
+          <Card>
             <CardContent>
               {match ? (
                 <div className="grid gap-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                    Verification status
-                  </p>
-                  <h2 className="font-heading text-3xl font-bold text-[var(--color-ink)]">
-                    {match.status}
-                  </h2>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">Verification status</p>
+                  <h2 className="font-heading text-3xl font-bold text-[var(--color-ink)]">{match.status}</h2>
                   <div className="grid gap-2 text-sm leading-7 text-[var(--color-muted)]">
                     <p>Student: {match.studentName}</p>
-                    <p>Program: {match.program}</p>
+                    <p>Programme: {match.program}</p>
                     <p>Award: {match.award}</p>
                     <p>Date: {match.completionDate}</p>
                     <p>Code: {match.code}</p>
@@ -71,14 +67,10 @@ export default async function VerificationPage({
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                    Verification result
-                  </p>
-                  <h2 className="font-heading text-3xl font-bold text-[var(--color-ink)]">
-                    No matching record yet
-                  </h2>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">Verification result</p>
+                  <h2 className="font-heading text-3xl font-bold text-[var(--color-ink)]">No verified match found</h2>
                   <p className="text-sm leading-7 text-[var(--color-muted)]">
-                    Enter one of the sample codes above or connect this page to real certificate and admissions tables in the next backend phase.
+                    Recheck the code or contact admissions if you need support confirming a certificate or completion record.
                   </p>
                 </div>
               )}

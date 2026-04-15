@@ -1,34 +1,56 @@
-# Ruguna Vocational Training Institute
+# Ruguna Vocational Training Institute Platform
 
-This workspace now contains a production-minded Next.js App Router scaffold for the Ruguna Vocational Training Institute platform direction.
+Production-minded Next.js App Router platform for Ruguna Vocational Training Institute, built for Uganda-first vocational and professional learning delivery.
 
-## What is included
+## Stack
 
-- Brand-aligned marketing site routes for home, about, schools, programs, short courses, admissions, fees, student life, news, verification, contact, apply, and portal entry pages
-- Shared content/data files for schools, programs, testimonials, admissions steps, fee highlights, and portal foundations
-- Mobile-first design system using Tailwind CSS patterns and shadcn-style source components
-- Searchable client-side program directory
-- Dynamic detail pages for schools and programs
-- SEO basics through `robots.ts` and `sitemap.ts`
+- Next.js 16 + TypeScript + App Router
+- Tailwind CSS + shadcn-style source components
+- PostgreSQL + Prisma ORM
+- Clerk authentication hooks and auth-ready route structure
+- Supabase Storage integration points
+- Resend integration points
+- React Hook Form + Zod validated public workflows
+- TanStack Table for admin and finance data tables
+- PostHog analytics provider hook
 
-## Next implementation phases
+## What is implemented
 
-1. Install and configure Clerk for applicant, student, instructor, registrar, finance, and super admin roles.
-2. Add Prisma, PostgreSQL, and the core schema for programs, applications, students, payments, certificates, and audit logs.
-3. Connect verification, admissions, contact, and portal routes to live backend workflows.
-4. Add CMS-managed content editing for hero content, programs, testimonials, news, events, and downloads.
-5. Integrate storage, email, analytics, and deployment environment variables.
+- Premium public site shell with utility header, admissions journeys, programme discovery, prospectus downloads, contact/help, and certificate verification
+- Protected route structure for student, instructor, admin, and finance workspaces
+- Student dashboard, course player, certificates, and support desk
+- Instructor dashboard, course builder overview, and grading queue
+- Admin dashboard, admissions queue, and CMS/SEO control surface
+- Finance dashboard with invoice and payment-status table
+- Prisma schema covering users, roles, schools, programmes, courses, learning delivery, applications, certificates, finance, support, CMS, and audit entities
+- Seed strategy for roles, schools, programmes, and utility-header settings
+- Route protection via `proxy.ts` plus server-side role checks
 
-## Local development
+## Environment setup
 
-```bash
-npm install
-npm run dev
-```
+1. Copy `.env.example` to `.env.local`.
+2. Configure PostgreSQL, Clerk, Supabase, Resend, and PostHog values.
+3. For local-only role access without Clerk, keep `RUGUNA_ALLOW_DEV_AUTH=true`.
 
-If PowerShell wrappers around `npm` are slow on this machine, call the CLI through Node directly:
+## Development
 
 ```powershell
-& "C:\Program Files\nodejs\node.exe" "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" install
-& "C:\Program Files\nodejs\node.exe" "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run dev
+npm.cmd install
+npm.cmd run db:generate
+npm.cmd run typecheck
+npm.cmd run build
+npm.cmd run dev
 ```
+
+## Database
+
+```powershell
+npm.cmd run db:migrate
+npm.cmd run db:seed
+```
+
+## Notes
+
+- Downloadable prospectus and guide routes are implemented at `/downloads/[slug]`.
+- If Clerk is configured, `/sign-in` and `/sign-up` use Clerk components.
+- If Clerk is not configured, `/e-learning-login` supports protected local role sessions for workflow testing.

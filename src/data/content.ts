@@ -113,7 +113,7 @@ export const faqs = [
   {
     question: "Do you offer installment payment options?",
     answer:
-      "The platform is prepared for installment guidance and finance communication. Final policies can be published by the institute admin team.",
+      "Yes. Eligible learners can receive installment guidance, invoice references, and payment follow-up through the finance workflow.",
   },
 ];
 
@@ -170,16 +170,16 @@ export const eventItems: EventItem[] = [
 
 export const portalHighlights = {
   applicant: [
-    "Profile setup and saved applications",
-    "Document upload and checklist tracking",
-    "Admission decision letters and acceptance",
-    "Messaging center and payment instructions",
+    "Saved application progress and intake selection",
+    "Document upload checklist with validation rules",
+    "Admission decision letters and acceptance confirmation",
+    "Payment guidance, finance notes, and messaging history",
   ],
   student: [
-    "Timetable and enrolled courses",
-    "Fee balance snapshot and statements",
-    "Announcements, documents, and result slips",
-    "Internship support and helpdesk tickets",
+    "Enrolled courses, next lessons, and progress tracking",
+    "Announcements, grades, certificates, and support tickets",
+    "Timetable summaries and practical session reminders",
+    "Finance holds, invoices, and payment references",
   ],
   staff: [
     "Admissions review and record workflows",
@@ -207,3 +207,101 @@ export const verificationSamples = [
     status: "Verified",
   },
 ];
+
+export const learningModes = [
+  {
+    title: "Online",
+    detail:
+      "Structured lessons, downloadable resources, guided quizzes, and support designed for learners who study remotely.",
+  },
+  {
+    title: "Blended",
+    detail:
+      "Digital theory delivery combined with practical workshops, labs, attachment preparation, and live check-ins.",
+  },
+  {
+    title: "Practical",
+    detail:
+      "Hands-on workshop and fieldwork experiences supported by digital instructions, attendance, submissions, and assessment records.",
+  },
+];
+
+export const howElearningWorks = [
+  "Apply or enroll into a Ruguna programme or short course.",
+  "Receive access to the student workspace and course classroom.",
+  "Study lesson-by-lesson with notes, video, files, and practical instructions.",
+  "Submit assignments, take quizzes, and follow instructor feedback.",
+  "Track progress, receive announcements, and unlock certificates when eligible.",
+];
+
+export const supportCategories = [
+  "Admissions guidance",
+  "Programme selection",
+  "Technical login support",
+  "Document upload help",
+  "Payment and invoice clarification",
+  "Assessment and certification support",
+];
+
+export const downloadableDocuments = [
+  {
+    slug: "institutional-prospectus-2026",
+    title: "Institutional Prospectus 2026",
+    category: "Prospectus",
+    summary: "Overview of schools, levels, intakes, fees guidance, and admissions policy.",
+    href: "/downloads/institutional-prospectus-2026",
+  },
+  {
+    slug: "short-course-guide-2026",
+    title: "Short Course Guide 2026",
+    category: "Programme Guide",
+    summary: "Flexible short-course options for digital, enterprise, and technical upskilling.",
+    href: "/downloads/short-course-guide-2026",
+  },
+  {
+    slug: "fees-and-payment-guide",
+    title: "Fees and Payment Guide",
+    category: "Finance",
+    summary: "Payment references, invoice process, installment guidance, and finance support contacts.",
+    href: "/downloads/fees-and-payment-guide",
+  },
+];
+
+export const studentDashboardSummary = {
+  greeting: "Welcome back, Amina",
+  nextLesson: "API Design for Small Business Systems",
+  upcomingDeadlines: [
+    "Submission: Community Health Reflection - 14 April",
+    "Quiz: Frontend State Management - 16 April",
+  ],
+  recentGrades: [
+    { title: "UX Prototype Review", score: "82%", status: "Graded" },
+    { title: "Data Modelling Quiz", score: "74%", status: "Passed" },
+  ],
+  certificates: [
+    { title: "Short Course in AI for Digital Work", code: "RUG-CERT-2025-1142" },
+  ],
+};
+
+export const instructorWorkspace = {
+  assignedCourses: ["Diploma in Software Engineering", "Short Course in AI for Digital Work"],
+  gradingQueue: [
+    "8 submissions awaiting feedback",
+    "2 quizzes need review",
+    "1 announcement drafted for publication",
+  ],
+};
+
+export const adminWorkspace = {
+  applications: 148,
+  enrollments: 482,
+  certificatesIssued: 93,
+  openTickets: 17,
+};
+
+export const financeWorkspace = {
+  invoicesIssued: "UGX 84.5M",
+  paymentsVerified: "UGX 71.1M",
+  overdueAccounts: 23,
+  holdsApplied: 9,
+};

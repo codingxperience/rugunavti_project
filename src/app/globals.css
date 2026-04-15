@@ -16,8 +16,6 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
-  --font-heading: var(--font-space-grotesk);
 }
 
 * {
@@ -104,6 +102,15 @@ img {
 .fade-up-delay {
   animation: fade-up 0.95s ease both;
   animation-delay: 0.08s;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes fade-up {

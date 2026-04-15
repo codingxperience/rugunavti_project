@@ -316,6 +316,8 @@ export const programs: Program[] = [
   },
 ];
 
+export const featuredPrograms = programs.filter((program) => program.featured);
+
 export function getProgramBySlug(slug: string) {
   return programs.find((program) => program.slug === slug);
 }
