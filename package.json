@@ -20,7 +20,7 @@
     "deploy:check": "npm run prod:check && npm run db:validate && npm run typecheck && npm run build"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.27.3",
+    "@clerk/nextjs": "6.39.1",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.8.2",
     "@radix-ui/react-slot": "^1.2.4",
