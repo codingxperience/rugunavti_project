@@ -1,8 +1,22 @@
+import { SubmissionGradeForm } from "@/components/elearning/submission-grade-form";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { instructorSubmissions } from "@/data";
+import { getStaffSubmissions } from "@/lib/platform/staff-records";
 
-export default function InstructorSubmissionsPage() {
+export const dynamic = "force-dynamic";
+
+function formatDate(value: string | null) {
+  if (!value) return "Not submitted";
+
+  return new Intl.DateTimeFormat("en-UG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
+export default async function InstructorSubmissionsPage() {
+  const submissions = await getStaffSubmissions();
+
   return (
     <div className="grid gap-6">
       <Card>
@@ -17,26 +31,48 @@ export default function InstructorSubmissionsPage() {
       </Card>
 
       <div className="grid gap-4">
-        {instructorSubmissions.map((submission) => (
-          <Card key={`${submission.learner}-${submission.task}`}>
-            <CardContent className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_180px] xl:items-center">
-              <div>
-                <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                  {submission.task}
-                </h2>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">
-                  {submission.learner} • {submission.course}
-                </p>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">
-                  Submitted: {submission.submittedAt}
-                </p>
-              </div>
-              <div className="flex justify-start xl:justify-end">
-                <StatusBadge value={submission.status} tone="warning" />
-              </div>
+        {submissions.length ? (
+          submissions.map((submission) => (
+            <Card key={submission.id}>
+              <CardContent>
+                <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_180px] xl:items-start">
+                  <div>
+                    <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                      {submission.taskTitle}
+                    </h2>
+                    <p className="mt-2 text-sm text-[var(--color-muted)]">
+                      {submission.learnerName} - {submission.courseTitle}
+                    </p>
+                    <p className="mt-2 text-sm text-[var(--color-muted)]">
+                      Submitted: {formatDate(submission.submittedAt)}
+                    </p>
+                  </div>
+                  <div className="flex justify-start xl:justify-end">
+                    <StatusBadge value={submission.status} tone={submission.status === "GRADED" ? "success" : "warning"} />
+                  </div>
+                </div>
+                <SubmissionGradeForm
+                  submissionId={submission.id}
+                  maxScore={submission.maxScore}
+                  currentScore={submission.score}
+                  currentFeedback={submission.feedback}
+                />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent>
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                No submissions yet
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                Learner submissions will appear here after students submit assignments from the
+                course player.
+              </p>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   );

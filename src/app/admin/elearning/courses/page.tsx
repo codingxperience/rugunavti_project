@@ -1,8 +1,16 @@
-import { StatusBadge } from "@/components/platform/status-badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { elearningCourses } from "@/data";
+import Link from "next/link";
 
-export default function AdminElearningCoursesPage() {
+import { StaffCourseForm } from "@/components/elearning/staff-course-form";
+import { StatusBadge } from "@/components/platform/status-badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { getStaffCourseManagementRecords } from "@/lib/platform/staff-records";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminElearningCoursesPage() {
+  const records = await getStaffCourseManagementRecords();
+
   return (
     <div className="grid gap-6">
       <Card>
@@ -11,27 +19,38 @@ export default function AdminElearningCoursesPage() {
             Course management
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-            Review public catalog entries, delivery modes, featured status, and enrollment state.
+            Create course catalog entries, publish eLearning delivery, and open the builder for
+            modules, lessons, resources, assignments, and quizzes.
           </p>
         </CardContent>
       </Card>
 
+      <StaffCourseForm schools={records.schools} programs={records.programs} />
+
       <div className="grid gap-4">
-        {elearningCourses.map((course) => (
-          <Card key={course.slug}>
+        {records.courses.map((course) => (
+          <Card key={course.id}>
             <CardContent>
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_220px] xl:items-center">
                 <div>
-                  <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge value={course.programLevel.replace(/_/g, " ")} />
+                    <StatusBadge value={course.status} tone={course.status === "PUBLISHED" ? "success" : "warning"} />
+                  </div>
+                  <h2 className="font-heading mt-4 text-2xl font-bold text-[var(--color-ink)]">
                     {course.title}
                   </h2>
-                  <p className="mt-2 text-sm text-[var(--color-muted)]">
-                    {course.school} • {course.mode} • {course.duration}
+                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                    {course.schoolName} - {course.deliveryMode.replace(/_/g, " ")} - {course.enrollmentCount} learners
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                    {course.moduleCount} modules, {course.lessonCount} lessons. Owner: {course.ownerName}.
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <StatusBadge value={course.level} />
-                  <StatusBadge value={course.enrollmentStatus} tone="success" />
+                <div className="flex justify-start xl:justify-end">
+                  <Button asChild>
+                    <Link href={`/admin/elearning/courses/${course.id}/builder`}>Open builder</Link>
+                  </Button>
                 </div>
               </div>
             </CardContent>

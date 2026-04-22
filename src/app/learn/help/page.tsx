@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ContactForm } from "@/components/forms/contact-form";
+import { LearnerSupportForm } from "@/components/elearning/learner-support-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { learnerHelpChannels, supportCategories } from "@/data";
 
@@ -16,7 +16,7 @@ export default function LearnHelpPage() {
             Use this route for login issues, assessment questions, certificate support, or general eLearning assistance.
           </p>
           <div className="mt-8">
-            <ContactForm categories={supportCategories} />
+            <LearnerSupportForm categories={supportCategories} />
           </div>
         </CardContent>
       </Card>

@@ -1,36 +1,19 @@
+import Image from "next/image";
 import Link from "next/link";
-import { BookOpenText, GraduationCap, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
 const shellLinks = [
-  { href: "/elearning/login", label: "Sign In", key: "sign-in" },
-  { href: "/elearning/register", label: "Create Account", key: "sign-up" },
-] as const;
-
-const platformSignals = [
-  {
-    title: "Structured classroom access",
-    detail: "Courses, lessons, assignments, and certificates stay in one protected learning flow.",
-    icon: BookOpenText,
-  },
-  {
-    title: "Built for practical learning",
-    detail: "Ruguna supports online and blended study without losing vocational discipline.",
-    icon: GraduationCap,
-  },
-  {
-    title: "Verification and trust",
-    detail: "Protected records, secure sign in, and completion access stay tied to the learner account.",
-    icon: ShieldCheck,
-  },
+  { href: "/elearning/login", label: "Sign in", key: "sign-in" },
+  { href: "/elearning/register", label: "Create account", key: "sign-up" },
 ] as const;
 
 type AuthShellProps = {
   activeKey: "sign-in" | "sign-up" | "recovery" | "verify";
   title: string;
   description: string;
+  eyebrow?: string;
   children: ReactNode;
 };
 
@@ -38,62 +21,72 @@ export function AuthShell({
   activeKey,
   title,
   description,
+  eyebrow = "Ruguna eLearning",
   children,
 }: AuthShellProps) {
   return (
-    <section className="section-padding pb-10 pt-10 sm:pt-14">
-      <div className="container-width">
-        <div className="overflow-hidden rounded-[40px] border border-black/6 bg-[#171715] shadow-[0_42px_130px_-82px_rgba(17,17,17,0.92)]">
-          <div className="grid lg:grid-cols-[400px_minmax(0,1fr)]">
-            <div className="bg-[#171715] px-6 py-8 text-white sm:px-8 sm:py-10 lg:px-10">
-              <p className="inline-flex rounded-full border border-white/10 bg-white/6 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">
+    <section className="min-h-[calc(100vh-160px)] bg-[#f6f5ef] px-4 py-8 sm:py-12">
+      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-8">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Link href="/elearning" className="flex items-center gap-3">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-black/8 bg-white shadow-[0_18px_50px_-38px_rgba(17,17,17,0.55)]">
+              <Image
+                src="/brand/ruguna-logo.png"
+                alt="Ruguna logo"
+                width={28}
+                height={28}
+                className="h-7 w-7 object-contain"
+              />
+            </span>
+            <span>
+              <span className="font-heading block text-xl font-bold text-[var(--color-ink)]">
                 Ruguna eLearning
+              </span>
+              <span className="block text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                Secure classroom access
+              </span>
+            </span>
+          </Link>
+
+          <nav className="flex w-fit rounded-full border border-black/8 bg-white p-1 shadow-[0_18px_45px_-40px_rgba(17,17,17,0.7)]">
+            {shellLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "rounded-full px-4 py-2 text-sm font-semibold transition",
+                  item.key === activeKey
+                    ? "border border-[#e4c92e] bg-[#fde047] text-[var(--color-ink)] shadow-[0_12px_24px_-20px_rgba(17,17,17,0.7)]"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </header>
+
+        <div className="mx-auto w-full max-w-[520px]">
+          <div className="rounded-[34px] border border-black/8 bg-white p-5 shadow-[0_38px_120px_-80px_rgba(17,17,17,0.75)] sm:p-7">
+            <div className="mb-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+                {eyebrow}
               </p>
-              <h1 className="font-heading mt-6 text-4xl font-bold leading-tight sm:text-5xl">
+              <h1 className="font-heading mt-3 text-3xl font-bold leading-tight text-[var(--color-ink)] sm:text-4xl">
                 {title}
               </h1>
-              <p className="mt-5 max-w-md text-sm leading-7 text-white/72 sm:text-base">
-                {description}
-              </p>
-
-              <div className="mt-8 grid gap-3">
-                {platformSignals.map((signal) => (
-                  <div
-                    key={signal.title}
-                    className="rounded-[24px] border border-white/10 bg-white/6 p-4"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
-                        <signal.icon className="h-5 w-5 text-[var(--color-accent)]" />
-                      </div>
-                      <p className="font-heading text-xl font-bold">{signal.title}</p>
-                    </div>
-                    <p className="mt-3 text-sm leading-7 text-white/68">{signal.detail}</p>
-                  </div>
-                ))}
-              </div>
+              <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{description}</p>
             </div>
 
-            <div className="bg-[#fbfbf7] px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
-              <div className="flex flex-wrap gap-2">
-                {shellLinks.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "inline-flex rounded-full px-4 py-2 text-sm font-semibold transition",
-                      item.key === activeKey
-                        ? "bg-[var(--color-ink)] text-white"
-                        : "border border-[var(--color-border)] bg-white text-[var(--color-muted)] hover:text-[var(--color-ink)]"
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
+            {children}
+          </div>
 
-              <div className="mx-auto mt-8 w-full max-w-3xl">{children}</div>
-            </div>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-[var(--color-muted)]">
+            <span>Protected learning records</span>
+            <span className="h-1 w-1 rounded-full bg-[var(--color-muted)]/40" />
+            <span>Email and Google-ready auth</span>
+            <span className="h-1 w-1 rounded-full bg-[var(--color-muted)]/40" />
+            <span>Ruguna certificates access</span>
           </div>
         </div>
       </div>

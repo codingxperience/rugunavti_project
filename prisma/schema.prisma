@@ -154,6 +154,12 @@ enum AuditAction {
   EXPORT
 }
 
+enum LessonProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
   id                   String                     @id @default(cuid())
   clerkId              String?                    @unique
@@ -171,6 +177,7 @@ model User {
   invoices             Invoice[]
   submissions          Submission[]
   quizAttempts         QuizAttempt[]
+  lessonProgress       LessonProgress[]
   announcementsCreated Announcement[]            @relation("AnnouncementCreator")
   announcementsUpdated Announcement[]            @relation("AnnouncementUpdater")
   certificates         Certificate[]
@@ -363,6 +370,7 @@ model Lesson {
   assignments     Assignment[]
   quizzes         Quiz[]
   discussions     DiscussionThread[]
+  progress        LessonProgress[]
 
   @@unique([moduleId, slug])
   @@unique([moduleId, position])
@@ -382,6 +390,25 @@ model LessonResource {
   updatedAt   DateTime @updatedAt
   lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
+  @@index([lessonId])
+}
+
+model LessonProgress {
+  id             String               @id @default(cuid())
+  enrollmentId   String
+  lessonId       String
+  userId         String
+  status         LessonProgressStatus @default(IN_PROGRESS)
+  lastAccessedAt DateTime             @default(now())
+  completedAt    DateTime?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  enrollment     Enrollment           @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson         Lesson               @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([userId, status])
   @@index([lessonId])
 }
 
@@ -443,6 +470,7 @@ model Enrollment {
   course                 Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   submissions            Submission[]
   quizAttempts           QuizAttempt[]
+  lessonProgress         LessonProgress[]
   certificates           Certificate[]
   invoices               Invoice[]
 
@@ -664,8 +692,10 @@ model Payment {
 model SupportTicket {
   id           String         @id @default(cuid())
   ticketNumber String         @unique
-  userId       String
+  userId       String?
   assignedToId String?
+  requesterName String?
+  requesterContact String?
   category     String
   subject      String
   message      String
@@ -673,10 +703,11 @@ model SupportTicket {
   status       TicketStatus   @default(OPEN)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  user         User           @relation("TicketOwner", fields: [userId], references: [id], onDelete: Cascade)
+  user         User?          @relation("TicketOwner", fields: [userId], references: [id], onDelete: SetNull)
   assignedTo   User?          @relation("TicketAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
 
   @@index([status, priority])
+  @@index([userId, status])
 }
 
 model DiscussionThread {

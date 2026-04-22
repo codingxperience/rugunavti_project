@@ -1,8 +1,12 @@
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { adminElearningUsers } from "@/data";
+import { getAdminUsers } from "@/lib/platform/staff-records";
 
-export default function AdminElearningUsersPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminElearningUsersPage() {
+  const users = await getAdminUsers();
+
   return (
     <div className="grid gap-6">
       <Card>
@@ -17,18 +21,23 @@ export default function AdminElearningUsersPage() {
       </Card>
 
       <div className="grid gap-4">
-        {adminElearningUsers.map((user) => (
-          <Card key={`${user.name}-${user.role}`}>
+        {users.map((user) => (
+          <Card key={user.id}>
             <CardContent className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                   {user.name}
                 </h2>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">{user.focus}</p>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">{user.email}</p>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">
+                  {user.enrollmentCount} enrollments - {user.submissionCount} submissions
+                </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <StatusBadge value={user.role} />
-                <StatusBadge value={user.status} tone="success" />
+                {user.roles.map((role) => (
+                  <StatusBadge key={role} value={role} />
+                ))}
+                <StatusBadge value={user.isActive ? "Active" : "Inactive"} tone={user.isActive ? "success" : "warning"} />
               </div>
             </CardContent>
           </Card>

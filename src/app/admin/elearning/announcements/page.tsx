@@ -1,8 +1,13 @@
+import { StaffAnnouncementForm } from "@/components/elearning/staff-announcement-form";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { adminElearningAnnouncements } from "@/data";
+import { getStaffAnnouncementRecords } from "@/lib/platform/staff-records";
 
-export default function AdminElearningAnnouncementsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminElearningAnnouncementsPage() {
+  const records = await getStaffAnnouncementRecords();
+
   return (
     <div className="grid gap-6">
       <Card>
@@ -16,17 +21,24 @@ export default function AdminElearningAnnouncementsPage() {
         </CardContent>
       </Card>
 
+      <StaffAnnouncementForm courses={records.courses} />
+
       <div className="grid gap-4">
-        {adminElearningAnnouncements.map((item) => (
-          <Card key={item.title}>
+        {records.announcements.map((item) => (
+          <Card key={item.id}>
             <CardContent className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                   {item.title}
                 </h2>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">{item.audience}</p>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">
+                  {item.scope.toLowerCase()} {item.courseTitle ? `- ${item.courseTitle}` : ""}
+                </p>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+                  {item.body}
+                </p>
               </div>
-              <StatusBadge value={item.status} tone={item.status === "Live" ? "success" : "warning"} />
+              <StatusBadge value={item.status} tone={item.status === "PUBLISHED" ? "success" : "warning"} />
             </CardContent>
           </Card>
         ))}

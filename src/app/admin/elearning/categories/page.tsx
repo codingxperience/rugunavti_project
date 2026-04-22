@@ -1,7 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { adminElearningCategories } from "@/data";
+import { getAdminCategories } from "@/lib/platform/staff-records";
 
-export default function AdminElearningCategoriesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminElearningCategoriesPage() {
+  const categories = await getAdminCategories();
+
   return (
     <div className="grid gap-6">
       <Card>
@@ -10,14 +14,15 @@ export default function AdminElearningCategoriesPage() {
             Category management
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-            Maintain the eLearning categories and the online focus for each school area.
+            Maintain the eLearning categories through Ruguna schools and their published online
+            courses.
           </p>
         </CardContent>
       </Card>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        {adminElearningCategories.map((category) => (
-          <Card key={category.slug}>
+        {categories.map((category) => (
+          <Card key={category.id}>
             <CardContent>
               <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                 {category.title}
@@ -26,7 +31,7 @@ export default function AdminElearningCategoriesPage() {
                 {category.description}
               </p>
               <p className="mt-4 text-sm font-semibold text-[var(--color-ink)]">
-                {category.courseCount} courses
+                {category.courseCount} online courses - {category.programCount} programmes
               </p>
             </CardContent>
           </Card>

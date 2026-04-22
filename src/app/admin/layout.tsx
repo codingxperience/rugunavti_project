@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { PortalLayout } from "@/components/platform/portal-layout";
 import { requireRole } from "@/lib/platform/session";
 
+export const dynamic = "force-dynamic";
+
 const navItems = [
   { href: "/admin/elearning", label: "Dashboard" },
   { href: "/admin/elearning/courses", label: "Courses" },

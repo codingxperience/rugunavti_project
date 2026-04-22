@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 
+import { StaffCourseBuilder } from "@/components/elearning/staff-course-builder";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { instructorBuilderCourses } from "@/data";
+import { getStaffCourseBuilderRecord } from "@/lib/platform/staff-records";
+
+export const dynamic = "force-dynamic";
 
 export default async function InstructorCourseBuilderPage({
   params,
@@ -10,7 +13,7 @@ export default async function InstructorCourseBuilderPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const course = instructorBuilderCourses.find((item) => item.id === id);
+  const course = await getStaffCourseBuilderRecord(id);
 
   if (!course) {
     notFound();
@@ -21,24 +24,27 @@ export default async function InstructorCourseBuilderPage({
       <Card>
         <CardContent>
           <div className="flex flex-wrap items-center gap-3">
-            <StatusBadge value={course.mode} />
-            <StatusBadge value={course.publishState} tone="success" />
+            <StatusBadge value={course.deliveryMode.replace(/_/g, " ")} />
+            <StatusBadge value={course.status} tone={course.status === "PUBLISHED" ? "success" : "warning"} />
           </div>
           <h1 className="font-heading mt-4 text-3xl font-bold text-[var(--color-ink)]">
             {course.title}
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-            Manage lesson ordering, publish states, assessment configuration, and resource attachment for this course.
+            Manage lesson ordering, publish states, assessment configuration, and resource attachment
+            for this course.
           </p>
         </CardContent>
       </Card>
+
+      <StaffCourseBuilder course={course} />
 
       <div className="grid gap-4">
         {course.modules.map((module) => (
           <Card key={module.id}>
             <CardContent>
               <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                {module.title}
+                Module {module.position}: {module.title}
               </h2>
               <div className="mt-5 grid gap-3">
                 {module.lessons.map((lesson) => (
@@ -50,10 +56,10 @@ export default async function InstructorCourseBuilderPage({
                       <div>
                         <p className="font-semibold text-[var(--color-ink)]">{lesson.title}</p>
                         <p className="mt-2 text-sm text-[var(--color-muted)]">
-                          {lesson.type} • {lesson.duration}
+                          {lesson.lessonType.replace(/_/g, " ")} - {lesson.durationMinutes ?? "self-paced"} min - {lesson.resources.length} resources
                         </p>
                       </div>
-                      <StatusBadge value={lesson.state} tone={lesson.state === "Published" ? "success" : "warning"} />
+                      <StatusBadge value={lesson.status} tone={lesson.status === "PUBLISHED" ? "success" : "warning"} />
                     </div>
                   </div>
                 ))}

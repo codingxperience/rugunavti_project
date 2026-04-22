@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, BookMarked, Clock3, GraduationCap, MonitorPlay } from "lucide-react";
 
+import { CourseEnrollButton } from "@/components/elearning/course-enroll-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getElearningCourseBySlug } from "@/data";
@@ -33,14 +34,12 @@ export default async function ElearningCourseDetailPage({
                   {course.overview}
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button asChild size="lg">
-                    <Link href="/elearning/login">
-                      Enroll or start learning
+                  <CourseEnrollButton courseSlug={course.slug} />
+                  <Button asChild size="lg" variant="secondary">
+                    <Link href="/elearning/courses">
+                      Back to catalog
                       <ArrowRight className="h-4 w-4" />
                     </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="secondary">
-                    <Link href="/elearning/courses">Back to catalog</Link>
                   </Button>
                 </div>
               </div>

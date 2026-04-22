@@ -5,7 +5,6 @@ import { SignIn } from "@clerk/nextjs";
 
 import { AuthShell } from "@/components/platform/auth-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { clerkAppearance } from "@/lib/platform/clerk-appearance";
 import {
   DEV_SESSION_COOKIE,
@@ -66,49 +65,33 @@ export default async function ElearningLoginPage({
   return (
     <AuthShell
       activeKey="sign-in"
-      title="Sign in to Ruguna eLearning"
-      description="Access your classroom, assignments, announcements, and certificates from one protected workspace."
+      title="Welcome back"
+      description="Sign in to continue your Ruguna courses, assignments, certificates, and classroom activity."
     >
-      <div className="grid gap-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-            Student and staff access
-          </p>
-          <h2 className="font-heading mt-4 text-4xl font-bold text-[var(--color-ink)]">
-            Continue with email or Google
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-            Sign in to continue learning or managing eLearning delivery. If you do not
-            have an account yet, create one first and verify your email.
-          </p>
-        </div>
+      <div className="grid gap-5">
+        {hasClerk ? (
+          <SignIn
+            appearance={clerkAppearance}
+            path="/elearning/login"
+            routing="path"
+            signUpUrl="/elearning/register"
+            forceRedirectUrl={redirectUrl}
+          />
+        ) : (
+          <div className="rounded-[26px] border border-[var(--color-border)] bg-[#fbfbf7] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+              Local test mode
+            </p>
+            <h2 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
+              Choose a workspace
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+              Clerk is not connected locally yet. Use a test role below to review the platform.
+            </p>
+          </div>
+        )}
 
-        <Card>
-          <CardContent>
-            {hasClerk ? (
-              <SignIn
-                appearance={clerkAppearance}
-                path="/elearning/login"
-                routing="path"
-                signUpUrl="/elearning/register"
-                forceRedirectUrl={redirectUrl}
-              />
-            ) : (
-              <div className="grid gap-4">
-                <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                  Local auth provider not configured
-                </h3>
-                <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-                  Clerk powers email sign in, Google sign in, verification, and password
-                  reset in production. For local development, use the development access
-                  section below.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap gap-3 text-sm text-[var(--color-muted)]">
+        <div className="flex flex-wrap justify-center gap-3 text-sm text-[var(--color-muted)]">
           <Link href="/elearning/register" className="font-semibold text-[var(--color-ink)]">
             Create account
           </Link>
@@ -121,20 +104,17 @@ export default async function ElearningLoginPage({
         </div>
 
         {platformEnv.allowDevAuth ? (
-          <details className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-            <summary className="cursor-pointer list-none text-sm font-semibold text-[var(--color-ink)]">
-              Development access
+          <details className="rounded-[24px] border border-dashed border-black/14 bg-white p-4">
+            <summary className="cursor-pointer list-none text-center text-sm font-semibold text-[var(--color-ink)]">
+              Development access only
             </summary>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-              This is only for local testing while Clerk is not configured in the current environment.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
               {devRoles.map((item) => (
                 <form key={item.role} action={startDevSession}>
                   <input type="hidden" name="role" value={item.role} />
                   <input type="hidden" name="destination" value={item.destination} />
-                  <Button type="submit" variant="secondary">
-                    Enter as {item.title}
+                  <Button type="submit" variant="secondary" className="w-full">
+                    {item.title}
                   </Button>
                 </form>
               ))}

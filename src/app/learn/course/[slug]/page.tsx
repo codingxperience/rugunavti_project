@@ -1,342 +1,341 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Download,
-  MessageSquare,
-} from "lucide-react";
+import { Bell, BookOpenText, FileText, UsersRound } from "lucide-react";
 
-import { LessonCompleteToggle } from "@/components/elearning/lesson-complete-toggle";
+import { CourseEnrollButton } from "@/components/elearning/course-enroll-button";
+import { CourseModuleAccordion } from "@/components/elearning/course-module-accordion";
 import { ProgressBar } from "@/components/platform/progress-bar";
 import { StatusBadge } from "@/components/platform/status-badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCourseLessons, getDemoCourseBySlug } from "@/data";
+import { getLearnerCourseWorkspace } from "@/lib/platform/learning-records";
+
+export const dynamic = "force-dynamic";
+
+const courseViews = [
+  { id: "lessons", label: "Lessons", icon: BookOpenText },
+  { id: "announcements", label: "Announcements", icon: Bell },
+  { id: "grades", label: "Grades", icon: FileText },
+  { id: "people", label: "People", icon: UsersRound },
+  { id: "syllabus", label: "Syllabus", icon: FileText },
+] as const;
+
+type CourseView = (typeof courseViews)[number]["id"];
+
+function isCourseView(value: string | undefined): value is CourseView {
+  return courseViews.some((item) => item.id === value);
+}
+
+function formatDate(value: Date | string | null) {
+  if (!value) return "No deadline";
+
+  return new Intl.DateTimeFormat("en-UG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
 
 export default async function LearnCoursePlayerPage({
   params,
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lesson?: string }>;
+  searchParams: Promise<{ lesson?: string; view?: string }>;
 }) {
   const { slug } = await params;
-  const { lesson } = await searchParams;
-  const course = getDemoCourseBySlug(slug);
+  const { lesson, view } = await searchParams;
+  const workspace = await getLearnerCourseWorkspace(slug);
 
-  if (!course) {
+  if (!workspace) {
     notFound();
   }
 
-  const lessons = getCourseLessons(course);
+  if (!workspace.enrollment) {
+    return (
+      <Card>
+        <CardContent>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+            Enrollment required
+          </p>
+          <h1 className="font-heading mt-4 text-4xl font-bold text-[var(--color-ink)]">
+            {workspace.course.title}
+          </h1>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+            This classroom opens after enrollment. Enroll now and Ruguna eLearning will create
+            your protected course record, progress tracker, and assessment workspace.
+          </p>
+          <div className="mt-6">
+            <CourseEnrollButton courseSlug={workspace.course.slug} />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const lessons = workspace.modules.flatMap((module) => module.lessons);
   const currentLesson =
-    lessons.find((item) => item.id === lesson) ??
-    lessons.find((item) => item.status === "current") ??
+    lessons.find((item) => item.id === lesson || item.slug === lesson) ??
+    lessons.find((item) => !item.completed) ??
     lessons[0];
-  const currentIndex = lessons.findIndex((item) => item.id === currentLesson.id);
-  const previousLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
-  const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+  const currentView: CourseView = isCourseView(view) ? view : "lessons";
+  const totalLessons = lessons.length;
+  const completedLessons = lessons.filter((item) => item.completed).length;
+  const instructorName =
+    [workspace.course.owner?.profile?.firstName, workspace.course.owner?.profile?.lastName]
+      .filter(Boolean)
+      .join(" ") || "Ruguna Instructor";
 
-  return (
-    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-      <aside className="grid gap-4">
-        <Card>
-          <CardContent>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-              Course navigation
-            </p>
-            <h1 className="font-heading mt-4 text-3xl font-bold text-[var(--color-ink)]">
-              {course.title}
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-              {course.school}
-            </p>
-            <div className="mt-5">
-              <ProgressBar value={course.progress} />
-            </div>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <StatusBadge value={`${course.progress}% complete`} tone="success" />
-              <StatusBadge value={course.delivery} />
-            </div>
-          </CardContent>
-        </Card>
+  const buildCourseHref = (nextView: CourseView) => {
+    const nextParams = new URLSearchParams();
 
-        <div className="grid gap-4">
-          {course.modules.map((module) => (
-            <Card key={module.id}>
-              <CardContent>
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-heading text-xl font-bold text-[var(--color-ink)]">
-                    {module.title}
-                  </h2>
-                  <StatusBadge value={`${module.progress}%`} tone="success" />
+    if (currentLesson) {
+      nextParams.set("lesson", currentLesson.id);
+    }
+
+    if (nextView !== "lessons") {
+      nextParams.set("view", nextView);
+    }
+
+    return `/learn/course/${workspace.course.slug}?${nextParams.toString()}`;
+  };
+
+  const courseAssessments = lessons.flatMap((item) => {
+    const entries = [];
+
+    if (item.assignment) {
+      entries.push({
+        type: "Assignment",
+        title: item.assignment.title,
+        status: item.assignment.submission?.status ?? "Open",
+        detail: item.assignment.brief,
+        due: formatDate(item.assignment.dueAt),
+        lessonTitle: item.title,
+      });
+    }
+
+    if (item.quiz) {
+      entries.push({
+        type: "Quiz",
+        title: item.quiz.title,
+        status: item.quiz.attempts[0]?.passed ? "Passed" : item.quiz.attempts[0] ? "Attempted" : "Available",
+        detail: item.quiz.summary,
+        due: item.quiz.timeLimitMinutes ? `${item.quiz.timeLimitMinutes} minute limit` : "Untimed",
+        lessonTitle: item.title,
+      });
+    }
+
+    return entries;
+  });
+
+  const content =
+    currentView === "lessons" ? (
+      <CourseModuleAccordion
+        courseId={workspace.course.id}
+        courseSlug={workspace.course.slug}
+        currentLessonId={currentLesson?.id ?? ""}
+        modules={workspace.modules}
+        defaultExpandAll
+      />
+    ) : currentView === "announcements" ? (
+      <Card>
+        <CardContent>
+          <div className="flex items-center gap-3">
+            <Bell className="h-5 w-5 text-[var(--color-ink)]" />
+            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+              Course announcements
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {workspace.course.announcements.length ? (
+              workspace.course.announcements.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5"
+                >
+                  <p className="font-semibold text-[var(--color-ink)]">{item.title}</p>
+                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">{item.body}</p>
                 </div>
-                <div className="mt-4 grid gap-2">
-                  {module.lessons.map((item) => {
-                    const active = item.id === currentLesson.id;
-
-                    return (
-                      <Link
-                        key={item.id}
-                        href={`/learn/course/${course.slug}?lesson=${item.id}`}
-                        className={`rounded-[22px] px-4 py-3 text-sm transition ${
-                          active
-                            ? "bg-[var(--color-ink)] text-white"
-                            : "border border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-muted)]"
-                        }`}
-                      >
-                        <p className="font-semibold">{item.title}</p>
-                        <p className={`mt-1 text-xs ${active ? "text-white/70" : "text-[var(--color-muted)]"}`}>
-                          {item.type} • {item.duration}
-                        </p>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </aside>
-
-      <div className="grid gap-6">
-        <Card>
-          <CardContent>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  {currentLesson.moduleTitle}
-                </p>
-                <h2 className="font-heading mt-3 text-4xl font-bold text-[var(--color-ink)]">
-                  {currentLesson.title}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                  {currentLesson.summary}
-                </p>
+              ))
+            ) : (
+              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
+                No course announcements have been posted yet.
               </div>
-              <div className="flex flex-wrap gap-3">
-                <StatusBadge value={currentLesson.type} />
-                <StatusBadge value={currentLesson.duration} tone="success" />
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-              <div className="grid gap-4">
-                <div className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                    Learning objective
-                  </p>
-                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                    {currentLesson.objective}
-                  </p>
-                </div>
-
-                <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                    Key lesson points
-                  </p>
-                  <div className="mt-4 grid gap-3">
-                    {currentLesson.keyPoints.map((point) => (
-                      <div
-                        key={point}
-                        className="rounded-[22px] bg-[var(--color-surface-alt)] p-4 text-sm leading-7 text-[var(--color-muted)]"
-                      >
-                        {point}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                    Instructor note
-                  </p>
-                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                    {currentLesson.instructorNote}
-                  </p>
-                </div>
-
-                {currentLesson.practicalTask ? (
-                  <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-5">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                      Practical task
-                    </p>
-                    <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                      {currentLesson.practicalTask}
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="grid gap-4">
-                <Card className="bg-[var(--color-ink)] text-white">
-                  <CardContent>
-                    <h3 className="font-heading text-2xl font-bold">Lesson actions</h3>
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <LessonCompleteToggle courseSlug={course.slug} lessonId={currentLesson.id} />
-                      <Button
-                        asChild
-                        variant="secondary"
-                        className="border-white/14 bg-white/8 text-white hover:bg-white/14 hover:text-white"
-                      >
-                        <Link href="/learn/downloads">Open downloads</Link>
-                      </Button>
-                    </div>
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      {previousLesson ? (
-                        <Button
-                          asChild
-                          variant="secondary"
-                          className="border-white/14 bg-white/8 text-white hover:bg-white/14 hover:text-white"
-                        >
-                          <Link href={`/learn/course/${course.slug}?lesson=${previousLesson.id}`}>
-                            <ArrowLeft className="h-4 w-4" />
-                            Previous
-                          </Link>
-                        </Button>
-                      ) : null}
-                      {nextLesson ? (
-                        <Button asChild>
-                          <Link href={`/learn/course/${course.slug}?lesson=${nextLesson.id}`}>
-                            Next lesson
-                            <ArrowRight className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                      ) : null}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent>
-                    <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                      Downloads and resources
-                    </h3>
-                    <div className="mt-5 grid gap-3">
-                      {currentLesson.resources.map((resource) => (
-                        <div
-                          key={resource.label}
-                          className="flex items-center justify-between gap-3 rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
-                        >
-                          <div>
-                            <p className="font-semibold text-[var(--color-ink)]">{resource.label}</p>
-                            <p className="mt-1 text-sm text-[var(--color-muted)]">
-                              {resource.type} • {resource.size}
-                            </p>
-                          </div>
-                          <Download className="h-4 w-4 text-[var(--color-ink)]" />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)]">
-          <Card>
-            <CardContent>
-              <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                Assignment and quiz entry points
-              </h3>
-              <div className="mt-5 grid gap-3">
-                {currentLesson.assignment ? (
-                  <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-[var(--color-ink)]">
-                          {currentLesson.assignment.title}
-                        </p>
-                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                          {currentLesson.assignment.detail}
-                        </p>
-                      </div>
-                      <StatusBadge value={currentLesson.assignment.status} />
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <Button asChild>
-                        <Link href="/learn/assignments">Open assignments</Link>
-                      </Button>
-                      <span className="text-sm text-[var(--color-muted)]">
-                        Due: {currentLesson.assignment.due}
-                      </span>
-                    </div>
-                  </div>
-                ) : null}
-
-                {currentLesson.quiz ? (
-                  <div className="rounded-[24px] border border-[var(--color-border)] bg-white p-5">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-[var(--color-ink)]">{currentLesson.quiz.title}</p>
-                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                          {currentLesson.quiz.detail}
-                        </p>
-                      </div>
-                      <StatusBadge value={currentLesson.quiz.status} tone="success" />
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <Button asChild variant="secondary">
-                        <Link href="/learn/quizzes">Open quizzes</Link>
-                      </Button>
-                      <span className="text-sm text-[var(--color-muted)]">
-                        Due: {currentLesson.quiz.due}
-                      </span>
-                    </div>
-                  </div>
-                ) : null}
-
-                {!currentLesson.assignment && !currentLesson.quiz ? (
-                  <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
-                    This lesson focuses on guided study, instructor notes, and downloadable
-                    resources rather than a separate quiz or assignment.
-                  </div>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent>
-              <div className="flex items-center gap-3">
-                <MessageSquare className="h-5 w-5 text-[var(--color-ink)]" />
-                <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                  Lesson discussion
-                </h3>
-              </div>
-              <div className="mt-5 grid gap-3">
-                {currentLesson.discussion.length ? (
-                  currentLesson.discussion.map((post) => (
-                    <div
-                      key={`${post.author}-${post.postedAt}-${post.message}`}
-                      className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-semibold text-[var(--color-ink)]">
-                          {post.author} • {post.role}
-                        </p>
-                        <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                          {post.postedAt}
-                        </p>
-                      </div>
-                      <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                        {post.message}
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    ) : currentView === "grades" ? (
+      <Card>
+        <CardContent>
+          <div className="flex items-center gap-3">
+            <FileText className="h-5 w-5 text-[var(--color-ink)]" />
+            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+              Assessment progress
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3">
+            {courseAssessments.length ? (
+              courseAssessments.map((item) => (
+                <div
+                  key={`${item.lessonTitle}-${item.title}`}
+                  className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-[var(--color-ink)]">{item.title}</p>
+                      <p className="mt-2 text-sm text-[var(--color-muted)]">
+                        {item.type} - {item.lessonTitle}
                       </p>
                     </div>
-                  ))
-                ) : (
-                  <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 text-sm leading-7 text-[var(--color-muted)]">
-                    No discussion posts yet for this lesson. Use course announcements and support if you need help before the next live session.
+                    <StatusBadge value={item.status} tone="success" />
                   </div>
-                )}
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{item.detail}</p>
+                  <p className="mt-3 text-sm font-medium text-[var(--color-ink)]">{item.due}</p>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
+                No assignments or quizzes are attached to this course yet.
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    ) : currentView === "people" ? (
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card>
+          <CardContent>
+            <div className="flex items-center gap-3">
+              <UsersRound className="h-5 w-5 text-[var(--color-ink)]" />
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                Course people
+              </h2>
+            </div>
+            <div className="mt-5 grid gap-3">
+              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
+                <p className="font-semibold text-[var(--color-ink)]">{instructorName}</p>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">Lead instructor</p>
+                <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                  Course support, grading, announcements, and learning guidance.
+                </p>
+              </div>
+              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
+                <p className="font-semibold text-[var(--color-ink)]">
+                  {workspace.user.profile?.firstName} {workspace.user.profile?.lastName}
+                </p>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">Current learner</p>
+                <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                  Enrollment status: {workspace.enrollment.status.toLowerCase()}.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+    ) : (
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card>
+          <CardContent>
+            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+              Course structure
+            </h2>
+            <div className="mt-5 grid gap-3">
+              <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4">
+                <p className="font-semibold text-[var(--color-ink)]">Award and delivery</p>
+                <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                  {workspace.course.program.level.replace(/_/g, " ").toLowerCase()} pathway
+                  delivered through {workspace.course.deliveryMode.toLowerCase()} study.
+                </p>
+              </div>
+              <div className="rounded-[22px] border border-[var(--color-border)] bg-white p-4">
+                <p className="font-semibold text-[var(--color-ink)]">Modules and lessons</p>
+                <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                  {workspace.modules.length} modules and {totalLessons} published lessons are
+                  currently available inside this course workspace.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent>
+            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+              Module outline
+            </h2>
+            <div className="mt-5 grid gap-3">
+              {workspace.modules.map((module, index) => (
+                <div
+                  key={module.id}
+                  className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-semibold text-[var(--color-ink)]">
+                      Module {index + 1}: {module.title.replace(/^Module\s+\d+:\s*/i, "")}
+                    </p>
+                    <StatusBadge value={`${module.lessons.length} lessons`} />
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                    {module.summary}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+
+  return (
+    <div className="grid gap-6">
+      <Card>
+        <CardContent>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+            Selected course
+          </p>
+          <h1 className="font-heading mt-4 text-4xl font-bold text-[var(--color-ink)]">
+            {workspace.course.title}
+          </h1>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+            {workspace.course.school.name} with {instructorName}. Review modules, announcements,
+            people, and assessment progress from one connected course workspace.
+          </p>
+
+          <div className="mt-6">
+            <ProgressBar value={workspace.enrollment.progressPercent} />
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <StatusBadge value={workspace.course.program.level.replace(/_/g, " ")} />
+            <StatusBadge value={workspace.course.deliveryMode.replace(/_/g, " ")} />
+            <StatusBadge value={`${workspace.enrollment.progressPercent}% complete`} tone="success" />
+            <StatusBadge value={`${completedLessons}/${totalLessons} lessons`} />
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {courseViews.map((item) => {
+              const active = currentView === item.id;
+              const Icon = item.icon;
+
+              return (
+                <Link
+                  key={item.id}
+                  href={buildCourseHref(item.id)}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    active
+                      ? "border-black/6 bg-white text-[var(--color-ink)] shadow-[0_16px_30px_-24px_rgba(17,17,17,0.45)]"
+                      : "border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {content}
     </div>
   );
 }

@@ -4,37 +4,46 @@ import { MetricCard } from "@/components/platform/metric-card";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  instructorAnnouncementDrafts,
-  instructorBuilderCourses,
-  instructorSubmissions,
-} from "@/data";
+  getStaffAnnouncementRecords,
+  getStaffCourseManagementRecords,
+  getStaffSubmissions,
+} from "@/lib/platform/staff-records";
 
-export default function InstructorDashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default async function InstructorDashboardPage() {
+  const [courseRecords, submissions, announcements] = await Promise.all([
+    getStaffCourseManagementRecords(),
+    getStaffSubmissions(),
+    getStaffAnnouncementRecords(),
+  ]);
+  const pendingSubmissions = submissions.filter((item) => item.status !== "GRADED").length;
+
   return (
     <div className="grid gap-6">
       <section className="grid gap-4 xl:grid-cols-4">
         <MetricCard
           label="Assigned courses"
-          value={String(instructorBuilderCourses.length)}
-          detail="Courses currently owned for lesson publishing and review."
+          value={String(courseRecords.courses.length)}
+          detail="Courses currently available for lesson publishing and review."
           icon={<FolderKanban className="h-5 w-5 text-[var(--color-ink)]" />}
         />
         <MetricCard
           label="Submission queue"
-          value={String(instructorSubmissions.length)}
+          value={String(pendingSubmissions)}
           detail="Submissions that still need grading, feedback, or release."
           icon={<PenTool className="h-5 w-5 text-[var(--color-ink)]" />}
         />
         <MetricCard
           label="Announcements"
-          value={String(instructorAnnouncementDrafts.length)}
-          detail="Draft teaching notices and learner reminders."
+          value={String(announcements.announcements.length)}
+          detail="Teaching notices and learner reminders in the platform."
           icon={<Megaphone className="h-5 w-5 text-[var(--color-ink)]" />}
         />
         <MetricCard
           label="Discussion follow-up"
-          value="3"
-          detail="Learner questions that still need an instructor reply."
+          value="Live"
+          detail="Course discussions are stored against lessons and course workspaces."
           icon={<MessageSquare className="h-5 w-5 text-[var(--color-ink)]" />}
         />
       </section>
@@ -46,7 +55,7 @@ export default function InstructorDashboardPage() {
               Course delivery overview
             </h1>
             <div className="mt-6 grid gap-4">
-              {instructorBuilderCourses.map((course) => (
+              {courseRecords.courses.map((course) => (
                 <div
                   key={course.id}
                   className="rounded-[26px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5"
@@ -55,10 +64,10 @@ export default function InstructorDashboardPage() {
                     <p className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                       {course.title}
                     </p>
-                    <StatusBadge value={course.publishState} tone="success" />
+                    <StatusBadge value={course.status} tone={course.status === "PUBLISHED" ? "success" : "warning"} />
                   </div>
                   <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                    {course.mode} delivery • {course.learners} learners • {course.modules.length} modules
+                    {course.deliveryMode.replace(/_/g, " ")} delivery - {course.enrollmentCount} learners - {course.moduleCount} modules
                   </p>
                 </div>
               ))}
@@ -71,12 +80,12 @@ export default function InstructorDashboardPage() {
             <CardContent>
               <h2 className="font-heading text-2xl font-bold">Teaching focus</h2>
               <div className="mt-5 grid gap-3">
-                {instructorSubmissions.map((item) => (
+                {submissions.slice(0, 5).map((item) => (
                   <div
-                    key={`${item.learner}-${item.task}`}
+                    key={item.id}
                     className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-7 text-white/80"
                   >
-                    {item.learner} • {item.task} • {item.status}
+                    {item.learnerName} - {item.taskTitle} - {item.status}
                   </div>
                 ))}
               </div>
@@ -86,15 +95,15 @@ export default function InstructorDashboardPage() {
           <Card>
             <CardContent>
               <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                Announcement drafts
+                Recent announcements
               </h2>
               <div className="mt-5 grid gap-3">
-                {instructorAnnouncementDrafts.map((item) => (
+                {announcements.announcements.slice(0, 5).map((item) => (
                   <div
-                    key={item}
+                    key={item.id}
                     className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 text-sm leading-7 text-[var(--color-muted)]"
                   >
-                    {item}
+                    {item.title}
                   </div>
                 ))}
               </div>
