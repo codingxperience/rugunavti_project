@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth, useSession } from "@clerk/nextjs";
+import { RedirectToTasks, useAuth, useSession } from "@clerk/nextjs";
 import { ArrowRight, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -150,6 +150,7 @@ export function AuthCompletionGuard({
           : "rounded-[32px] border border-[var(--color-border)] bg-white p-7 text-center shadow-[0_30px_80px_-56px_rgba(17,17,17,0.5)]"
       }
     >
+      <RedirectToTasks />
       <div className={compact ? "flex items-start gap-3" : "flex flex-col items-center"}>
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--color-soft-accent)] text-[var(--color-ink)]">
           {phase === "timeout" ? (
