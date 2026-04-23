@@ -45,7 +45,7 @@ export default async function ElearningRegisterPage({
                 signInUrl="/elearning/login"
                 forceRedirectUrl={redirectUrl}
               />
-            ) : (
+            ) : platformEnv.allowDevAuth ? (
               <div className="grid gap-4">
                 <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                   Local registration provider not configured
@@ -62,6 +62,28 @@ export default async function ElearningRegisterPage({
                     <Link href={platformEnv.allowDevAuth ? "/elearning/login" : "/elearning/contact"}>
                       {platformEnv.allowDevAuth ? "Use local development access" : "Contact admissions"}
                     </Link>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-4 rounded-[24px] border border-amber-200 bg-amber-50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">
+                  Authentication setup required
+                </p>
+                <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                  Account creation is not available yet
+                </h3>
+                <p className="max-w-2xl text-sm leading-7 text-amber-900/80">
+                  Ruguna eLearning is deployed, but Clerk keys are not available to this
+                  deployment environment. Add the Clerk publishable key and secret key in Vercel,
+                  then redeploy.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild>
+                    <Link href="/elearning/login">Back to sign in</Link>
+                  </Button>
+                  <Button asChild variant="secondary">
+                    <Link href="/elearning/contact">Contact support</Link>
                   </Button>
                 </div>
               </div>

@@ -77,7 +77,7 @@ export default async function ElearningLoginPage({
             signUpUrl="/elearning/register"
             forceRedirectUrl={redirectUrl}
           />
-        ) : (
+        ) : platformEnv.allowDevAuth ? (
           <div className="rounded-[26px] border border-[var(--color-border)] bg-[#fbfbf7] p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
               Local test mode
@@ -87,6 +87,20 @@ export default async function ElearningLoginPage({
             </h2>
             <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
               Clerk is not connected locally yet. Use a test role below to review the platform.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-[26px] border border-amber-200 bg-amber-50 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">
+              Authentication setup required
+            </p>
+            <h2 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
+              Sign in is not available yet
+            </h2>
+            <p className="mt-2 text-sm leading-7 text-amber-900/80">
+              Ruguna eLearning is deployed, but Clerk keys are not available to this
+              deployment environment. Add the Clerk publishable key and secret key in Vercel,
+              then redeploy.
             </p>
           </div>
         )}
