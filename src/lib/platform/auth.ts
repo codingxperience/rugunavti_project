@@ -18,7 +18,7 @@ export type PlatformSession = {
   email: string | null;
   name: string | null;
   sessionStatus: "active" | "pending" | null;
-  source: "guest" | "dev" | "clerk";
+  source: "guest" | "dev" | "clerk" | "bridge";
 };
 
 export const protectedRouteRules: {

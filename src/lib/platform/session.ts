@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { DEV_SESSION_COOKIE, canAccessRole, decodeDevSession, type PlatformRole } from "@/lib/platform/auth";
+import { CLERK_BRIDGE_SESSION_COOKIE, decodeClerkBridgeSession } from "@/lib/platform/bridge-session";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
 
 export async function getCurrentSession() {
@@ -57,6 +58,22 @@ export async function getCurrentSession() {
   }
 
   const cookieStore = await cookies();
+  const bridgeSession = decodeClerkBridgeSession(
+    cookieStore.get(CLERK_BRIDGE_SESSION_COOKIE)?.value
+  );
+
+  if (bridgeSession) {
+    return {
+      isAuthenticated: true,
+      role: bridgeSession.role,
+      roles: [bridgeSession.role],
+      email: bridgeSession.email,
+      name: bridgeSession.name,
+      sessionStatus: "active" as const,
+      source: "bridge" as const,
+    };
+  }
+
   const devSession = decodeDevSession(cookieStore.get(DEV_SESSION_COOKIE)?.value);
 
   if (platformEnv.allowDevAuth && devSession) {

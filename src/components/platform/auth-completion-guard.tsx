@@ -29,6 +29,7 @@ type SessionStatusResponse = {
     hasAnyClerkCookie: boolean;
     hasSessionTokenCookie: boolean;
     hasClientUatCookie: boolean;
+    hasBridgeCookie: boolean;
     serverUserId: string | null;
     serverSessionId: string | null;
     serverSessionStatus: string | null;
@@ -48,7 +49,7 @@ export function AuthCompletionGuard({
   compact = false,
 }: AuthCompletionGuardProps) {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useAuth({ treatPendingAsSignedOut: false });
+  const { getToken, isLoaded, isSignedIn } = useAuth({ treatPendingAsSignedOut: false });
   const { session } = useSession();
   const [phase, setPhase] = useState<"loading" | "checking" | "timeout" | "signed-out">("loading");
   const [attempt, setAttempt] = useState(0);
@@ -56,12 +57,31 @@ export function AuthCompletionGuard({
   const [diagnostics, setDiagnostics] = useState<SessionStatusResponse["diagnostics"] | null>(null);
   const isMountedRef = useRef(true);
   const isCheckingRef = useRef(false);
+  const bridgeAttemptedRef = useRef(false);
 
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
     };
   }, []);
+
+  const establishBridgeSession = useCallback(async () => {
+    const token = await getToken();
+
+    if (!token) {
+      return false;
+    }
+
+    const response = await fetch("/api/elearning/session-bridge", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.ok;
+  }, [getToken]);
 
   const checkServerSession = useCallback(async () => {
     if (isCheckingRef.current) {
@@ -73,6 +93,11 @@ export function AuthCompletionGuard({
     setMessage("Securing your classroom and syncing your learning workspace.");
 
     try {
+      if (!bridgeAttemptedRef.current) {
+        bridgeAttemptedRef.current = true;
+        await establishBridgeSession();
+      }
+
       for (let currentAttempt = 1; currentAttempt <= MAX_ATTEMPTS; currentAttempt += 1) {
         if (!isMountedRef.current) {
           return;
@@ -108,7 +133,9 @@ export function AuthCompletionGuard({
       const currentDiagnostics = diagnostics;
       setPhase("timeout");
       setMessage(
-        currentDiagnostics?.hasSessionTokenCookie
+        currentDiagnostics?.hasBridgeCookie
+          ? "Ruguna created its own secure learning session, but the workspace still needs one more confirmation step."
+          : currentDiagnostics?.hasSessionTokenCookie
           ? currentDiagnostics.serverUserId
             ? "The browser is signed in, but Ruguna still cannot complete the protected handoff."
             : "The Ruguna server received Clerk cookies, but it still could not resolve the signed-in user."
@@ -116,6 +143,10 @@ export function AuthCompletionGuard({
             ? "The browser kept Clerk's lightweight state cookie, but the secure __session token never reached the Ruguna server on this domain."
             : "The browser completed sign-in, but no Clerk session cookie reached the Ruguna server on this domain."
       );
+
+      if (!currentDiagnostics?.hasBridgeCookie) {
+        bridgeAttemptedRef.current = false;
+      }
     } catch {
       if (!isMountedRef.current) {
         return;
@@ -123,10 +154,11 @@ export function AuthCompletionGuard({
 
       setPhase("timeout");
       setMessage("We could not confirm your session automatically. Retry once, then use sign in again if needed.");
+      bridgeAttemptedRef.current = false;
     } finally {
       isCheckingRef.current = false;
     }
-  }, [diagnostics, target]);
+  }, [diagnostics, establishBridgeSession, target]);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -212,6 +244,7 @@ export function AuthCompletionGuard({
                 <p>Server Clerk cookie received: {diagnostics.hasAnyClerkCookie ? "yes" : "no"}</p>
                 <p>Server __session cookie received: {diagnostics.hasSessionTokenCookie ? "yes" : "no"}</p>
                 <p>Server __client_uat cookie received: {diagnostics.hasClientUatCookie ? "yes" : "no"}</p>
+                <p>Ruguna bridge cookie received: {diagnostics.hasBridgeCookie ? "yes" : "no"}</p>
                 <p>Server user detected: {diagnostics.serverUserId ? "yes" : "no"}</p>
                 <p>Server session status: {diagnostics.serverSessionStatus ?? "none"}</p>
                 <p>Server host: {diagnostics.host ?? "unknown"}</p>

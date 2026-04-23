@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { CLERK_BRIDGE_SESSION_COOKIE } from "@/lib/platform/bridge-session";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
 import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
 import { getCurrentSession } from "@/lib/platform/session";
@@ -11,6 +12,7 @@ export async function GET(request: Request) {
   const cookieHeader = request.headers.get("cookie") ?? "";
   const hasSessionTokenCookie = cookieHeader.includes("__session=");
   const hasClientUatCookie = cookieHeader.includes("__client_uat=");
+  const hasBridgeCookie = cookieHeader.includes(`${CLERK_BRIDGE_SESSION_COOKIE}=`);
   const diagnostics = {
     host: request.headers.get("host"),
     origin: request.headers.get("origin"),
@@ -20,6 +22,7 @@ export async function GET(request: Request) {
     hasAnyClerkCookie: hasSessionTokenCookie || hasClientUatCookie,
     hasSessionTokenCookie,
     hasClientUatCookie,
+    hasBridgeCookie,
     serverUserId: null as string | null,
     serverSessionId: null as string | null,
     serverSessionStatus: null as string | null,
