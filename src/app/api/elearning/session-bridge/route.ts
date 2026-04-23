@@ -43,6 +43,50 @@ function isSameOriginBridgeRequest(request: Request) {
   return requestOrigin.replace(/\/$/, "") === platformEnv.siteOrigin.replace(/\/$/, "");
 }
 
+function decodeUnverifiedSessionHints(token: string | null) {
+  if (!token) {
+    return {
+      sessionId: null,
+      userId: null,
+      exp: null,
+    };
+  }
+
+  const [, payload] = token.split(".");
+
+  if (!payload) {
+    return {
+      sessionId: null,
+      userId: null,
+      exp: null,
+    };
+  }
+
+  try {
+    const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
+      sid?: string;
+      sub?: string;
+      exp?: number;
+    };
+
+    return {
+      sessionId: typeof decoded.sid === "string" ? decoded.sid : null,
+      userId: typeof decoded.sub === "string" ? decoded.sub : null,
+      exp: typeof decoded.exp === "number" ? decoded.exp : null,
+    };
+  } catch {
+    return {
+      sessionId: null,
+      userId: null,
+      exp: null,
+    };
+  }
+}
+
+function isUsablePreviewSessionStatus(status: string) {
+  return !["ended", "expired", "removed", "replaced", "revoked", "abandoned"].includes(status);
+}
+
 export async function POST(request: Request) {
   if (!hasClerk || !platformEnv.clerkSecretKey) {
     return NextResponse.json(
@@ -51,16 +95,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const token = getBearerToken(request.headers.get("authorization"));
-
-  if (!token) {
-    return NextResponse.json(
-      { success: false, message: "A Clerk session token is required." },
-      { status: 401 }
-    );
-  }
-
   try {
+    const token = getBearerToken(request.headers.get("authorization"));
     const payload = (await request
       .clone()
       .json()
@@ -73,6 +109,8 @@ export async function POST(request: Request) {
       typeof payload?.sessionId === "string" && payload.sessionId.length > 0
         ? payload.sessionId
         : null;
+    const tokenHints = decodeUnverifiedSessionHints(token);
+    const candidateSessionId = postedSessionId ?? tokenHints.sessionId;
     const requestOrigin = (() => {
       try {
         return new URL(request.url).origin;
@@ -84,46 +122,80 @@ export async function POST(request: Request) {
       secretKey: platformEnv.clerkSecretKey,
       publishableKey: platformEnv.clerkPublishableKey,
     });
-    const requestState = await clerkClient.authenticateRequest(request, {
-      acceptsToken: "session_token",
-      authorizedParties: getAuthorizedPartyOrigins([requestOrigin]),
-      publishableKey: platformEnv.clerkPublishableKey,
-      secretKey: platformEnv.clerkSecretKey,
-    });
-    let authenticatedUserId =
-      requestState.isAuthenticated && typeof requestState.toAuth().userId === "string"
-        ? requestState.toAuth().userId
-        : null;
-    let sessionExpiry =
-      requestState.isAuthenticated && typeof requestState.toAuth().sessionClaims?.exp === "number"
-        ? requestState.toAuth().sessionClaims.exp
-        : null;
+    let authenticatedUserId: string | null = null;
+    let sessionExpiry: number | null = null;
+    let rejectionMessage: string | null = null;
 
-    if (!authenticatedUserId && !platformEnv.clerkUsesLiveKeys && postedSessionId && isSameOriginBridgeRequest(request)) {
+    if (!platformEnv.clerkUsesLiveKeys && candidateSessionId && isSameOriginBridgeRequest(request)) {
       try {
-        const clerkSession = await clerkClient.sessions.getSession(postedSessionId);
+        const clerkSession = await clerkClient.sessions.getSession(candidateSessionId);
 
-        if (clerkSession.status === "active" && typeof clerkSession.userId === "string") {
+        if (isUsablePreviewSessionStatus(clerkSession.status) && typeof clerkSession.userId === "string") {
           authenticatedUserId = clerkSession.userId;
           sessionExpiry = normalizeTimestampToSeconds(clerkSession.expireAt);
         }
       } catch (error) {
         console.error("Clerk preview bridge lookup failed", error);
+        rejectionMessage =
+          error instanceof Error && error.message
+            ? error.message
+            : "Clerk preview bridge lookup failed.";
       }
     }
 
     if (!authenticatedUserId) {
-      const reason = requestState.reason ? `${requestState.reason}` : null;
+      if (!token) {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              rejectionMessage ??
+              "A Clerk session token is required before Ruguna can create the learning session.",
+          },
+          { status: 401 }
+        );
+      }
 
+      const requestState = await clerkClient.authenticateRequest(request, {
+        acceptsToken: "session_token",
+        authorizedParties: getAuthorizedPartyOrigins([requestOrigin]),
+        publishableKey: platformEnv.clerkPublishableKey,
+        secretKey: platformEnv.clerkSecretKey,
+      });
+
+      authenticatedUserId =
+        requestState.isAuthenticated && typeof requestState.toAuth().userId === "string"
+          ? requestState.toAuth().userId
+          : null;
+      sessionExpiry =
+        requestState.isAuthenticated && typeof requestState.toAuth().sessionClaims?.exp === "number"
+          ? requestState.toAuth().sessionClaims.exp
+          : tokenHints.exp;
+
+      if (!requestState.isAuthenticated && !authenticatedUserId) {
+        const reason = requestState.reason ? `${requestState.reason}` : null;
+
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              rejectionMessage ??
+              (typeof requestState.message === "string" && requestState.message.length > 0
+                ? requestState.message
+                : reason
+                  ? `Clerk rejected the session token: ${reason}.`
+                  : "Ruguna could not verify the Clerk session token."),
+          },
+          { status: 401 }
+        );
+      }
+    }
+
+    if (!authenticatedUserId) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            typeof requestState.message === "string" && requestState.message.length > 0
-              ? requestState.message
-              : reason
-                ? `Clerk rejected the session token: ${reason}.`
-                : "Ruguna could not verify the Clerk session token.",
+          message: rejectionMessage ?? "Ruguna could not determine the active Clerk user.",
         },
         { status: 401 }
       );
