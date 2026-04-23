@@ -20,6 +20,17 @@ type SessionStatusResponse = {
   role: string | null;
   sessionStatus: "active" | "pending" | null;
   source: string;
+  diagnostics: {
+    host: string | null;
+    origin: string | null;
+    hasClerkConfigured: boolean;
+    hasCookieHeader: boolean;
+    hasSessionCookie: boolean;
+    serverUserId: string | null;
+    serverSessionId: string | null;
+    serverSessionStatus: string | null;
+    authError: string | null;
+  };
 };
 
 const MAX_ATTEMPTS = 12;
@@ -39,6 +50,7 @@ export function AuthCompletionGuard({
   const [phase, setPhase] = useState<"loading" | "checking" | "timeout" | "signed-out">("loading");
   const [attempt, setAttempt] = useState(0);
   const [message, setMessage] = useState("Confirming your protected learning session.");
+  const [diagnostics, setDiagnostics] = useState<SessionStatusResponse["diagnostics"] | null>(null);
   const isMountedRef = useRef(true);
   const isCheckingRef = useRef(false);
 
@@ -75,6 +87,7 @@ export function AuthCompletionGuard({
 
         if (response.ok) {
           const payload = (await response.json()) as SessionStatusResponse;
+          setDiagnostics(payload.diagnostics);
 
           if (payload.authenticated && payload.destination) {
             window.location.replace(payload.destination);
@@ -90,7 +103,13 @@ export function AuthCompletionGuard({
       }
 
       setPhase("timeout");
-      setMessage("Your sign-in completed, but Ruguna is still waiting for the server session to settle.");
+      setMessage(
+        diagnostics?.hasSessionCookie
+          ? diagnostics.serverUserId
+            ? "The browser is signed in, but Ruguna still cannot complete the protected handoff."
+            : "The Ruguna server received Clerk cookies, but it still could not resolve the signed-in user."
+          : "The browser completed sign-in, but no Clerk session cookie reached the Ruguna server on this domain."
+      );
     } catch {
       if (!isMountedRef.current) {
         return;
@@ -101,7 +120,7 @@ export function AuthCompletionGuard({
     } finally {
       isCheckingRef.current = false;
     }
-  }, [target]);
+  }, [diagnostics, target]);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -176,18 +195,35 @@ export function AuthCompletionGuard({
       </div>
 
       {phase === "timeout" ? (
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Button type="button" onClick={() => void checkServerSession()}>
-            <RefreshCw className="h-4 w-4" />
-            Retry check
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/elearning/login">
-              Back to sign in
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
+        <>
+          {diagnostics ? (
+            <div className="mt-5 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 text-left text-sm text-[var(--color-muted)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted)]">
+                Session diagnostics
+              </p>
+              <div className="mt-3 grid gap-2">
+                <p>Client signed in: yes</p>
+                <p>Server cookie received: {diagnostics.hasSessionCookie ? "yes" : "no"}</p>
+                <p>Server user detected: {diagnostics.serverUserId ? "yes" : "no"}</p>
+                <p>Server session status: {diagnostics.serverSessionStatus ?? "none"}</p>
+                <p>Server host: {diagnostics.host ?? "unknown"}</p>
+                {diagnostics.authError ? <p>Server auth error: {diagnostics.authError}</p> : null}
+              </div>
+            </div>
+          ) : null}
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button type="button" onClick={() => void checkServerSession()}>
+              <RefreshCw className="h-4 w-4" />
+              Retry check
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/elearning/login">
+                Back to sign in
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </>
       ) : null}
 
       {phase !== "timeout" && !compact ? (
