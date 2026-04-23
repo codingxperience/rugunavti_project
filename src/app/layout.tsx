@@ -55,7 +55,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         className={`${manrope.variable} ${spaceGrotesk.variable} site-shell min-h-screen antialiased`}
         suppressHydrationWarning
       >
-        {hasClerk ? <ClerkProvider>{app}</ClerkProvider> : app}
+        {hasClerk ? (
+          <ClerkProvider
+            dynamic
+            taskUrls={{
+              "choose-organization": "/elearning/tasks/choose-organization",
+              "reset-password": "/elearning/tasks/reset-password",
+              "setup-mfa": "/elearning/tasks/setup-mfa",
+            }}
+          >
+            {app}
+          </ClerkProvider>
+        ) : (
+          app
+        )}
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useSession } from "@clerk/nextjs";
 import { ArrowRight, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -18,6 +18,7 @@ type SessionStatusResponse = {
   destination: string | null;
   requestedTarget: string;
   role: string | null;
+  sessionStatus: "active" | "pending" | null;
   source: string;
 };
 
@@ -34,6 +35,7 @@ export function AuthCompletionGuard({
 }: AuthCompletionGuardProps) {
   const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth({ treatPendingAsSignedOut: false });
+  const { session } = useSession();
   const [phase, setPhase] = useState<"loading" | "checking" | "timeout" | "signed-out">("loading");
   const [attempt, setAttempt] = useState(0);
   const [message, setMessage] = useState("Confirming your protected learning session.");
@@ -114,8 +116,15 @@ export function AuthCompletionGuard({
       return;
     }
 
+    const currentTask = session?.currentTask?.key;
+
+    if (currentTask) {
+      router.replace(`/elearning/tasks/${currentTask}?next=${encodeURIComponent(target)}`);
+      return;
+    }
+
     void checkServerSession();
-  }, [checkServerSession, isLoaded, isSignedIn]);
+  }, [checkServerSession, isLoaded, isSignedIn, router, session, target]);
 
   if (phase === "signed-out") {
     return compact ? null : (
