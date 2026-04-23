@@ -11,7 +11,14 @@ export async function getCurrentSession() {
       const authResult = await clerk.auth();
 
       if (authResult.userId) {
-        const user = await clerk.currentUser();
+        let user: Awaited<ReturnType<typeof clerk.currentUser>> | null = null;
+
+        try {
+          user = await clerk.currentUser();
+        } catch (error) {
+          console.error("Clerk currentUser lookup failed; falling back to auth() claims.", error);
+        }
+
         const rawRole =
           typeof authResult.sessionClaims?.metadata === "object" &&
           authResult.sessionClaims?.metadata &&
@@ -29,13 +36,20 @@ export async function getCurrentSession() {
           isAuthenticated: true,
           role: role ?? "student",
           roles: [role ?? "student"],
-          email: user?.primaryEmailAddress?.emailAddress ?? null,
-          name: [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.username || "Ruguna User",
+          email:
+            user?.primaryEmailAddress?.emailAddress ??
+            (typeof authResult.sessionClaims?.email === "string" ? authResult.sessionClaims.email : null),
+          name:
+            [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+            user?.username ||
+            (typeof authResult.sessionClaims?.fullName === "string"
+              ? authResult.sessionClaims.fullName
+              : "Ruguna User"),
           source: "clerk" as const,
         };
       }
-    } catch {
-      // Fall back to dev/guest mode if Clerk is not fully configured yet.
+    } catch (error) {
+      console.error("Clerk auth lookup failed; falling back to dev/guest mode.", error);
     }
   }
 
