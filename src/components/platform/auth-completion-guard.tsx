@@ -55,6 +55,7 @@ export function AuthCompletionGuard({
   const [attempt, setAttempt] = useState(0);
   const [message, setMessage] = useState("Confirming your protected learning session.");
   const [diagnostics, setDiagnostics] = useState<SessionStatusResponse["diagnostics"] | null>(null);
+  const [bridgeMessage, setBridgeMessage] = useState<string | null>(null);
   const isMountedRef = useRef(true);
   const isCheckingRef = useRef(false);
   const bridgeAttemptedRef = useRef(false);
@@ -66,10 +67,13 @@ export function AuthCompletionGuard({
   }, []);
 
   const establishBridgeSession = useCallback(async () => {
-    const token = await getToken();
+    const token = await getToken({ skipCache: true });
 
     if (!token) {
-      return false;
+      return {
+        ok: false,
+        message: "Clerk has not issued a fresh session token yet.",
+      };
     }
 
     const response = await fetch("/api/elearning/session-bridge", {
@@ -80,7 +84,16 @@ export function AuthCompletionGuard({
       },
     });
 
-    return response.ok;
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          message?: string;
+        }
+      | null;
+
+    return {
+      ok: response.ok,
+      message: payload?.message ?? null,
+    };
   }, [getToken]);
 
   const checkServerSession = useCallback(async () => {
@@ -93,17 +106,24 @@ export function AuthCompletionGuard({
     setMessage("Securing your classroom and syncing your learning workspace.");
 
     try {
-      if (!bridgeAttemptedRef.current) {
-        bridgeAttemptedRef.current = true;
-        await establishBridgeSession();
-      }
-
       for (let currentAttempt = 1; currentAttempt <= MAX_ATTEMPTS; currentAttempt += 1) {
         if (!isMountedRef.current) {
           return;
         }
 
         setAttempt(currentAttempt);
+
+        if (!bridgeAttemptedRef.current) {
+          const bridgeResult = await establishBridgeSession();
+          if (bridgeResult.ok) {
+            bridgeAttemptedRef.current = true;
+            setBridgeMessage(null);
+          } else {
+            setBridgeMessage(
+              bridgeResult.message ?? "Ruguna could not verify the Clerk session token yet."
+            );
+          }
+        }
 
         const response = await fetch(
           `/api/elearning/session-status?target=${encodeURIComponent(target)}`,
@@ -116,6 +136,11 @@ export function AuthCompletionGuard({
         if (response.ok) {
           const payload = (await response.json()) as SessionStatusResponse;
           setDiagnostics(payload.diagnostics);
+
+          if (payload.diagnostics.hasBridgeCookie) {
+            bridgeAttemptedRef.current = true;
+            setBridgeMessage(null);
+          }
 
           if (payload.authenticated && payload.destination) {
             window.location.replace(payload.destination);
@@ -250,6 +275,7 @@ export function AuthCompletionGuard({
                 <p>Server host: {diagnostics.host ?? "unknown"}</p>
                 <p>Expected proxy URL: {diagnostics.expectedProxyUrl ?? "not configured"}</p>
                 {diagnostics.authError ? <p>Server auth error: {diagnostics.authError}</p> : null}
+                {bridgeMessage ? <p>Bridge session result: {bridgeMessage}</p> : null}
               </div>
             </div>
           ) : null}

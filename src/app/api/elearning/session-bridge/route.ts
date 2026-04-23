@@ -21,6 +21,18 @@ function getPrimaryEmail(user: Awaited<ReturnType<ReturnType<typeof createClerkC
   return primary?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress ?? null;
 }
 
+type VerifiedClerkSessionToken = {
+  sub?: string;
+  exp?: number;
+};
+
+type VerifyTokenResponse = {
+  data?: VerifiedClerkSessionToken;
+  errors?: Array<{
+    message?: string;
+  }>;
+};
+
 export async function POST(request: Request) {
   if (!hasClerk || !platformEnv.clerkSecretKey) {
     return NextResponse.json(
@@ -39,9 +51,29 @@ export async function POST(request: Request) {
   }
 
   try {
-    const verifiedToken = await verifyToken(token, {
+    const verificationResult = (await verifyToken(token, {
       secretKey: platformEnv.clerkSecretKey,
-    });
+    })) as VerifyTokenResponse;
+    const verifiedToken = verificationResult.data;
+    const errors = Array.isArray(verificationResult.errors)
+      ? verificationResult.errors
+      : [];
+
+    if (errors.length || !verifiedToken) {
+      const firstError = errors?.[0];
+
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            typeof firstError?.message === "string"
+              ? firstError.message
+              : "Ruguna could not verify the Clerk session token.",
+        },
+        { status: 401 }
+      );
+    }
+
     const userId = typeof verifiedToken.sub === "string" ? verifiedToken.sub : null;
 
     if (!userId) {
