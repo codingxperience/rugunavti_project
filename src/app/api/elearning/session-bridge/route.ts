@@ -29,6 +29,27 @@ function normalizeTimestampToSeconds(value: number | null | undefined) {
   return value > 1_000_000_000_000 ? Math.floor(value / 1000) : Math.floor(value);
 }
 
+function normalizeClerkOpaqueId(
+  value: string | null | undefined,
+  prefix: "sess_" | "user_"
+) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith(prefix)) {
+    return null;
+  }
+
+  if (!/^[A-Za-z0-9_]+$/.test(trimmed)) {
+    return null;
+  }
+
+  return trimmed;
+}
+
 function isSameOriginBridgeRequest(request: Request) {
   if (!platformEnv.siteOrigin) {
     return false;
@@ -105,12 +126,10 @@ export async function POST(request: Request) {
           sessionId?: string | null;
         }
       | null;
-    const postedSessionId =
-      typeof payload?.sessionId === "string" && payload.sessionId.length > 0
-        ? payload.sessionId
-        : null;
     const tokenHints = decodeUnverifiedSessionHints(token);
-    const candidateSessionId = postedSessionId ?? tokenHints.sessionId;
+    const postedSessionId = normalizeClerkOpaqueId(payload?.sessionId, "sess_");
+    const tokenSessionId = normalizeClerkOpaqueId(tokenHints.sessionId, "sess_");
+    const candidateSessionId = tokenSessionId ?? postedSessionId;
     const requestOrigin = (() => {
       try {
         return new URL(request.url).origin;
@@ -163,10 +182,10 @@ export async function POST(request: Request) {
         secretKey: platformEnv.clerkSecretKey,
       });
 
-      authenticatedUserId =
-        requestState.isAuthenticated && typeof requestState.toAuth().userId === "string"
-          ? requestState.toAuth().userId
-          : null;
+      authenticatedUserId = normalizeClerkOpaqueId(
+        requestState.isAuthenticated ? requestState.toAuth().userId : null,
+        "user_"
+      );
       sessionExpiry =
         requestState.isAuthenticated && typeof requestState.toAuth().sessionClaims?.exp === "number"
           ? requestState.toAuth().sessionClaims.exp
