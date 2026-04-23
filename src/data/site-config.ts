@@ -33,7 +33,7 @@ export const navItems = [
 export const utilityLinks = [
   { href: "/fees-funding", label: "Fees & Funding" },
   { href: "/news-events", label: "Campus News" },
-  { href: "/e-learning", label: "E-Learning" },
+  { href: "/elearning", label: "E-Learning" },
   { href: "/e-library", label: "E-Library" },
   { href: "/verification", label: "Verification" },
   { href: "/student-portal", label: "Student Portal" },
