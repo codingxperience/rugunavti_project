@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SignIn } from "@clerk/nextjs";
+import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/platform/auth-shell";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,23 @@ const devRoles: { role: PlatformRole; title: string; destination: string }[] = [
   { role: "instructor", title: "Instructor", destination: "/instructor/dashboard" },
   { role: "registrar_admin", title: "Admin", destination: "/admin/elearning" },
 ];
+
+export const metadata: Metadata = {
+  title: "Sign in to Ruguna eLearning",
+  description: "Access the Ruguna eLearning classroom.",
+};
+
+async function getSignedInClerkUserId() {
+  if (!hasClerk) return null;
+
+  try {
+    const clerk = await import("@clerk/nextjs/server");
+    const { userId } = await clerk.auth();
+    return userId;
+  } catch {
+    return null;
+  }
+}
 
 async function startDevSession(formData: FormData) {
   "use server";
@@ -62,11 +79,15 @@ export default async function ElearningLoginPage({
   const { next } = await searchParams;
   const redirectUrl = next ?? "/learn/dashboard";
 
+  if (await getSignedInClerkUserId()) {
+    redirect(redirectUrl);
+  }
+
   return (
     <AuthShell
       activeKey="sign-in"
-      title="Welcome back"
-      description="Sign in to continue your Ruguna courses, assignments, certificates, and classroom activity."
+      title="Sign in"
+      description="Continue to your Ruguna classroom."
     >
       <div className="grid gap-5">
         {hasClerk ? (
@@ -75,7 +96,7 @@ export default async function ElearningLoginPage({
             path="/elearning/login"
             routing="path"
             signUpUrl="/elearning/register"
-            forceRedirectUrl={redirectUrl}
+            fallbackRedirectUrl={redirectUrl}
           />
         ) : platformEnv.allowDevAuth ? (
           <div className="rounded-[26px] border border-[var(--color-border)] bg-[#fbfbf7] p-5">
@@ -104,18 +125,6 @@ export default async function ElearningLoginPage({
             </p>
           </div>
         )}
-
-        <div className="flex flex-wrap justify-center gap-3 text-sm text-[var(--color-muted)]">
-          <Link href="/elearning/register" className="font-semibold text-[var(--color-ink)]">
-            Create account
-          </Link>
-          <span>•</span>
-          <Link href="/elearning/forgot-password">Forgot password</Link>
-          <span>•</span>
-          <Link href="/elearning/verify-email">Verification help</Link>
-          <span>•</span>
-          <Link href="/elearning/contact">Contact support</Link>
-        </div>
 
         {platformEnv.allowDevAuth ? (
           <details className="rounded-[24px] border border-dashed border-black/14 bg-white p-4">

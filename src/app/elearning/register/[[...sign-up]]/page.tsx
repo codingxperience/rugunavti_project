@@ -1,11 +1,29 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SignUp } from "@clerk/nextjs";
+import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/platform/auth-shell";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { clerkAppearance } from "@/lib/platform/clerk-appearance";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
+
+export const metadata: Metadata = {
+  title: "Create a Ruguna eLearning account",
+  description: "Register for Ruguna eLearning.",
+};
+
+async function getSignedInClerkUserId() {
+  if (!hasClerk) return null;
+
+  try {
+    const clerk = await import("@clerk/nextjs/server");
+    const { userId } = await clerk.auth();
+    return userId;
+  } catch {
+    return null;
+  }
+}
 
 export default async function ElearningRegisterPage({
   searchParams,
@@ -15,92 +33,52 @@ export default async function ElearningRegisterPage({
   const { next } = await searchParams;
   const redirectUrl = next ?? "/learn/dashboard";
 
+  if (await getSignedInClerkUserId()) {
+    redirect(redirectUrl);
+  }
+
   return (
     <AuthShell
       activeKey="sign-up"
-      title="Create your Ruguna learning account"
-      description="Register once for course enrollment, secure classroom access, announcements, and certificate-ready learning records."
+      title="Create account"
+      description="Use email or Google to start learning."
     >
-      <div className="grid gap-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-            Learner registration
-          </p>
-          <h2 className="font-heading mt-4 text-4xl font-bold text-[var(--color-ink)]">
-            Register with email or Google
+      {hasClerk ? (
+        <SignUp
+          appearance={clerkAppearance}
+          path="/elearning/register"
+          routing="path"
+          signInUrl="/elearning/login"
+          fallbackRedirectUrl={redirectUrl}
+        />
+      ) : platformEnv.allowDevAuth ? (
+        <div className="grid gap-4 rounded-[26px] border border-[var(--color-border)] bg-white p-5">
+          <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+            Local access only
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-            Create your account, verify your email, then continue into the course catalog
-            and classroom.
+          <p className="text-sm leading-7 text-[var(--color-muted)]">
+            Use the local sign-in screen to review Ruguna eLearning workspaces.
           </p>
+          <Button asChild>
+            <Link href="/elearning/login">Go to sign in</Link>
+          </Button>
         </div>
-
-        <Card>
-          <CardContent>
-            {hasClerk ? (
-              <SignUp
-                appearance={clerkAppearance}
-                path="/elearning/register"
-                routing="path"
-                signInUrl="/elearning/login"
-                forceRedirectUrl={redirectUrl}
-              />
-            ) : platformEnv.allowDevAuth ? (
-              <div className="grid gap-4">
-                <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                  Local registration provider not configured
-                </h3>
-                <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-                  Production registration supports email, Google, verification, and secure
-                  password management through Clerk.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild>
-                    <Link href="/elearning/login">Go to sign in</Link>
-                  </Button>
-                  <Button asChild variant="secondary">
-                    <Link href={platformEnv.allowDevAuth ? "/elearning/login" : "/elearning/contact"}>
-                      {platformEnv.allowDevAuth ? "Use local development access" : "Contact admissions"}
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="grid gap-4 rounded-[24px] border border-amber-200 bg-amber-50 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">
-                  Authentication setup required
-                </p>
-                <h3 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                  Account creation is not available yet
-                </h3>
-                <p className="max-w-2xl text-sm leading-7 text-amber-900/80">
-                  Ruguna eLearning is deployed, but Clerk keys are not available to this
-                  deployment environment. Add the Clerk publishable key and secret key in Vercel,
-                  then redeploy.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button asChild>
-                    <Link href="/elearning/login">Back to sign in</Link>
-                  </Button>
-                  <Button asChild variant="secondary">
-                    <Link href="/elearning/contact">Contact support</Link>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap gap-3 text-sm text-[var(--color-muted)]">
-          <Link href="/elearning/login" className="font-semibold text-[var(--color-ink)]">
-            Already have an account?
-          </Link>
-          <span>•</span>
-          <Link href="/elearning/verify-email">Verification help</Link>
-          <span>•</span>
-          <Link href="/elearning/contact">Need assistance</Link>
+      ) : (
+        <div className="grid gap-4 rounded-[24px] border border-amber-200 bg-amber-50 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">
+            Authentication setup required
+          </p>
+          <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+            Account creation is not available yet
+          </h2>
+          <p className="text-sm leading-7 text-amber-900/80">
+            Add Clerk keys in Vercel, then redeploy.
+          </p>
+          <Button asChild>
+            <Link href="/elearning/login">Back to sign in</Link>
+          </Button>
         </div>
-      </div>
+      )}
     </AuthShell>
   );
 }
