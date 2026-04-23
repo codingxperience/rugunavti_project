@@ -49,7 +49,9 @@ export function AuthCompletionGuard({
   compact = false,
 }: AuthCompletionGuardProps) {
   const router = useRouter();
-  const { getToken, isLoaded, isSignedIn } = useAuth({ treatPendingAsSignedOut: false });
+  const { getToken, isLoaded, isSignedIn, sessionId } = useAuth({
+    treatPendingAsSignedOut: false,
+  });
   const { session } = useSession();
   const [phase, setPhase] = useState<"loading" | "checking" | "timeout" | "signed-out">("loading");
   const [attempt, setAttempt] = useState(0);
@@ -81,7 +83,11 @@ export function AuthCompletionGuard({
       credentials: "include",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        sessionId: sessionId ?? session?.id ?? null,
+      }),
     });
 
     const payload = (await response.json().catch(() => null)) as
@@ -94,7 +100,7 @@ export function AuthCompletionGuard({
       ok: response.ok,
       message: payload?.message ?? null,
     };
-  }, [getToken]);
+  }, [getToken, session?.id, sessionId]);
 
   const checkServerSession = useCallback(async () => {
     if (isCheckingRef.current) {

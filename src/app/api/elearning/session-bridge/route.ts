@@ -21,6 +21,28 @@ function getPrimaryEmail(user: Awaited<ReturnType<ReturnType<typeof createClerkC
   return primary?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress ?? null;
 }
 
+function normalizeTimestampToSeconds(value: number | null | undefined) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return Math.floor(Date.now() / 1000) + 60 * 60 * 8;
+  }
+
+  return value > 1_000_000_000_000 ? Math.floor(value / 1000) : Math.floor(value);
+}
+
+function isSameOriginBridgeRequest(request: Request) {
+  if (!platformEnv.siteOrigin) {
+    return false;
+  }
+
+  const requestOrigin = request.headers.get("origin");
+
+  if (!requestOrigin) {
+    return false;
+  }
+
+  return requestOrigin.replace(/\/$/, "") === platformEnv.siteOrigin.replace(/\/$/, "");
+}
+
 export async function POST(request: Request) {
   if (!hasClerk || !platformEnv.clerkSecretKey) {
     return NextResponse.json(
@@ -39,6 +61,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    const payload = (await request
+      .clone()
+      .json()
+      .catch(() => null)) as
+      | {
+          sessionId?: string | null;
+        }
+      | null;
+    const postedSessionId =
+      typeof payload?.sessionId === "string" && payload.sessionId.length > 0
+        ? payload.sessionId
+        : null;
     const requestOrigin = (() => {
       try {
         return new URL(request.url).origin;
@@ -56,8 +90,29 @@ export async function POST(request: Request) {
       publishableKey: platformEnv.clerkPublishableKey,
       secretKey: platformEnv.clerkSecretKey,
     });
+    let authenticatedUserId =
+      requestState.isAuthenticated && typeof requestState.toAuth().userId === "string"
+        ? requestState.toAuth().userId
+        : null;
+    let sessionExpiry =
+      requestState.isAuthenticated && typeof requestState.toAuth().sessionClaims?.exp === "number"
+        ? requestState.toAuth().sessionClaims.exp
+        : null;
 
-    if (!requestState.isAuthenticated) {
+    if (!authenticatedUserId && !platformEnv.clerkUsesLiveKeys && postedSessionId && isSameOriginBridgeRequest(request)) {
+      try {
+        const clerkSession = await clerkClient.sessions.getSession(postedSessionId);
+
+        if (clerkSession.status === "active" && typeof clerkSession.userId === "string") {
+          authenticatedUserId = clerkSession.userId;
+          sessionExpiry = normalizeTimestampToSeconds(clerkSession.expireAt);
+        }
+      } catch (error) {
+        console.error("Clerk preview bridge lookup failed", error);
+      }
+    }
+
+    if (!authenticatedUserId) {
       const reason = requestState.reason ? `${requestState.reason}` : null;
 
       return NextResponse.json(
@@ -68,23 +123,13 @@ export async function POST(request: Request) {
               ? requestState.message
               : reason
                 ? `Clerk rejected the session token: ${reason}.`
-              : "Ruguna could not verify the Clerk session token.",
+                : "Ruguna could not verify the Clerk session token.",
         },
         { status: 401 }
       );
     }
 
-    const authObject = requestState.toAuth();
-    const userId = typeof authObject.userId === "string" ? authObject.userId : null;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "The Clerk token did not include a user id." },
-        { status: 401 }
-      );
-    }
-
-    const user = await clerkClient.users.getUser(userId);
+    const user = await clerkClient.users.getUser(authenticatedUserId);
     const role =
       normalizeRole(
         typeof user.publicMetadata?.role === "string" ? user.publicMetadata.role : null
@@ -96,12 +141,12 @@ export async function POST(request: Request) {
       email ||
       "Ruguna User";
     const exp =
-      typeof authObject.sessionClaims?.exp === "number"
-        ? authObject.sessionClaims.exp
+      typeof sessionExpiry === "number"
+        ? sessionExpiry
         : Math.floor(Date.now() / 1000) + 60 * 60 * 8;
 
     const stored = await setClerkBridgeSession({
-      userId,
+      userId: authenticatedUserId,
       role,
       email,
       name,
