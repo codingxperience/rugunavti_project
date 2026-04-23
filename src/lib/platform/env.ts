@@ -2,6 +2,14 @@ const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
 const isLocalSiteUrl =
   normalizedSiteUrl.includes("localhost") || normalizedSiteUrl.includes("127.0.0.1");
+let normalizedSiteOrigin: string | null = null;
+
+try {
+  normalizedSiteOrigin = new URL(normalizedSiteUrl).origin;
+} catch {
+  normalizedSiteOrigin = null;
+}
+
 const rawClerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const clerkUsesLiveKeys = rawClerkPublishableKey?.startsWith("pk_live_") ?? false;
 const rawClerkProxyUrl =
@@ -10,6 +18,7 @@ const rawClerkProxyUrl =
 
 export const platformEnv = {
   siteUrl: rawSiteUrl,
+  siteOrigin: normalizedSiteOrigin,
   nodeEnv: process.env.NODE_ENV || "development",
   useDatabase: process.env.RUGUNA_USE_DATABASE === "true",
   allowDevAuth: process.env.RUGUNA_ALLOW_DEV_AUTH === "true",
@@ -38,6 +47,14 @@ export const hasSupabase =
   Boolean(platformEnv.supabaseUrl) && Boolean(platformEnv.supabaseServiceRoleKey);
 export const hasResend = Boolean(platformEnv.resendApiKey);
 export const hasPostHog = Boolean(platformEnv.posthogKey) && platformEnv.enableAnalytics;
+
+export function getAuthorizedPartyOrigins(additionalOrigins: Array<string | null | undefined> = []) {
+  const origins = [platformEnv.siteOrigin, ...additionalOrigins]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.replace(/\/$/, ""));
+
+  return Array.from(new Set(origins));
+}
 
 export const requiredProductionEnvKeys = [
   "NEXT_PUBLIC_SITE_URL",

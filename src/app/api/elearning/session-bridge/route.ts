@@ -1,9 +1,9 @@
-import { createClerkClient, verifyToken } from "@clerk/nextjs/server";
+import { createClerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { normalizeRole } from "@/lib/platform/auth";
 import { setClerkBridgeSession } from "@/lib/platform/bridge-session";
-import { hasClerk, platformEnv } from "@/lib/platform/env";
+import { getAuthorizedPartyOrigins, hasClerk, platformEnv } from "@/lib/platform/env";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,18 +20,6 @@ function getPrimaryEmail(user: Awaited<ReturnType<ReturnType<typeof createClerkC
   const primary = user.emailAddresses?.find((email) => email.id === user.primaryEmailAddressId);
   return primary?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress ?? null;
 }
-
-type VerifiedClerkSessionToken = {
-  sub?: string;
-  exp?: number;
-};
-
-type VerifyTokenResponse = {
-  data?: VerifiedClerkSessionToken;
-  errors?: Array<{
-    message?: string;
-  }>;
-};
 
 export async function POST(request: Request) {
   if (!hasClerk || !platformEnv.clerkSecretKey) {
@@ -51,30 +39,43 @@ export async function POST(request: Request) {
   }
 
   try {
-    const verificationResult = (await verifyToken(token, {
+    const requestOrigin = (() => {
+      try {
+        return new URL(request.url).origin;
+      } catch {
+        return null;
+      }
+    })();
+    const clerkClient = createClerkClient({
       secretKey: platformEnv.clerkSecretKey,
-    })) as VerifyTokenResponse;
-    const verifiedToken = verificationResult.data;
-    const errors = Array.isArray(verificationResult.errors)
-      ? verificationResult.errors
-      : [];
+      publishableKey: platformEnv.clerkPublishableKey,
+    });
+    const requestState = await clerkClient.authenticateRequest(request, {
+      acceptsToken: "session_token",
+      authorizedParties: getAuthorizedPartyOrigins([requestOrigin]),
+      publishableKey: platformEnv.clerkPublishableKey,
+      secretKey: platformEnv.clerkSecretKey,
+    });
 
-    if (errors.length || !verifiedToken) {
-      const firstError = errors?.[0];
+    if (!requestState.isAuthenticated) {
+      const reason = requestState.reason ? `${requestState.reason}` : null;
 
       return NextResponse.json(
         {
           success: false,
           message:
-            typeof firstError?.message === "string"
-              ? firstError.message
+            typeof requestState.message === "string" && requestState.message.length > 0
+              ? requestState.message
+              : reason
+                ? `Clerk rejected the session token: ${reason}.`
               : "Ruguna could not verify the Clerk session token.",
         },
         { status: 401 }
       );
     }
 
-    const userId = typeof verifiedToken.sub === "string" ? verifiedToken.sub : null;
+    const authObject = requestState.toAuth();
+    const userId = typeof authObject.userId === "string" ? authObject.userId : null;
 
     if (!userId) {
       return NextResponse.json(
@@ -83,10 +84,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const clerkClient = createClerkClient({
-      secretKey: platformEnv.clerkSecretKey,
-      publishableKey: platformEnv.clerkPublishableKey,
-    });
     const user = await clerkClient.users.getUser(userId);
     const role =
       normalizeRole(
@@ -99,8 +96,8 @@ export async function POST(request: Request) {
       email ||
       "Ruguna User";
     const exp =
-      typeof verifiedToken.exp === "number"
-        ? verifiedToken.exp
+      typeof authObject.sessionClaims?.exp === "number"
+        ? authObject.sessionClaims.exp
         : Math.floor(Date.now() / 1000) + 60 * 60 * 8;
 
     const stored = await setClerkBridgeSession({

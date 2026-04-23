@@ -1,13 +1,14 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-import { platformEnv } from "@/lib/platform/env";
+import { getAuthorizedPartyOrigins, platformEnv } from "@/lib/platform/env";
 
 const hasClerkKeys = Boolean(platformEnv.clerkPublishableKey) && Boolean(platformEnv.clerkSecretKey);
 
 const clerkProxy = clerkMiddleware(
   () => {},
   {
+    authorizedParties: getAuthorizedPartyOrigins(),
     proxyUrl: platformEnv.clerkProxyUrl,
     signInUrl: "/elearning/login",
     signUpUrl: "/elearning/register",
