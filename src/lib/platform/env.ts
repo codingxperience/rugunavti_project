@@ -1,11 +1,19 @@
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
+const isLocalSiteUrl =
+  normalizedSiteUrl.includes("localhost") || normalizedSiteUrl.includes("127.0.0.1");
+
 export const platformEnv = {
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  siteUrl: rawSiteUrl,
   nodeEnv: process.env.NODE_ENV || "development",
   useDatabase: process.env.RUGUNA_USE_DATABASE === "true",
   allowDevAuth: process.env.RUGUNA_ALLOW_DEV_AUTH === "true",
   enableAnalytics: process.env.RUGUNA_ENABLE_ANALYTICS === "true",
   clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   clerkSecretKey: process.env.CLERK_SECRET_KEY,
+  clerkProxyUrl:
+    process.env.NEXT_PUBLIC_CLERK_PROXY_URL ||
+    (isLocalSiteUrl ? undefined : `${normalizedSiteUrl}/__clerk`),
   clerkWebhookSecret: process.env.CLERK_WEBHOOK_SECRET,
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -59,6 +67,16 @@ export function getProductionEnvWarnings(env: NodeJS.ProcessEnv = process.env) {
 
   if (env.NEXT_PUBLIC_SITE_URL?.includes("localhost")) {
     warnings.push("NEXT_PUBLIC_SITE_URL must be the deployed Ruguna domain in production.");
+  }
+
+  if (
+    env.NEXT_PUBLIC_SITE_URL &&
+    !env.NEXT_PUBLIC_SITE_URL.includes("localhost") &&
+    !env.NEXT_PUBLIC_CLERK_PROXY_URL
+  ) {
+    warnings.push(
+      "NEXT_PUBLIC_CLERK_PROXY_URL is not set; the app will derive it from NEXT_PUBLIC_SITE_URL, but Vercel and Clerk Dashboard should explicitly use the same /__clerk URL."
+    );
   }
 
   if (env.DATABASE_URL && !env.DATABASE_URL.includes("sslmode=require")) {

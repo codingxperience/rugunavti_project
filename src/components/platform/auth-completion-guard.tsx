@@ -24,8 +24,11 @@ type SessionStatusResponse = {
     host: string | null;
     origin: string | null;
     hasClerkConfigured: boolean;
+    expectedProxyUrl: string | null;
     hasCookieHeader: boolean;
-    hasSessionCookie: boolean;
+    hasAnyClerkCookie: boolean;
+    hasSessionTokenCookie: boolean;
+    hasClientUatCookie: boolean;
     serverUserId: string | null;
     serverSessionId: string | null;
     serverSessionStatus: string | null;
@@ -102,13 +105,16 @@ export function AuthCompletionGuard({
         return;
       }
 
+      const currentDiagnostics = diagnostics;
       setPhase("timeout");
       setMessage(
-        diagnostics?.hasSessionCookie
-          ? diagnostics.serverUserId
+        currentDiagnostics?.hasSessionTokenCookie
+          ? currentDiagnostics.serverUserId
             ? "The browser is signed in, but Ruguna still cannot complete the protected handoff."
             : "The Ruguna server received Clerk cookies, but it still could not resolve the signed-in user."
-          : "The browser completed sign-in, but no Clerk session cookie reached the Ruguna server on this domain."
+          : currentDiagnostics?.hasClientUatCookie
+            ? "The browser kept Clerk's lightweight state cookie, but the secure __session token never reached the Ruguna server on this domain."
+            : "The browser completed sign-in, but no Clerk session cookie reached the Ruguna server on this domain."
       );
     } catch {
       if (!isMountedRef.current) {
@@ -203,10 +209,13 @@ export function AuthCompletionGuard({
               </p>
               <div className="mt-3 grid gap-2">
                 <p>Client signed in: yes</p>
-                <p>Server cookie received: {diagnostics.hasSessionCookie ? "yes" : "no"}</p>
+                <p>Server Clerk cookie received: {diagnostics.hasAnyClerkCookie ? "yes" : "no"}</p>
+                <p>Server __session cookie received: {diagnostics.hasSessionTokenCookie ? "yes" : "no"}</p>
+                <p>Server __client_uat cookie received: {diagnostics.hasClientUatCookie ? "yes" : "no"}</p>
                 <p>Server user detected: {diagnostics.serverUserId ? "yes" : "no"}</p>
                 <p>Server session status: {diagnostics.serverSessionStatus ?? "none"}</p>
                 <p>Server host: {diagnostics.host ?? "unknown"}</p>
+                <p>Expected proxy URL: {diagnostics.expectedProxyUrl ?? "not configured"}</p>
                 {diagnostics.authError ? <p>Server auth error: {diagnostics.authError}</p> : null}
               </div>
             </div>

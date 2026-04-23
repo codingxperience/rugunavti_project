@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { RouteShell } from "@/components/site/route-shell";
 import { siteConfig } from "@/data";
-import { hasClerk } from "@/lib/platform/env";
+import { hasClerk, platformEnv } from "@/lib/platform/env";
 
 import "./globals.css";
 
@@ -58,6 +58,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {hasClerk ? (
           <ClerkProvider
             dynamic
+            proxyUrl={platformEnv.clerkProxyUrl}
             taskUrls={{
               "choose-organization": "/elearning/tasks/choose-organization",
               "reset-password": "/elearning/tasks/reset-password",

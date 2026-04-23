@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { hasClerk } from "@/lib/platform/env";
+import { hasClerk, platformEnv } from "@/lib/platform/env";
 import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
 import { getCurrentSession } from "@/lib/platform/session";
 
@@ -9,13 +9,17 @@ export const revalidate = 0;
 
 export async function GET(request: Request) {
   const cookieHeader = request.headers.get("cookie") ?? "";
+  const hasSessionTokenCookie = cookieHeader.includes("__session=");
+  const hasClientUatCookie = cookieHeader.includes("__client_uat=");
   const diagnostics = {
     host: request.headers.get("host"),
     origin: request.headers.get("origin"),
     hasClerkConfigured: hasClerk,
+    expectedProxyUrl: platformEnv.clerkProxyUrl ?? null,
     hasCookieHeader: Boolean(cookieHeader),
-    hasSessionCookie:
-      cookieHeader.includes("__session=") || cookieHeader.includes("__client_uat="),
+    hasAnyClerkCookie: hasSessionTokenCookie || hasClientUatCookie,
+    hasSessionTokenCookie,
+    hasClientUatCookie,
     serverUserId: null as string | null,
     serverSessionId: null as string | null,
     serverSessionStatus: null as string | null,
