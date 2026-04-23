@@ -2,6 +2,11 @@ const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
 const isLocalSiteUrl =
   normalizedSiteUrl.includes("localhost") || normalizedSiteUrl.includes("127.0.0.1");
+const rawClerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const clerkUsesLiveKeys = rawClerkPublishableKey?.startsWith("pk_live_") ?? false;
+const rawClerkProxyUrl =
+  process.env.NEXT_PUBLIC_CLERK_PROXY_URL ||
+  (isLocalSiteUrl ? undefined : `${normalizedSiteUrl}/__clerk`);
 
 export const platformEnv = {
   siteUrl: rawSiteUrl,
@@ -9,11 +14,10 @@ export const platformEnv = {
   useDatabase: process.env.RUGUNA_USE_DATABASE === "true",
   allowDevAuth: process.env.RUGUNA_ALLOW_DEV_AUTH === "true",
   enableAnalytics: process.env.RUGUNA_ENABLE_ANALYTICS === "true",
-  clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  clerkPublishableKey: rawClerkPublishableKey,
   clerkSecretKey: process.env.CLERK_SECRET_KEY,
-  clerkProxyUrl:
-    process.env.NEXT_PUBLIC_CLERK_PROXY_URL ||
-    (isLocalSiteUrl ? undefined : `${normalizedSiteUrl}/__clerk`),
+  clerkUsesLiveKeys,
+  clerkProxyUrl: clerkUsesLiveKeys ? rawClerkProxyUrl : undefined,
   clerkWebhookSecret: process.env.CLERK_WEBHOOK_SECRET,
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -69,9 +73,16 @@ export function getProductionEnvWarnings(env: NodeJS.ProcessEnv = process.env) {
     warnings.push("NEXT_PUBLIC_SITE_URL must be the deployed Ruguna domain in production.");
   }
 
+  if (env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith("pk_test_")) {
+    warnings.push(
+      "Clerk is using test keys, so proxy-based Frontend API routing is disabled until live keys are configured."
+    );
+  }
+
   if (
     env.NEXT_PUBLIC_SITE_URL &&
     !env.NEXT_PUBLIC_SITE_URL.includes("localhost") &&
+    env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith("pk_live_") &&
     !env.NEXT_PUBLIC_CLERK_PROXY_URL
   ) {
     warnings.push(
