@@ -1,14 +1,20 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
-import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const hasClerkKeys =
   Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) && Boolean(process.env.CLERK_SECRET_KEY);
 
-const handleClerkAuth = hasClerkKeys ? clerkMiddleware() : null;
+const clerkProxy = clerkMiddleware(
+  () => {},
+  {
+    signInUrl: "/elearning/login",
+    signUpUrl: "/elearning/register",
+  }
+);
 
-export function proxy(request: NextRequest, event: NextFetchEvent) {
-  return handleClerkAuth ? handleClerkAuth(request, event) : NextResponse.next();
-}
+const passthroughProxy = () => NextResponse.next();
+
+export default hasClerkKeys ? clerkProxy : passthroughProxy;
 
 export const config = {
   matcher: [

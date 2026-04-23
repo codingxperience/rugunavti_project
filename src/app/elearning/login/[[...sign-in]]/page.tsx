@@ -1,11 +1,10 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SignIn } from "@clerk/nextjs";
 import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/platform/auth-shell";
+import { ClerkAuthFlow } from "@/components/platform/clerk-auth-flow";
 import { Button } from "@/components/ui/button";
-import { clerkAppearance } from "@/lib/platform/clerk-appearance";
 import {
   DEV_SESSION_COOKIE,
   encodeDevSession,
@@ -13,6 +12,7 @@ import {
   type PlatformRole,
 } from "@/lib/platform/auth";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
+import { resolveSafeRedirectTarget } from "@/lib/platform/navigation";
 
 const devRoles: { role: PlatformRole; title: string; destination: string }[] = [
   { role: "student", title: "Student", destination: "/learn/dashboard" },
@@ -24,18 +24,6 @@ export const metadata: Metadata = {
   title: "Sign in to Ruguna eLearning",
   description: "Access the Ruguna eLearning classroom.",
 };
-
-async function getSignedInClerkUserId() {
-  if (!hasClerk) return null;
-
-  try {
-    const clerk = await import("@clerk/nextjs/server");
-    const { userId } = await clerk.auth();
-    return userId;
-  } catch {
-    return null;
-  }
-}
 
 async function startDevSession(formData: FormData) {
   "use server";
@@ -77,11 +65,7 @@ export default async function ElearningLoginPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  const redirectUrl = next ?? "/learn/dashboard";
-
-  if (await getSignedInClerkUserId()) {
-    redirect(redirectUrl);
-  }
+  const redirectUrl = resolveSafeRedirectTarget(next, "/learn/dashboard");
 
   return (
     <AuthShell
@@ -91,13 +75,7 @@ export default async function ElearningLoginPage({
     >
       <div className="grid gap-5">
         {hasClerk ? (
-          <SignIn
-            appearance={clerkAppearance}
-            path="/elearning/login"
-            routing="path"
-            signUpUrl="/elearning/register"
-            fallbackRedirectUrl={redirectUrl}
-          />
+          <ClerkAuthFlow mode="sign-in" redirectTarget={redirectUrl} />
         ) : platformEnv.allowDevAuth ? (
           <div className="rounded-[26px] border border-[var(--color-border)] bg-[#fbfbf7] p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">

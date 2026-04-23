@@ -1,29 +1,16 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { SignUp } from "@clerk/nextjs";
 import type { Metadata } from "next";
 
 import { AuthShell } from "@/components/platform/auth-shell";
+import { ClerkAuthFlow } from "@/components/platform/clerk-auth-flow";
 import { Button } from "@/components/ui/button";
-import { clerkAppearance } from "@/lib/platform/clerk-appearance";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
+import { resolveSafeRedirectTarget } from "@/lib/platform/navigation";
 
 export const metadata: Metadata = {
   title: "Create a Ruguna eLearning account",
   description: "Register for Ruguna eLearning.",
 };
-
-async function getSignedInClerkUserId() {
-  if (!hasClerk) return null;
-
-  try {
-    const clerk = await import("@clerk/nextjs/server");
-    const { userId } = await clerk.auth();
-    return userId;
-  } catch {
-    return null;
-  }
-}
 
 export default async function ElearningRegisterPage({
   searchParams,
@@ -31,11 +18,7 @@ export default async function ElearningRegisterPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  const redirectUrl = next ?? "/learn/dashboard";
-
-  if (await getSignedInClerkUserId()) {
-    redirect(redirectUrl);
-  }
+  const redirectUrl = resolveSafeRedirectTarget(next, "/learn/dashboard");
 
   return (
     <AuthShell
@@ -44,13 +27,7 @@ export default async function ElearningRegisterPage({
       description="Use email or Google to start learning."
     >
       {hasClerk ? (
-        <SignUp
-          appearance={clerkAppearance}
-          path="/elearning/register"
-          routing="path"
-          signInUrl="/elearning/login"
-          fallbackRedirectUrl={redirectUrl}
-        />
+        <ClerkAuthFlow mode="sign-up" redirectTarget={redirectUrl} />
       ) : platformEnv.allowDevAuth ? (
         <div className="grid gap-4 rounded-[26px] border border-[var(--color-border)] bg-white p-5">
           <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
