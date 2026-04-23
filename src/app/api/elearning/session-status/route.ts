@@ -19,6 +19,7 @@ export async function GET(request: Request) {
       authenticated: session.isAuthenticated,
       source: session.source,
       role: session.role,
+      sessionStatus: session.sessionStatus,
       requestedTarget,
       destination: session.isAuthenticated ? resolveWorkspaceRoute(session, requestedTarget) : null,
     },

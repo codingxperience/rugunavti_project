@@ -8,7 +8,7 @@ export async function getCurrentSession() {
   if (hasClerk) {
     try {
       const clerk = await import("@clerk/nextjs/server");
-      const authResult = await clerk.auth();
+      const authResult = await clerk.auth({ treatPendingAsSignedOut: false });
 
       if (authResult.userId) {
         let user: Awaited<ReturnType<typeof clerk.currentUser>> | null = null;
@@ -45,6 +45,9 @@ export async function getCurrentSession() {
             (typeof authResult.sessionClaims?.fullName === "string"
               ? authResult.sessionClaims.fullName
               : "Ruguna User"),
+          sessionStatus: (authResult.sessionStatus === "pending" ? "pending" : "active") as
+            | "active"
+            | "pending",
           source: "clerk" as const,
         };
       }
@@ -63,6 +66,7 @@ export async function getCurrentSession() {
       roles: [devSession.role],
       email: devSession.email,
       name: devSession.name,
+      sessionStatus: "active" as const,
       source: "dev" as const,
     };
   }
@@ -73,6 +77,7 @@ export async function getCurrentSession() {
     roles: [] as PlatformRole[],
     email: null,
     name: null,
+    sessionStatus: null,
     source: "guest" as const,
   };
 }

@@ -17,6 +17,7 @@ export type PlatformSession = {
   roles: PlatformRole[];
   email: string | null;
   name: string | null;
+  sessionStatus: "active" | "pending" | null;
   source: "guest" | "dev" | "clerk";
 };
 
