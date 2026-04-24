@@ -5,6 +5,44 @@ import { DEV_SESSION_COOKIE, canAccessRole, decodeDevSession, type PlatformRole 
 import { CLERK_BRIDGE_SESSION_COOKIE, decodeClerkBridgeSession } from "@/lib/platform/bridge-session";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
 
+function isPlaceholderIdentity(value: string | null | undefined) {
+  if (!value) {
+    return true;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  return normalized === "ruguna learner" || normalized === "ruguna user";
+}
+
+function deriveNameFromEmail(email: string | null | undefined) {
+  if (!email) {
+    return null;
+  }
+
+  const localPart = email.split("@")[0]?.trim();
+
+  if (!localPart) {
+    return null;
+  }
+
+  const words = localPart
+    .split(/[._-]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1));
+
+  return words.length ? words.join(" ") : null;
+}
+
+function resolveReadableName(name: string | null | undefined, email: string | null | undefined) {
+  if (!isPlaceholderIdentity(name)) {
+    return name?.trim() || deriveNameFromEmail(email) || "Ruguna Student";
+  }
+
+  return deriveNameFromEmail(email) || "Ruguna Student";
+}
+
 export async function getCurrentSession() {
   if (hasClerk) {
     try {
@@ -32,20 +70,24 @@ export async function getCurrentSession() {
         const role = (["applicant", "student", "instructor", "registrar_admin", "finance_admin", "super_admin"] as const).find(
           (candidate) => candidate === rawRole
         );
+        const email =
+          user?.primaryEmailAddress?.emailAddress ??
+          (typeof authResult.sessionClaims?.email === "string" ? authResult.sessionClaims.email : null);
+        const name = resolveReadableName(
+          [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+            user?.username ||
+            (typeof authResult.sessionClaims?.fullName === "string"
+              ? authResult.sessionClaims.fullName
+              : null),
+          email
+        );
 
         return {
           isAuthenticated: true,
           role: role ?? "student",
           roles: [role ?? "student"],
-          email:
-            user?.primaryEmailAddress?.emailAddress ??
-            (typeof authResult.sessionClaims?.email === "string" ? authResult.sessionClaims.email : null),
-          name:
-            [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-            user?.username ||
-            (typeof authResult.sessionClaims?.fullName === "string"
-              ? authResult.sessionClaims.fullName
-              : "Ruguna User"),
+          email,
+          name,
           sessionStatus: (authResult.sessionStatus === "pending" ? "pending" : "active") as
             | "active"
             | "pending",
@@ -68,7 +110,7 @@ export async function getCurrentSession() {
       role: bridgeSession.role,
       roles: [bridgeSession.role],
       email: bridgeSession.email,
-      name: bridgeSession.name,
+      name: resolveReadableName(bridgeSession.name, bridgeSession.email),
       sessionStatus: "active" as const,
       source: "bridge" as const,
     };
@@ -82,7 +124,7 @@ export async function getCurrentSession() {
       role: devSession.role,
       roles: [devSession.role],
       email: devSession.email,
-      name: devSession.name,
+      name: resolveReadableName(devSession.name, devSession.email),
       sessionStatus: "active" as const,
       source: "dev" as const,
     };

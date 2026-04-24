@@ -5,11 +5,44 @@ import { canAccessRole, type PlatformRole, type PlatformSession } from "@/lib/pl
 import { hasClerk, hasDatabase, platformEnv } from "@/lib/platform/env";
 import { getCurrentSession } from "@/lib/platform/session";
 
-function splitDisplayName(name: string | null | undefined) {
-  const safeName = name?.trim() || "Ruguna Learner";
+function isPlaceholderIdentity(value: string | null | undefined) {
+  if (!value) {
+    return true;
+  }
+
+  const normalized = value.trim().toLowerCase();
+
+  return normalized === "ruguna learner" || normalized === "ruguna user";
+}
+
+function deriveNameFromEmail(email: string | null | undefined) {
+  if (!email) {
+    return null;
+  }
+
+  const localPart = email.split("@")[0]?.trim();
+
+  if (!localPart) {
+    return null;
+  }
+
+  const parts = localPart
+    .split(/[._-]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1));
+
+  return parts.length ? parts.join(" ") : null;
+}
+
+function splitDisplayName(name: string | null | undefined, email?: string | null) {
+  const resolvedName = isPlaceholderIdentity(name)
+    ? deriveNameFromEmail(email) || "Ruguna Student"
+    : name?.trim() || deriveNameFromEmail(email) || "Ruguna Student";
+  const safeName = resolvedName.trim();
   const parts = safeName.split(/\s+/);
   const firstName = parts.shift() ?? "Ruguna";
-  const lastName = parts.length ? parts.join(" ") : "Learner";
+  const lastName = parts.length ? parts.join(" ") : "Student";
 
   return { firstName, lastName };
 }
@@ -88,7 +121,10 @@ export async function ensureUserForSession(session?: PlatformSession) {
   const db = getDb();
   const clerkIdentity = currentSession.source === "clerk" ? await getClerkIdentity() : null;
   const email = (clerkIdentity?.email || currentSession.email || `${currentSession.role}@ruguna.local`).toLowerCase();
-  const { firstName, lastName } = splitDisplayName(clerkIdentity?.name || currentSession.name);
+  const { firstName, lastName } = splitDisplayName(
+    clerkIdentity?.name || currentSession.name,
+    email
+  );
   const existingByClerkId = clerkIdentity?.clerkId
     ? await db.user.findUnique({ where: { clerkId: clerkIdentity.clerkId } })
     : null;

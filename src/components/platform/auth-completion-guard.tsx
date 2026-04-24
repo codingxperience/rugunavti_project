@@ -39,6 +39,9 @@ type SessionStatusResponse = {
 
 const MAX_ATTEMPTS = 12;
 const RETRY_DELAY_MS = 600;
+const SHOW_AUTH_DIAGNOSTICS =
+  process.env.NODE_ENV !== "production" ||
+  process.env.NEXT_PUBLIC_SHOW_AUTH_DIAGNOSTICS === "true";
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,7 +58,7 @@ export function AuthCompletionGuard({
   const { session } = useSession();
   const [phase, setPhase] = useState<"loading" | "checking" | "timeout" | "signed-out">("loading");
   const [attempt, setAttempt] = useState(0);
-  const [message, setMessage] = useState("Confirming your protected learning session.");
+  const [message, setMessage] = useState("Starting Ruguna eLearning.");
   const [diagnostics, setDiagnostics] = useState<SessionStatusResponse["diagnostics"] | null>(null);
   const [bridgeMessage, setBridgeMessage] = useState<string | null>(null);
   const isMountedRef = useRef(true);
@@ -109,7 +112,7 @@ export function AuthCompletionGuard({
 
     isCheckingRef.current = true;
     setPhase("checking");
-    setMessage("Securing your classroom and syncing your learning workspace.");
+    setMessage("Opening your learning dashboard.");
 
     try {
       for (let currentAttempt = 1; currentAttempt <= MAX_ATTEMPTS; currentAttempt += 1) {
@@ -165,14 +168,14 @@ export function AuthCompletionGuard({
       setPhase("timeout");
       setMessage(
         currentDiagnostics?.hasBridgeCookie
-          ? "Ruguna created its own secure learning session, but the workspace still needs one more confirmation step."
+          ? "Your sign-in completed, but opening the dashboard took longer than expected."
           : currentDiagnostics?.hasSessionTokenCookie
-          ? currentDiagnostics.serverUserId
-            ? "The browser is signed in, but Ruguna still cannot complete the protected handoff."
-            : "The Ruguna server received Clerk cookies, but it still could not resolve the signed-in user."
-          : currentDiagnostics?.hasClientUatCookie
-            ? "The browser kept Clerk's lightweight state cookie, but the secure __session token never reached the Ruguna server on this domain."
-            : "The browser completed sign-in, but no Clerk session cookie reached the Ruguna server on this domain."
+            ? currentDiagnostics.serverUserId
+              ? "Your account is signed in, but the dashboard handoff is taking longer than expected."
+              : "Your account is signed in, but we could not finish opening the dashboard yet."
+            : currentDiagnostics?.hasClientUatCookie
+              ? "Your sign-in was received, but the secure session is still catching up."
+              : "Your sign-in completed, but the secure session could not be confirmed yet."
       );
 
       if (!currentDiagnostics?.hasBridgeCookie) {
@@ -184,7 +187,7 @@ export function AuthCompletionGuard({
       }
 
       setPhase("timeout");
-      setMessage("We could not confirm your session automatically. Retry once, then use sign in again if needed.");
+      setMessage("We could not finish sign in automatically. Try once more or return to sign in.");
       bridgeAttemptedRef.current = false;
     } finally {
       isCheckingRef.current = false;
@@ -194,7 +197,7 @@ export function AuthCompletionGuard({
   useEffect(() => {
     if (!isLoaded) {
       setPhase("loading");
-      setMessage("Loading your Ruguna session.");
+      setMessage("Starting Ruguna eLearning.");
       return;
     }
 
@@ -252,12 +255,12 @@ export function AuthCompletionGuard({
             Ruguna eLearning
           </p>
           <h2 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
-            {phase === "timeout" ? "Session confirmation needed" : "Preparing your classroom"}
+            {phase === "timeout" ? "We could not finish sign in" : "Signing you in"}
           </h2>
           <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{message}</p>
-          {phase !== "timeout" ? (
+          {phase === "checking" && attempt > 2 ? (
             <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
-              Attempt {attempt || 1} of {MAX_ATTEMPTS}
+              This usually takes a moment
             </p>
           ) : null}
         </div>
@@ -265,7 +268,7 @@ export function AuthCompletionGuard({
 
       {phase === "timeout" ? (
         <>
-          {diagnostics ? (
+          {SHOW_AUTH_DIAGNOSTICS && diagnostics ? (
             <div className="mt-5 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 text-left text-sm text-[var(--color-muted)]">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted)]">
                 Session diagnostics
@@ -302,7 +305,7 @@ export function AuthCompletionGuard({
 
       {phase !== "timeout" && !compact ? (
         <p className="mt-6 text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
-          Protected access · Database-backed learner records · Clerk session verification
+          Secure classroom access
         </p>
       ) : null}
     </div>
