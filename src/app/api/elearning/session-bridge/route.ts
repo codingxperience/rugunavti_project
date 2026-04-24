@@ -70,6 +70,9 @@ function decodeUnverifiedSessionHints(token: string | null) {
       sessionId: null,
       userId: null,
       exp: null,
+      email: null,
+      fullName: null,
+      role: null,
     };
   }
 
@@ -80,6 +83,9 @@ function decodeUnverifiedSessionHints(token: string | null) {
       sessionId: null,
       userId: null,
       exp: null,
+      email: null,
+      fullName: null,
+      role: null,
     };
   }
 
@@ -88,18 +94,47 @@ function decodeUnverifiedSessionHints(token: string | null) {
       sid?: string;
       sub?: string;
       exp?: number;
+      email?: string;
+      fullName?: string;
+      name?: string;
+      given_name?: string;
+      family_name?: string;
+      metadata?: {
+        role?: string;
+      };
+      public_metadata?: {
+        role?: string;
+      };
     };
+    const fullName =
+      typeof decoded.fullName === "string"
+        ? decoded.fullName
+        : typeof decoded.name === "string"
+          ? decoded.name
+          : [decoded.given_name, decoded.family_name].filter(Boolean).join(" ") || null;
+    const roleHint =
+      typeof decoded.metadata?.role === "string"
+        ? decoded.metadata.role
+        : typeof decoded.public_metadata?.role === "string"
+          ? decoded.public_metadata.role
+          : null;
 
     return {
       sessionId: typeof decoded.sid === "string" ? decoded.sid : null,
       userId: typeof decoded.sub === "string" ? decoded.sub : null,
       exp: typeof decoded.exp === "number" ? decoded.exp : null,
+      email: typeof decoded.email === "string" ? decoded.email : null,
+      fullName,
+      role: roleHint,
     };
   } catch {
     return {
       sessionId: null,
       userId: null,
       exp: null,
+      email: null,
+      fullName: null,
+      role: null,
     };
   }
 }
@@ -141,9 +176,42 @@ export async function POST(request: Request) {
       secretKey: platformEnv.clerkSecretKey,
       publishableKey: platformEnv.clerkPublishableKey,
     });
+    const previewUserId = normalizeClerkOpaqueId(tokenHints.userId, "user_");
+    const canUsePreviewTokenBridge =
+      !platformEnv.clerkUsesLiveKeys &&
+      isSameOriginBridgeRequest(request) &&
+      Boolean(previewUserId);
     let authenticatedUserId: string | null = null;
     let sessionExpiry: number | null = null;
     let rejectionMessage: string | null = null;
+
+    if (canUsePreviewTokenBridge && previewUserId) {
+      const previewRole = normalizeRole(tokenHints.role) ?? "student";
+      const previewName =
+        tokenHints.fullName?.trim() || tokenHints.email?.trim() || "Ruguna Learner";
+      const exp = normalizeTimestampToSeconds(tokenHints.exp);
+      const stored = await setClerkBridgeSession({
+        userId: previewUserId,
+        role: previewRole,
+        email: tokenHints.email?.trim() || null,
+        name: previewName,
+        exp,
+      });
+
+      if (!stored) {
+        return NextResponse.json(
+          { success: false, message: "Ruguna could not create the preview bridge session." },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        role: previewRole,
+        expiresAt: exp,
+        source: "preview-token-claims",
+      });
+    }
 
     if (!platformEnv.clerkUsesLiveKeys && candidateSessionId && isSameOriginBridgeRequest(request)) {
       try {
