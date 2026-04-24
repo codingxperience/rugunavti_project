@@ -12,7 +12,6 @@ import {
   FolderCheck,
   House,
   LayoutDashboard,
-  LogOut,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -25,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
+import { PortalSignOutButton } from "@/components/platform/portal-sign-out-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -231,13 +231,7 @@ export function PortalLayout({
                 >
                   <House className="h-4 w-4" />
                 </Link>
-                <Link
-                  href="/elearning/logout"
-                  title="Sign out"
-                  className="flex h-10 items-center justify-center rounded-2xl border border-white/12 bg-white/8 text-white transition hover:bg-white/12"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Link>
+                <PortalSignOutButton compact />
               </div>
             </div>
           ) : (
@@ -261,13 +255,9 @@ export function PortalLayout({
                 <Button asChild>
                   <Link href="/">Public website</Link>
                 </Button>
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white"
-                >
-                  <Link href="/elearning/logout">Sign out</Link>
-                </Button>
+                <PortalSignOutButton className="border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white">
+                  Sign out
+                </PortalSignOutButton>
               </div>
             </div>
           )}

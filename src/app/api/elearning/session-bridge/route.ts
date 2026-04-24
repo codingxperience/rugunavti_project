@@ -64,6 +64,26 @@ function isSameOriginBridgeRequest(request: Request) {
   return requestOrigin.replace(/\/$/, "") === platformEnv.siteOrigin.replace(/\/$/, "");
 }
 
+function formatEmailLocalPart(email: string | null) {
+  if (!email) {
+    return null;
+  }
+
+  const localPart = email.split("@")[0]?.trim();
+
+  if (!localPart) {
+    return null;
+  }
+
+  const words = localPart
+    .split(/[._-]+/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() + part.slice(1));
+
+  return words.length ? words.join(" ") : null;
+}
+
 function decodeUnverifiedSessionHints(token: string | null) {
   if (!token) {
     return {
@@ -188,7 +208,9 @@ export async function POST(request: Request) {
     if (canUsePreviewTokenBridge && previewUserId) {
       const previewRole = normalizeRole(tokenHints.role) ?? "student";
       const previewName =
-        tokenHints.fullName?.trim() || tokenHints.email?.trim() || "Ruguna Learner";
+        tokenHints.fullName?.trim() ||
+        formatEmailLocalPart(tokenHints.email) ||
+        "Ruguna Student";
       const exp = normalizeTimestampToSeconds(tokenHints.exp);
       const stored = await setClerkBridgeSession({
         userId: previewUserId,
