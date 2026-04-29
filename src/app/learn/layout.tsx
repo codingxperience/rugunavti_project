@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 const navItems = [
   { href: "/learn/dashboard", label: "Dashboard" },
+  { href: "/learn/program", label: "My Program" },
   { href: "/learn/my-courses", label: "My Courses" },
   { href: "/learn/continue", label: "Continue Learning" },
   { href: "/learn/calendar", label: "Calendar" },

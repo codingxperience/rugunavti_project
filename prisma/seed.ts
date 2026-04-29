@@ -1,6 +1,9 @@
 import {
   AssignmentStatus,
+  AssessmentComponentCategory,
   ContentStatus,
+  CoursePace,
+  CourseRequirement,
   DeliveryMode,
   LessonType,
   PrismaClient,
@@ -56,6 +59,73 @@ function monthStartDate(month: string) {
 
   return new Date(Date.UTC(year, monthIndex, 1, 9, 0, 0));
 }
+
+function addDays(date: Date, days: number) {
+  return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+}
+
+function getCoursePace(course: { award: string; modules: Array<{ lessons: unknown[] }> }) {
+  const lessonCount = course.modules.reduce((count, module) => count + module.lessons.length, 0);
+
+  return course.award === "Short Course" || lessonCount <= 7
+    ? CoursePace.SEVEN_WEEK
+    : CoursePace.FOURTEEN_WEEK;
+}
+
+function buildWeekPlan(course: (typeof demoStudentCourses)[number], weekNumber: number) {
+  const lessons = course.modules.flatMap((module) => module.lessons);
+  const lesson = lessons[(weekNumber - 1) % Math.max(lessons.length, 1)];
+  const title = lesson ? lesson.title : `Applied ${course.title} practice`;
+  const topic = lesson ? lesson.summary : course.title;
+
+  return {
+    weekNumber,
+    title: `Week ${weekNumber}: ${title}`,
+    overview: `This week connects the core topic "${title}" to practical Ruguna vocational work and employability evidence.`,
+    topic,
+    preparationQuizTitle: `Preparation quiz ${weekNumber}`,
+    preparationMaterials: lesson?.resources?.[0]?.label
+      ? `Review ${lesson.resources[0].label}.`
+      : "Review the weekly study guide and instructor notes.",
+    preparationReading: `Complete the assigned chapter or guided reading for ${title}.`,
+    teachOneAnotherTask:
+      "Prepare a short group explanation, demonstration, or presentation that helps classmates apply the weekly concept.",
+    ponderProveTask:
+      weekNumber === 14
+        ? "Submit the semester paper or capstone reflection summarizing your learning evidence and practical case study."
+        : "Write a weekly critique or applied paper connecting the topic to a real work, business, or community scenario.",
+    liveSessionNote:
+      course.delivery === "Blended"
+        ? "Blended learners should confirm the live or practical session details inside announcements."
+        : null,
+    dueDateOffsetDays: weekNumber * 7,
+    status: ContentStatus.PUBLISHED,
+  };
+}
+
+const sharedProgramCourseLinks = [
+  {
+    courseSlug: "diploma-software-engineering",
+    programSlug: "diploma-business-operations",
+    termNumber: 2,
+    requirement: CourseRequirement.SUPPORTING,
+    notes: "Shared technology course for business systems and digital operations learners.",
+  },
+  {
+    courseSlug: "certificate-ict-support-networking",
+    programSlug: "diploma-software-engineering",
+    termNumber: 1,
+    requirement: CourseRequirement.SUPPORTING,
+    notes: "Shared infrastructure course for software learners who need networking foundations.",
+  },
+  {
+    courseSlug: "short-course-ai-digital-work",
+    programSlug: "diploma-business-operations",
+    termNumber: 1,
+    requirement: CourseRequirement.ELECTIVE,
+    notes: "Digital productivity elective for entrepreneurship and operations learners.",
+  },
+];
 
 async function seedRoles() {
   for (const [slug, description] of roles) {
@@ -213,6 +283,165 @@ async function seedDemoCourses(programIds: Map<string, string>, schoolIds: Map<s
         status: ContentStatus.PUBLISHED,
       },
     });
+
+    const pace = getCoursePace(course);
+    const weekCount = pace === CoursePace.SEVEN_WEEK ? 7 : 14;
+    const startDate = addDays(new Date(), 14);
+
+    await prisma.programCourse.upsert({
+      where: {
+        programId_courseId: {
+          programId,
+          courseId: courseRecord.id,
+        },
+      },
+      update: {
+        yearNumber: 1,
+        termNumber: 1,
+        sequence: 1,
+        requirement: CourseRequirement.REQUIRED,
+        creditUnits: course.award === "Short Course" ? 1 : 3,
+        notes: "Primary course in this Ruguna programme pathway.",
+      },
+      create: {
+        programId,
+        courseId: courseRecord.id,
+        yearNumber: 1,
+        termNumber: 1,
+        sequence: 1,
+        requirement: CourseRequirement.REQUIRED,
+        creditUnits: course.award === "Short Course" ? 1 : 3,
+        notes: "Primary course in this Ruguna programme pathway.",
+      },
+    });
+
+    for (const [sharedIndex, sharedLink] of sharedProgramCourseLinks
+      .filter((item) => item.courseSlug === course.slug)
+      .entries()) {
+      const sharedProgramId = programIds.get(sharedLink.programSlug);
+
+      if (!sharedProgramId) {
+        continue;
+      }
+
+      await prisma.programCourse.upsert({
+        where: {
+          programId_courseId: {
+            programId: sharedProgramId,
+            courseId: courseRecord.id,
+          },
+        },
+        update: {
+          yearNumber: 1,
+          termNumber: sharedLink.termNumber,
+          sequence: sharedIndex + 3,
+          requirement: sharedLink.requirement,
+          creditUnits: 2,
+          notes: sharedLink.notes,
+        },
+        create: {
+          programId: sharedProgramId,
+          courseId: courseRecord.id,
+          yearNumber: 1,
+          termNumber: sharedLink.termNumber,
+          sequence: sharedIndex + 3,
+          requirement: sharedLink.requirement,
+          creditUnits: 2,
+          notes: sharedLink.notes,
+        },
+      });
+    }
+
+    await prisma.courseOffering.upsert({
+      where: {
+        courseId_title: {
+          courseId: courseRecord.id,
+          title: `${pace === CoursePace.SEVEN_WEEK ? "7-week" : "14-week"} online and blended cohort`,
+        },
+      },
+      update: {
+        programId,
+        title: `${pace === CoursePace.SEVEN_WEEK ? "7-week" : "14-week"} online and blended cohort`,
+        pace,
+        startDate,
+        endDate: addDays(startDate, weekCount * 7),
+        enrollmentDeadline: addDays(startDate, -3),
+        capacity: 80,
+        status: ContentStatus.PUBLISHED,
+      },
+      create: {
+        courseId: courseRecord.id,
+        programId,
+        title: `${pace === CoursePace.SEVEN_WEEK ? "7-week" : "14-week"} online and blended cohort`,
+        pace,
+        startDate,
+        endDate: addDays(startDate, weekCount * 7),
+        enrollmentDeadline: addDays(startDate, -3),
+        capacity: 80,
+        status: ContentStatus.PUBLISHED,
+      },
+    });
+
+    const assessmentComponents = [
+      {
+        category: AssessmentComponentCategory.PREPARATION,
+        title: "Preparation",
+        description:
+          "Weekly study-material quizzes and guided reading checks that prepare learners before live or practical work.",
+        weightPercent: 30,
+        position: 1,
+      },
+      {
+        category: AssessmentComponentCategory.TEACH_ONE_ANOTHER,
+        title: "Teach One Another",
+        description:
+          "Weekly group presentations and peer explanations that prepare learners for the weekly paper or applied submission.",
+        weightPercent: 30,
+        position: 2,
+      },
+      {
+        category: AssessmentComponentCategory.PONDER_PROVE,
+        title: "Ponder and Prove",
+        description:
+          "Weekly critique papers and a final capstone case study that proves individual learning and workplace application.",
+        weightPercent: 40,
+        position: 3,
+      },
+    ];
+
+    for (const component of assessmentComponents) {
+      await prisma.courseAssessmentComponent.upsert({
+        where: {
+          courseId_position: {
+            courseId: courseRecord.id,
+            position: component.position,
+          },
+        },
+        update: component,
+        create: {
+          courseId: courseRecord.id,
+          ...component,
+        },
+      });
+    }
+
+    for (let weekNumber = 1; weekNumber <= weekCount; weekNumber += 1) {
+      const weekPlan = buildWeekPlan(course, weekNumber);
+
+      await prisma.courseWeek.upsert({
+        where: {
+          courseId_weekNumber: {
+            courseId: courseRecord.id,
+            weekNumber,
+          },
+        },
+        update: weekPlan,
+        create: {
+          courseId: courseRecord.id,
+          ...weekPlan,
+        },
+      });
+    }
 
     for (const [moduleIndex, module] of course.modules.entries()) {
       const moduleRecord = await prisma.module.upsert({

@@ -29,6 +29,8 @@ export const verificationSchema = z.object({
 
 export const courseEnrollmentSchema = z.object({
   courseSlug: z.string().min(2, "Choose a valid course."),
+  programId: z.string().min(2).optional(),
+  courseOfferingId: z.string().min(2).optional(),
 });
 
 export const lessonProgressSchema = z.object({

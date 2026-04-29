@@ -7,10 +7,19 @@ import { Button } from "@/components/ui/button";
 
 type CourseEnrollButtonProps = {
   courseSlug: string;
+  programId?: string;
+  courseOfferingId?: string;
   size?: "default" | "lg";
+  label?: string;
 };
 
-export function CourseEnrollButton({ courseSlug, size = "lg" }: CourseEnrollButtonProps) {
+export function CourseEnrollButton({
+  courseSlug,
+  programId,
+  courseOfferingId,
+  size = "lg",
+  label = "Enroll and start learning",
+}: CourseEnrollButtonProps) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -23,7 +32,7 @@ export function CourseEnrollButton({ courseSlug, size = "lg" }: CourseEnrollButt
       const response = await fetch("/api/elearning/enrollments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseSlug }),
+        body: JSON.stringify({ courseSlug, programId, courseOfferingId }),
       });
       const payload = (await response.json()) as { success: boolean; message: string };
 
@@ -53,7 +62,7 @@ export function CourseEnrollButton({ courseSlug, size = "lg" }: CourseEnrollButt
   return (
     <div className="flex flex-col gap-2">
       <Button type="button" size={size} onClick={enroll} disabled={isPending}>
-        {isPending ? "Enrolling..." : "Enroll and start learning"}
+        {isPending ? "Enrolling..." : label}
       </Button>
       {message ? <p className="text-sm text-[var(--color-muted)]">{message}</p> : null}
     </div>

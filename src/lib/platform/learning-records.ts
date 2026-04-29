@@ -32,6 +32,18 @@ export type LearnerCourseRecord = {
   certificates: number;
 };
 
+function formatEnumLabel(value: string) {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function countCourseWeeks(pace: string | null | undefined) {
+  return pace === "SEVEN_WEEK" ? 7 : pace === "FOURTEEN_WEEK" ? 14 : null;
+}
+
 export async function getLearnerWorkspaceRecords() {
   const db = getDb();
   const user = await ensureUserForSession();
@@ -268,6 +280,27 @@ export async function getLearnerCourseWorkspace(slug: string) {
       school: true,
       program: true,
       owner: { include: { profile: true } },
+      programCourses: {
+        include: {
+          program: {
+            include: {
+              school: true,
+            },
+          },
+        },
+        orderBy: [{ yearNumber: "asc" }, { termNumber: "asc" }, { sequence: "asc" }],
+      },
+      assessmentComponents: {
+        orderBy: { position: "asc" },
+      },
+      weekPlans: {
+        where: { status: ContentStatus.PUBLISHED },
+        orderBy: { weekNumber: "asc" },
+      },
+      offerings: {
+        where: { status: ContentStatus.PUBLISHED },
+        orderBy: { startDate: "asc" },
+      },
       modules: {
         where: { status: ContentStatus.PUBLISHED },
         include: {
@@ -315,6 +348,8 @@ export async function getLearnerCourseWorkspace(slug: string) {
         where: { userId: user.id },
         include: {
           certificates: true,
+          courseOffering: true,
+          programEnrollment: true,
         },
       },
     },
@@ -430,6 +465,322 @@ export async function getLearnerCourseWorkspace(slug: string) {
     course,
     enrollment,
     modules,
+  };
+}
+
+async function backfillProgramEnrollmentsForUser(userId: string) {
+  const db = getDb();
+  const enrollments = await db.enrollment.findMany({
+    where: {
+      userId,
+      status: { not: EnrollmentStatus.CANCELLED },
+      programEnrollmentId: null,
+    },
+    select: {
+      id: true,
+      programId: true,
+    },
+  });
+
+  for (const enrollment of enrollments) {
+    const programEnrollment = await db.programEnrollment.upsert({
+      where: {
+        userId_programId: {
+          userId,
+          programId: enrollment.programId,
+        },
+      },
+      update: {
+        status: EnrollmentStatus.ACTIVE,
+      },
+      create: {
+        userId,
+        programId: enrollment.programId,
+        status: EnrollmentStatus.ACTIVE,
+      },
+    });
+
+    await db.enrollment.update({
+      where: { id: enrollment.id },
+      data: { programEnrollmentId: programEnrollment.id },
+    });
+  }
+}
+
+export async function getLearnerProgramPathway() {
+  const db = getDb();
+  const user = await ensureUserForSession();
+
+  await backfillProgramEnrollmentsForUser(user.id);
+
+  const programEnrollments = await db.programEnrollment.findMany({
+    where: {
+      userId: user.id,
+      status: { not: EnrollmentStatus.CANCELLED },
+    },
+    include: {
+      intake: true,
+      courseEnrollments: {
+        where: { status: { not: EnrollmentStatus.CANCELLED } },
+        include: {
+          course: {
+            include: {
+              school: true,
+              offerings: {
+                where: { status: ContentStatus.PUBLISHED },
+                orderBy: { startDate: "asc" },
+              },
+              weekPlans: {
+                where: { status: ContentStatus.PUBLISHED },
+                orderBy: { weekNumber: "asc" },
+              },
+            },
+          },
+          courseOffering: true,
+        },
+      },
+      program: {
+        include: {
+          school: true,
+          programCourses: {
+            include: {
+              course: {
+                include: {
+                  school: true,
+                  offerings: {
+                    where: { status: ContentStatus.PUBLISHED },
+                    orderBy: { startDate: "asc" },
+                  },
+                  enrollments: {
+                    where: {
+                      userId: user.id,
+                      status: { not: EnrollmentStatus.CANCELLED },
+                    },
+                    include: {
+                      courseOffering: true,
+                    },
+                  },
+                  weekPlans: {
+                    where: { status: ContentStatus.PUBLISHED },
+                    orderBy: { weekNumber: "asc" },
+                  },
+                },
+              },
+            },
+            orderBy: [{ yearNumber: "asc" }, { termNumber: "asc" }, { sequence: "asc" }],
+          },
+        },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return {
+    user,
+    programEnrollments: programEnrollments.map((programEnrollment) => {
+      const semesters = new Map<string, {
+        key: string;
+        yearNumber: number;
+        termNumber: number;
+        title: string;
+        courses: Array<{
+          id: string;
+          slug: string;
+          title: string;
+          school: string;
+          sharedFromOtherSchool: boolean;
+          requirement: string;
+          creditUnits: number | null;
+          sequence: number;
+          weekCount: number;
+          pace: string;
+          status: "enrolled" | "available" | "completed";
+          progress: number;
+          offeringId: string | null;
+          offeringTitle: string | null;
+        }>;
+      }>();
+
+      const plannedCourses = programEnrollment.program.programCourses.length
+        ? programEnrollment.program.programCourses
+        : programEnrollment.courseEnrollments.map((enrollment, index) => ({
+            course: {
+              ...enrollment.course,
+              enrollments: [enrollment],
+            },
+            yearNumber: 1,
+            termNumber: programEnrollment.currentTerm,
+            sequence: index + 1,
+            requirement: "REQUIRED",
+            creditUnits: null,
+          }));
+
+      for (const plan of plannedCourses) {
+        const enrollment = plan.course.enrollments[0] ?? null;
+        const offering =
+          enrollment?.courseOffering ??
+          plan.course.offerings.find((item) => !item.programId || item.programId === programEnrollment.programId) ??
+          plan.course.offerings[0] ??
+          null;
+        const key = `${plan.yearNumber}-${plan.termNumber}`;
+
+        if (!semesters.has(key)) {
+          semesters.set(key, {
+            key,
+            yearNumber: plan.yearNumber,
+            termNumber: plan.termNumber,
+            title: `Year ${plan.yearNumber}, Semester ${plan.termNumber}`,
+            courses: [],
+          });
+        }
+
+        semesters.get(key)?.courses.push({
+          id: plan.course.id,
+          slug: plan.course.slug,
+          title: plan.course.title,
+          school: plan.course.school.name,
+          sharedFromOtherSchool: plan.course.schoolId !== programEnrollment.program.schoolId,
+          requirement: formatEnumLabel(plan.requirement),
+          creditUnits: plan.creditUnits,
+          sequence: plan.sequence,
+          weekCount: plan.course.weekPlans.length || countCourseWeeks(offering?.pace) || 14,
+          pace: offering ? formatEnumLabel(offering.pace) : "Fourteen Week",
+          status:
+            enrollment?.status === EnrollmentStatus.COMPLETED
+              ? "completed"
+              : enrollment
+                ? "enrolled"
+                : "available",
+          progress: enrollment?.progressPercent ?? 0,
+          offeringId: offering?.id ?? null,
+          offeringTitle: offering?.title ?? null,
+        });
+      }
+
+      return {
+        id: programEnrollment.id,
+        currentTerm: programEnrollment.currentTerm,
+        status: programEnrollment.status,
+        startedAt: programEnrollment.startedAt.toISOString(),
+        expectedCompletionAt: programEnrollment.expectedCompletionAt?.toISOString() ?? null,
+        intake: programEnrollment.intake
+          ? {
+              title: programEnrollment.intake.title,
+              startDate: programEnrollment.intake.startDate.toISOString(),
+            }
+          : null,
+        program: {
+          id: programEnrollment.program.id,
+          title: programEnrollment.program.title,
+          level: formatEnumLabel(programEnrollment.program.level),
+          deliveryMode: formatEnumLabel(programEnrollment.program.deliveryMode),
+          school: programEnrollment.program.school.name,
+          durationLabel: programEnrollment.program.durationLabel,
+          overview: programEnrollment.program.overview,
+        },
+        enrolledCourseCount: programEnrollment.courseEnrollments.length,
+        semesters: Array.from(semesters.values()).map((semester) => ({
+          ...semester,
+          courses: semester.courses.sort((a, b) => a.sequence - b.sequence),
+        })),
+      };
+    }),
+  };
+}
+
+export async function getLearnerAcademicCalendar() {
+  const db = getDb();
+  const user = await ensureUserForSession();
+  const enrollments = await db.enrollment.findMany({
+    where: {
+      userId: user.id,
+      status: { not: EnrollmentStatus.CANCELLED },
+    },
+    include: {
+      courseOffering: true,
+      course: {
+        include: {
+          school: true,
+          weekPlans: {
+            where: { status: ContentStatus.PUBLISHED },
+            orderBy: { weekNumber: "asc" },
+          },
+          assignments: {
+            where: { status: AssignmentStatus.PUBLISHED },
+            orderBy: { dueAt: "asc" },
+          },
+          quizzes: {
+            where: { status: ContentStatus.PUBLISHED },
+            orderBy: { createdAt: "asc" },
+          },
+        },
+      },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return {
+    user,
+    enrollments: enrollments.map((enrollment) => {
+      const weekCount =
+        enrollment.course.weekPlans.length || countCourseWeeks(enrollment.courseOffering?.pace) || 14;
+      const weeks = enrollment.course.weekPlans.length
+        ? enrollment.course.weekPlans
+        : Array.from({ length: weekCount }, (_, index) => {
+            const weekNumber = index + 1;
+
+            return {
+              id: `${enrollment.course.id}-derived-week-${weekNumber}`,
+              weekNumber,
+              title: `Week ${weekNumber}: ${enrollment.course.title}`,
+              topic: enrollment.course.summary,
+              preparationQuizTitle: `Preparation quiz ${weekNumber}`,
+              teachOneAnotherTask:
+                "Prepare a group explanation or short presentation for the weekly topic.",
+              ponderProveTask:
+                weekNumber === weekCount
+                  ? "Submit final capstone learning evidence."
+                  : "Submit the weekly critique or applied paper.",
+              liveSessionNote:
+                enrollment.course.deliveryMode === "BLENDED"
+                  ? "Check announcements for blended session details."
+                  : null,
+            };
+          });
+
+      return {
+        id: enrollment.id,
+        courseSlug: enrollment.course.slug,
+        courseTitle: enrollment.course.title,
+        school: enrollment.course.school.name,
+        progress: enrollment.progressPercent,
+        pace: enrollment.courseOffering ? formatEnumLabel(enrollment.courseOffering.pace) : "Fourteen Week",
+        weekCount,
+        offeringTitle: enrollment.courseOffering?.title ?? "Open online course",
+        startDate: enrollment.courseOffering?.startDate?.toISOString() ?? enrollment.startedAt.toISOString(),
+        endDate: enrollment.courseOffering?.endDate?.toISOString() ?? null,
+        weeks: weeks.map((week) => ({
+          id: week.id,
+          weekNumber: week.weekNumber,
+          title: week.title,
+          topic: week.topic,
+          preparationQuizTitle: week.preparationQuizTitle,
+          teachOneAnotherTask: week.teachOneAnotherTask,
+          ponderProveTask: week.ponderProveTask,
+          liveSessionNote: week.liveSessionNote,
+        })),
+        assignments: enrollment.course.assignments.map((assignment) => ({
+          id: assignment.id,
+          title: assignment.title,
+          dueAt: assignment.dueAt?.toISOString() ?? null,
+        })),
+        quizzes: enrollment.course.quizzes.map((quiz) => ({
+          id: quiz.id,
+          title: quiz.title,
+          timeLimitMinutes: quiz.timeLimitMinutes,
+        })),
+      };
+    }),
   };
 }
 

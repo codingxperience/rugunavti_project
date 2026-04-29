@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Bell, BookOpenText, FileText, UsersRound } from "lucide-react";
+import { Bell, BookOpenText, CalendarDays, FileText, UsersRound } from "lucide-react";
 
 import { CourseEnrollButton } from "@/components/elearning/course-enroll-button";
 import { CourseModuleAccordion } from "@/components/elearning/course-module-accordion";
@@ -32,6 +32,14 @@ function formatDate(value: Date | string | null) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function formatEnumLabel(value: string) {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 export default async function LearnCoursePlayerPage({
@@ -83,6 +91,69 @@ export default async function LearnCoursePlayerPage({
     [workspace.course.owner?.profile?.firstName, workspace.course.owner?.profile?.lastName]
       .filter(Boolean)
       .join(" ") || "Ruguna Instructor";
+  const selectedOffering = workspace.enrollment.courseOffering ?? workspace.course.offerings[0] ?? null;
+  const plannedWeekCount =
+    workspace.course.weekPlans.length ||
+    (selectedOffering?.pace === "SEVEN_WEEK" ? 7 : selectedOffering?.pace === "FOURTEEN_WEEK" ? 14 : 14);
+  const pathwayPlacements = workspace.course.programCourses.length
+    ? workspace.course.programCourses
+    : [
+        {
+          program: { title: workspace.course.program.title, school: workspace.course.school },
+          yearNumber: 1,
+          termNumber: 1,
+          requirement: "REQUIRED",
+          creditUnits: null,
+        },
+      ];
+  const assessmentComponents = workspace.course.assessmentComponents.length
+    ? workspace.course.assessmentComponents
+    : [
+        {
+          id: "default-preparation",
+          title: "Preparation",
+          description: "Weekly study-material quizzes and guided reading checks.",
+          weightPercent: 30,
+        },
+        {
+          id: "default-teach-one-another",
+          title: "Teach One Another",
+          description: "Weekly group presentations and peer teaching work.",
+          weightPercent: 30,
+        },
+        {
+          id: "default-ponder-prove",
+          title: "Ponder and Prove",
+          description: "Weekly papers and capstone proof-of-learning work.",
+          weightPercent: 40,
+        },
+      ];
+  const weeklyPlan = workspace.course.weekPlans.length
+    ? workspace.course.weekPlans
+    : Array.from({ length: plannedWeekCount }, (_, index) => {
+        const weekNumber = index + 1;
+        const lessonForWeek = lessons[index % Math.max(lessons.length, 1)];
+
+        return {
+          id: `derived-week-${weekNumber}`,
+          weekNumber,
+          title: `Week ${weekNumber}: ${lessonForWeek?.title ?? workspace.course.title}`,
+          topic: lessonForWeek?.summary ?? workspace.course.summary,
+          preparationQuizTitle: `Preparation quiz ${weekNumber}`,
+          preparationMaterials: "Review the weekly study guide and instructor notes.",
+          preparationReading: "Complete the assigned reading before attempting the weekly quiz.",
+          teachOneAnotherTask:
+            "Prepare a short group explanation or presentation that helps classmates apply the topic.",
+          ponderProveTask:
+            weekNumber === plannedWeekCount
+              ? "Submit the capstone case study or final learning reflection."
+              : "Write a weekly critique or applied paper connected to a real workplace scenario.",
+          liveSessionNote:
+            workspace.course.deliveryMode === "BLENDED"
+              ? "Check announcements for blended practical or live-session details."
+              : null,
+        };
+      });
 
   const buildCourseHref = (nextView: CourseView) => {
     const nextParams = new URLSearchParams();
@@ -232,27 +303,55 @@ export default async function LearnCoursePlayerPage({
         </Card>
       </div>
     ) : (
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <Card>
           <CardContent>
-            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-              Course structure
-            </h2>
-            <div className="mt-5 grid gap-3">
+            <div className="flex items-center gap-3">
+              <CalendarDays className="h-5 w-5 text-[var(--color-ink)]" />
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                Schedule and learning rhythm
+              </h2>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
               <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4">
-                <p className="font-semibold text-[var(--color-ink)]">Award and delivery</p>
+                <p className="font-semibold text-[var(--color-ink)]">Course pace</p>
                 <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                  {workspace.course.program.level.replace(/_/g, " ").toLowerCase()} pathway
-                  delivered through {workspace.course.deliveryMode.toLowerCase()} study.
+                  {selectedOffering ? formatEnumLabel(selectedOffering.pace) : "Fourteen Week"} course
+                  with {plannedWeekCount} planned week(s). Seven-week courses run faster; fourteen-week
+                  courses normally run without a mid-course break.
                 </p>
               </div>
               <div className="rounded-[22px] border border-[var(--color-border)] bg-white p-4">
-                <p className="font-semibold text-[var(--color-ink)]">Modules and lessons</p>
+                <p className="font-semibold text-[var(--color-ink)]">Offering</p>
                 <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                  {workspace.modules.length} modules and {totalLessons} published lessons are
-                  currently available inside this course workspace.
+                  {selectedOffering?.title ?? "Open online course"}. Start:{" "}
+                  {selectedOffering?.startDate ? formatDate(selectedOffering.startDate) : "Self-paced"}.
                 </p>
               </div>
+            </div>
+
+            <div className="mt-6 grid gap-3">
+              {pathwayPlacements.map((placement) => (
+                <div
+                  key={`${placement.program.title}-${placement.yearNumber}-${placement.termNumber}`}
+                  className="rounded-[22px] border border-[var(--color-border)] bg-white p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="font-semibold text-[var(--color-ink)]">{placement.program.title}</p>
+                    <StatusBadge
+                      value={`Year ${placement.yearNumber}, Semester ${placement.termNumber}`}
+                    />
+                  </div>
+                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                    {formatEnumLabel(placement.requirement)} course
+                    {placement.creditUnits ? `, ${placement.creditUnits} credit unit(s)` : ""}.
+                    {placement.program.school.name !== workspace.course.school.name
+                      ? ` Shared from ${workspace.course.school.name}.`
+                      : ""}
+                  </p>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -260,25 +359,98 @@ export default async function LearnCoursePlayerPage({
         <Card>
           <CardContent>
             <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-              Module outline
+              Assessment weighting
             </h2>
             <div className="mt-5 grid gap-3">
-              {workspace.modules.map((module, index) => (
+              {assessmentComponents.length ? (
+                assessmentComponents.map((component) => (
+                  <div
+                    key={component.id}
+                    className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-semibold text-[var(--color-ink)]">{component.title}</p>
+                      <StatusBadge value={`${component.weightPercent}%`} tone="success" />
+                    </div>
+                    <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                      {component.description}
+                    </p>
+                  </div>
+                ))
+              ) : (
                 <div
-                  key={module.id}
                   className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="font-semibold text-[var(--color-ink)]">
-                      Module {index + 1}: {module.title.replace(/^Module\s+\d+:\s*/i, "")}
-                    </p>
-                    <StatusBadge value={`${module.lessons.length} lessons`} />
-                  </div>
-                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                    {module.summary}
+                  <p className="text-sm leading-7 text-[var(--color-muted)]">
+                    Assessment weighting has not been configured for this course yet.
                   </p>
                 </div>
-              ))}
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        </div>
+
+        <Card>
+          <CardContent>
+            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+              Weekly course plan
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+              Each week connects preparation, peer teaching, and proof-of-learning work so learners
+              can see what is expected before deadlines arrive.
+            </p>
+            <div className="mt-6 grid gap-3">
+              {weeklyPlan.length ? (
+                weeklyPlan.map((week) => (
+                  <details
+                    key={week.id}
+                    className="group rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+                  >
+                    <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                          Week {week.weekNumber}
+                        </p>
+                        <h3 className="font-heading mt-2 text-xl font-bold text-[var(--color-ink)]">
+                          {week.title}
+                        </h3>
+                      </div>
+                      <StatusBadge value={week.topic} />
+                    </summary>
+                    <div className="mt-5 grid gap-3 md:grid-cols-3">
+                      <div className="rounded-[18px] bg-white p-4">
+                        <p className="font-semibold text-[var(--color-ink)]">Preparation</p>
+                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                          {week.preparationQuizTitle}. {week.preparationMaterials}{" "}
+                          {week.preparationReading}
+                        </p>
+                      </div>
+                      <div className="rounded-[18px] bg-white p-4">
+                        <p className="font-semibold text-[var(--color-ink)]">Teach one another</p>
+                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                          {week.teachOneAnotherTask}
+                        </p>
+                      </div>
+                      <div className="rounded-[18px] bg-white p-4">
+                        <p className="font-semibold text-[var(--color-ink)]">Ponder and prove</p>
+                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                          {week.ponderProveTask}
+                        </p>
+                      </div>
+                    </div>
+                    {week.liveSessionNote ? (
+                      <p className="mt-4 rounded-[18px] bg-white px-4 py-3 text-sm leading-7 text-[var(--color-muted)]">
+                        {week.liveSessionNote}
+                      </p>
+                    ) : null}
+                  </details>
+                ))
+              ) : (
+                <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
+                  Weekly planning has not been published for this course yet.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

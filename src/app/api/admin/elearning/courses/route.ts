@@ -1,4 +1,10 @@
-import { AuditAction, ContentStatus } from "@prisma/client";
+import {
+  AssessmentComponentCategory,
+  AuditAction,
+  ContentStatus,
+  CoursePace,
+  CourseRequirement,
+} from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
@@ -22,6 +28,14 @@ export async function GET() {
     include: {
       school: true,
       program: true,
+      programCourses: {
+        include: {
+          program: true,
+        },
+      },
+      offerings: true,
+      assessmentComponents: true,
+      weekPlans: true,
       modules: {
         include: {
           lessons: true,
@@ -43,6 +57,16 @@ export async function GET() {
       status: course.status,
       school: course.school.name,
       program: course.program.title,
+      programmePlacements: course.programCourses.map((placement) => ({
+        programId: placement.programId,
+        program: placement.program.title,
+        yearNumber: placement.yearNumber,
+        termNumber: placement.termNumber,
+        requirement: placement.requirement,
+      })),
+      offerings: course.offerings.length,
+      assessmentComponents: course.assessmentComponents.length,
+      weekPlans: course.weekPlans.length,
       modules: course.modules.length,
       lessons: course.modules.reduce((count, module) => count + module.lessons.length, 0),
       enrollments: course.enrollments.length,
@@ -113,6 +137,90 @@ export async function POST(request: Request) {
             ownerId: auth.user.id,
           },
         });
+
+    await db.programCourse.upsert({
+      where: {
+        programId_courseId: {
+          programId: values.programId,
+          courseId: course.id,
+        },
+      },
+      update: {
+        yearNumber: 1,
+        termNumber: 1,
+        sequence: 1,
+        requirement: CourseRequirement.REQUIRED,
+      },
+      create: {
+        programId: values.programId,
+        courseId: course.id,
+        yearNumber: 1,
+        termNumber: 1,
+        sequence: 1,
+        requirement: CourseRequirement.REQUIRED,
+      },
+    });
+
+    await db.courseOffering.upsert({
+      where: {
+        courseId_title: {
+          courseId: course.id,
+          title: "14-week online and blended cohort",
+        },
+      },
+      update: {
+        programId: values.programId,
+        pace: CoursePace.FOURTEEN_WEEK,
+        status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
+      },
+      create: {
+        courseId: course.id,
+        programId: values.programId,
+        title: "14-week online and blended cohort",
+        pace: CoursePace.FOURTEEN_WEEK,
+        status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
+      },
+    });
+
+    const defaultAssessmentComponents = [
+      {
+        category: AssessmentComponentCategory.PREPARATION,
+        title: "Preparation",
+        description: "Weekly preparation quizzes and reading checks.",
+        weightPercent: 30,
+        position: 1,
+      },
+      {
+        category: AssessmentComponentCategory.TEACH_ONE_ANOTHER,
+        title: "Teach One Another",
+        description: "Weekly group presentations and peer teaching work.",
+        weightPercent: 30,
+        position: 2,
+      },
+      {
+        category: AssessmentComponentCategory.PONDER_PROVE,
+        title: "Ponder and Prove",
+        description: "Weekly papers and capstone proof-of-learning work.",
+        weightPercent: 40,
+        position: 3,
+      },
+    ];
+
+    for (const component of defaultAssessmentComponents) {
+      await db.courseAssessmentComponent.upsert({
+        where: {
+          courseId_position: {
+            courseId: course.id,
+            position: component.position,
+          },
+        },
+        update: component,
+        create: {
+          courseId: course.id,
+          ...component,
+        },
+      });
+    }
 
     await writeAuditLog({
       actorId: auth.user.id,

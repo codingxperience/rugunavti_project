@@ -61,6 +61,10 @@ function getNavIcon(href: string, label: string) {
     return BookOpenText;
   }
 
+  if (href.includes("program")) {
+    return FolderCheck;
+  }
+
   if (href.includes("calendar")) {
     return CalendarDays;
   }

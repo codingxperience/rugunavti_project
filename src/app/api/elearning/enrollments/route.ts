@@ -33,6 +33,11 @@ export async function POST(request: Request) {
       },
       include: {
         program: true,
+        programCourses: true,
+        offerings: {
+          where: { status: ContentStatus.PUBLISHED },
+          orderBy: { startDate: "asc" },
+        },
       },
     });
 
@@ -45,6 +50,39 @@ export async function POST(request: Request) {
 
     await attachUserRole(auth.user.id, "student");
 
+    const requestedProgramId = result.data.programId;
+    const belongsToRequestedProgram =
+      requestedProgramId === course.programId ||
+      course.programCourses.some((item) => item.programId === requestedProgramId);
+    const programId = requestedProgramId && belongsToRequestedProgram ? requestedProgramId : course.programId;
+    const requestedOffering = result.data.courseOfferingId
+      ? course.offerings.find(
+          (offering) =>
+            offering.id === result.data.courseOfferingId &&
+            (!offering.programId || offering.programId === programId)
+        )
+      : null;
+    const courseOffering =
+      requestedOffering ??
+      course.offerings.find((offering) => !offering.programId || offering.programId === programId) ??
+      null;
+    const programEnrollment = await db.programEnrollment.upsert({
+      where: {
+        userId_programId: {
+          userId: auth.user.id,
+          programId,
+        },
+      },
+      update: {
+        status: EnrollmentStatus.ACTIVE,
+      },
+      create: {
+        userId: auth.user.id,
+        programId,
+        status: EnrollmentStatus.ACTIVE,
+      },
+    });
+
     const enrollment = await db.enrollment.upsert({
       where: {
         userId_courseId: {
@@ -54,11 +92,16 @@ export async function POST(request: Request) {
       },
       update: {
         status: EnrollmentStatus.ACTIVE,
+        programId,
+        programEnrollmentId: programEnrollment.id,
+        courseOfferingId: courseOffering?.id,
       },
       create: {
         userId: auth.user.id,
-        programId: course.programId,
+        programId,
         courseId: course.id,
+        programEnrollmentId: programEnrollment.id,
+        courseOfferingId: courseOffering?.id,
         status: EnrollmentStatus.ACTIVE,
       },
     });
@@ -71,7 +114,9 @@ export async function POST(request: Request) {
       summary: `${auth.user.email} enrolled in ${course.title}.`,
       payload: {
         courseSlug: course.slug,
-        programId: course.programId,
+        programId,
+        programEnrollmentId: programEnrollment.id,
+        courseOfferingId: courseOffering?.id,
       },
     });
 
