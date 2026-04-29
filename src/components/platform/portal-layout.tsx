@@ -7,14 +7,14 @@ import {
   Bell,
   BookOpenText,
   CalendarDays,
+  ChevronsLeft,
+  ChevronsRight,
   CircleHelp,
   FileBadge2,
   FolderCheck,
   House,
   LayoutDashboard,
   Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
   PenSquare,
   ScrollText,
   Search,
@@ -192,8 +192,8 @@ export function PortalLayout({
         >
           <div
             className={cn(
-              "flex items-center gap-3",
-              sidebarCollapsed ? "lg:flex-col lg:justify-center" : "lg:justify-between"
+              "relative flex items-center gap-3",
+              sidebarCollapsed ? "lg:flex-col lg:justify-center" : "lg:pr-12"
             )}
           >
             <div className={cn("flex min-w-0 items-center gap-3", sidebarCollapsed && "lg:flex-col")}>
@@ -219,12 +219,15 @@ export function PortalLayout({
               type="button"
               aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               onClick={() => setSidebarCollapsed((value) => !value)}
-              className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-black/6 bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)] lg:inline-flex"
+              className={cn(
+                "hidden h-11 w-11 items-center justify-center rounded-2xl border border-black/6 bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)] lg:inline-flex",
+                sidebarCollapsed ? "lg:mt-3" : "lg:absolute lg:right-0 lg:top-0"
+              )}
             >
               {sidebarCollapsed ? (
-                <PanelLeftOpen className="h-4 w-4" />
+                <ChevronsRight className="h-4 w-4" />
               ) : (
-                <PanelLeftClose className="h-4 w-4" />
+                <ChevronsLeft className="h-4 w-4" />
               )}
             </button>
           </div>

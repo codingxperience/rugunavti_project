@@ -58,6 +58,16 @@ const quizResponseSchema = z.union([
   z.record(z.string(), z.unknown()),
 ]);
 
+const optionalIdSchema = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().min(2).optional()
+);
+
+const optionalUrlSchema = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().url().optional()
+);
+
 export const quizAttemptSchema = z.object({
   quizId: z.string().min(2, "Choose a valid quiz."),
   answers: z
@@ -97,10 +107,18 @@ export const announcementSchema = z.object({
   title: z.string().trim().min(3, "Add an announcement title."),
   body: z.string().trim().min(10, "Add useful announcement details."),
   scope: z.enum(["PLATFORM", "SCHOOL", "PROGRAM", "COURSE"]).default("COURSE"),
-  schoolId: z.string().min(2).optional(),
-  programId: z.string().min(2).optional(),
-  courseId: z.string().min(2).optional(),
+  schoolId: optionalIdSchema,
+  programId: optionalIdSchema,
+  courseId: optionalIdSchema,
   published: z.boolean().default(true),
+}).superRefine((value, context) => {
+  if (value.scope === "COURSE" && !value.courseId) {
+    context.addIssue({
+      code: "custom",
+      message: "Choose a course for a course announcement.",
+      path: ["courseId"],
+    });
+  }
 });
 
 export const courseUpsertSchema = z.object({
@@ -113,7 +131,7 @@ export const courseUpsertSchema = z.object({
   description: z.string().trim().min(20, "Add a course description."),
   deliveryMode: z.enum(["ONLINE", "BLENDED", "PRACTICAL", "DAY", "EVENING", "WEEKEND"]),
   estimatedHours: z.coerce.number().int().min(1).max(500),
-  thumbnailUrl: z.string().url().optional(),
+  thumbnailUrl: optionalUrlSchema,
   published: z.boolean().default(false),
 });
 
@@ -145,8 +163,8 @@ export const lessonUpsertSchema = z.object({
   ]),
   position: z.coerce.number().int().min(1),
   durationMinutes: z.coerce.number().int().min(1).max(600).optional(),
-  videoUrl: z.string().url().optional(),
-  liveSessionUrl: z.string().url().optional(),
+  videoUrl: optionalUrlSchema,
+  liveSessionUrl: optionalUrlSchema,
   published: z.boolean().default(true),
 });
 
@@ -164,7 +182,7 @@ export const lessonResourceUpsertSchema = z.object({
 export const assignmentUpsertSchema = z.object({
   id: z.string().min(2).optional(),
   courseId: z.string().min(2, "Choose a course."),
-  lessonId: z.string().min(2).optional(),
+  lessonId: optionalIdSchema,
   title: z.string().trim().min(3, "Add an assignment title."),
   brief: z.string().trim().min(10, "Add a clear assignment brief."),
   instructions: z.string().trim().min(10, "Add submission instructions."),
@@ -178,7 +196,7 @@ export const assignmentUpsertSchema = z.object({
 export const quizUpsertSchema = z.object({
   id: z.string().min(2).optional(),
   courseId: z.string().min(2, "Choose a course."),
-  lessonId: z.string().min(2).optional(),
+  lessonId: optionalIdSchema,
   title: z.string().trim().min(3, "Add a quiz title."),
   summary: z.string().trim().min(10, "Add a quiz summary."),
   instructions: z.string().trim().min(10, "Add quiz instructions."),

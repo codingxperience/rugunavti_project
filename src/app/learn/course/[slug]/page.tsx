@@ -204,7 +204,6 @@ export default async function LearnCoursePlayerPage({
         courseSlug={workspace.course.slug}
         currentLessonId={currentLesson?.id ?? ""}
         modules={workspace.modules}
-        defaultExpandAll
       />
     ) : currentView === "announcements" ? (
       <Card>

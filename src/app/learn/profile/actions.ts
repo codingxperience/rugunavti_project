@@ -53,16 +53,18 @@ async function uploadProfileAvatar(input: {
   userId: string;
   file: File;
 }) {
-  if (!hasSupabase || !platformEnv.supabaseUrl || !platformEnv.supabaseServiceRoleKey) {
-    throw new Error("Profile photo upload needs Supabase Storage to be configured.");
-  }
-
   if (!avatarMimeTypes.has(input.file.type)) {
     throw new Error("Upload a JPG, PNG, or WebP profile photo.");
   }
 
   if (input.file.size > avatarMaxBytes) {
     throw new Error("Profile photos must be 3 MB or smaller.");
+  }
+
+  if (!hasSupabase || !platformEnv.supabaseUrl || !platformEnv.supabaseServiceRoleKey) {
+    const buffer = Buffer.from(await input.file.arrayBuffer());
+
+    return `data:${input.file.type};base64,${buffer.toString("base64")}`;
   }
 
   const supabase = getSupabaseAdmin();

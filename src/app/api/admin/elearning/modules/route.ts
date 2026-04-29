@@ -53,14 +53,34 @@ export async function POST(request: Request) {
             status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
           },
         })
-      : await db.module.create({
-          data: {
-            courseId: values.courseId,
-            title: values.title,
-            summary: values.summary,
-            position: values.position,
-            status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
-          },
+      : await db.$transaction(async (tx) => {
+          const existingAtPosition = await tx.module.findFirst({
+            where: {
+              courseId: values.courseId,
+              position: values.position,
+            },
+            select: { id: true },
+          });
+          const lastModule = existingAtPosition
+            ? await tx.module.findFirst({
+                where: { courseId: values.courseId },
+                orderBy: { position: "desc" },
+                select: { position: true },
+              })
+            : null;
+          const finalPosition = existingAtPosition
+            ? (lastModule?.position ?? values.position) + 1
+            : values.position;
+
+          return tx.module.create({
+            data: {
+              courseId: values.courseId,
+              title: values.title,
+              summary: values.summary,
+              position: finalPosition,
+              status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
+            },
+          });
         });
 
     await writeAuditLog({

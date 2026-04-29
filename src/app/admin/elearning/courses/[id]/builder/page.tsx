@@ -25,7 +25,10 @@ export default async function AdminCourseBuilderPage({
         <CardContent>
           <div className="flex flex-wrap items-center gap-3">
             <StatusBadge value={course.deliveryMode.replace(/_/g, " ")} />
-            <StatusBadge value={course.status} tone={course.status === "PUBLISHED" ? "success" : "warning"} />
+            <StatusBadge
+              value={course.status}
+              tone={course.status === "PUBLISHED" ? "success" : "warning"}
+            />
           </div>
           <h1 className="font-heading mt-4 text-3xl font-bold text-[var(--color-ink)]">
             {course.title}
@@ -40,37 +43,57 @@ export default async function AdminCourseBuilderPage({
 
       <div className="grid gap-4">
         {course.modules.map((module) => (
-          <Card key={module.id}>
-            <CardContent>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                    Module {module.position}: {module.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-[var(--color-muted)]">{module.summary}</p>
-                </div>
-                <StatusBadge value={module.status} tone={module.status === "PUBLISHED" ? "success" : "warning"} />
+          <details
+            key={module.id}
+            className="group rounded-[28px] border border-[var(--color-border)] bg-white"
+          >
+            <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-4 px-5 py-4">
+              <div>
+                <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                  Module {module.position}: {module.title}
+                </h2>
+                <p className="mt-2 text-sm text-[var(--color-muted)]">{module.summary}</p>
               </div>
-              <div className="mt-5 grid gap-3">
-                {module.lessons.map((lesson) => (
-                  <div
-                    key={lesson.id}
-                    className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-[var(--color-ink)]">{lesson.title}</p>
-                        <p className="mt-2 text-sm text-[var(--color-muted)]">
-                          {lesson.lessonType.replace(/_/g, " ")} - {lesson.resources.length} resources - {lesson.assignments.length} assignments - {lesson.quizzes.length} quizzes
-                        </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge value={`${module.lessons.length} lessons`} />
+                <StatusBadge
+                  value={module.status}
+                  tone={module.status === "PUBLISHED" ? "success" : "warning"}
+                />
+              </div>
+            </summary>
+            <div className="border-t border-[var(--color-border)] p-5">
+              <div className="grid gap-3">
+                {module.lessons.length ? (
+                  module.lessons.map((lesson) => (
+                    <div
+                      key={lesson.id}
+                      className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-[var(--color-ink)]">{lesson.title}</p>
+                          <p className="mt-2 text-sm text-[var(--color-muted)]">
+                            {lesson.lessonType.replace(/_/g, " ")} - {lesson.resources.length}{" "}
+                            resources - {lesson.assignments.length} assignments -{" "}
+                            {lesson.quizzes.length} quizzes
+                          </p>
+                        </div>
+                        <StatusBadge
+                          value={lesson.status}
+                          tone={lesson.status === "PUBLISHED" ? "success" : "warning"}
+                        />
                       </div>
-                      <StatusBadge value={lesson.status} tone={lesson.status === "PUBLISHED" ? "success" : "warning"} />
                     </div>
+                  ))
+                ) : (
+                  <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 text-sm leading-7 text-[var(--color-muted)]">
+                    No lessons have been added to this module yet.
                   </div>
-                ))}
+                )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </details>
         ))}
       </div>
     </div>

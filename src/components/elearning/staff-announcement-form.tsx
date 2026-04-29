@@ -11,6 +11,25 @@ type StaffAnnouncementFormProps = {
   courses: { id: string; title: string }[];
 };
 
+type ApiResponse = {
+  success: boolean;
+  message?: string;
+  errors?: {
+    fieldErrors?: Record<string, string[] | undefined>;
+    formErrors?: string[];
+  };
+};
+
+function formatApiMessage(payload: ApiResponse) {
+  const fieldMessages = Object.values(payload.errors?.fieldErrors ?? {})
+    .flat()
+    .filter(Boolean);
+  const formMessages = payload.errors?.formErrors?.filter(Boolean) ?? [];
+  const details = [...formMessages, ...fieldMessages];
+
+  return details.length ? details.join(" ") : payload.message ?? "Announcement could not be saved.";
+}
+
 export function StaffAnnouncementForm({ courses }: StaffAnnouncementFormProps) {
   const router = useRouter();
   const [scope, setScope] = useState("COURSE");
@@ -23,11 +42,19 @@ export function StaffAnnouncementForm({ courses }: StaffAnnouncementFormProps) {
     setMessage(null);
 
     const formData = new FormData(event.currentTarget);
+    const courseId = String(formData.get("courseId") ?? "");
+
+    if (scope === "COURSE" && !courseId) {
+      setMessage("Choose a course before publishing a course announcement.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const payload = {
       title: String(formData.get("title") ?? ""),
       body: String(formData.get("body") ?? ""),
       scope,
-      courseId: scope === "COURSE" ? String(formData.get("courseId") ?? "") : undefined,
+      courseId: scope === "COURSE" ? courseId : undefined,
       published: formData.get("published") === "on",
     };
 
@@ -37,11 +64,12 @@ export function StaffAnnouncementForm({ courses }: StaffAnnouncementFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const body = (await response.json()) as { success: boolean; message: string };
-      setMessage(body.message);
+      const body = (await response.json()) as ApiResponse;
+      setMessage(formatApiMessage(body));
 
       if (response.ok && body.success) {
         event.currentTarget.reset();
+        setScope("COURSE");
         startTransition(() => router.refresh());
       }
     } catch {
@@ -79,6 +107,7 @@ export function StaffAnnouncementForm({ courses }: StaffAnnouncementFormProps) {
           <label className="grid gap-2 text-sm font-medium">
             Course
             <select name="courseId" className="h-12 rounded-2xl border border-[var(--color-border)] bg-white px-4 text-sm">
+              <option value="">Choose course</option>
               {courses.map((course) => (
                 <option key={course.id} value={course.id}>
                   {course.title}

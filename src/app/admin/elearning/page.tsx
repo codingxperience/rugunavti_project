@@ -15,6 +15,15 @@ import { getAdminElearningRecords } from "@/lib/platform/learning-records";
 
 export const dynamic = "force-dynamic";
 
+function activityLabel(summary: string) {
+  return summary
+    .replace(/^Clerk\s+/i, "")
+    .replace(/\.$/, "")
+    .replace(/Learner updated profile and learning preferences/i, "Profile updated")
+    .replace(/student@ruguna\.local/i, "Learner")
+    .replace(/write2fredokorio@gmail\.com/i, "Fred Okorio");
+}
+
 export default async function AdminElearningDashboardPage() {
   const records = await getAdminElearningRecords();
 
@@ -139,11 +148,18 @@ export default async function AdminElearningDashboardPage() {
                 records.auditLogs.slice(0, 6).map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-6 text-white/80"
+                    className="rounded-[22px] border border-white/10 bg-white/6 p-4"
                   >
-                    <p>{item.summary}</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold leading-6 text-white">
+                        {activityLabel(item.summary)}
+                      </p>
+                      <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">
+                        {item.entityType}
+                      </span>
+                    </div>
                     <p className="mt-2 text-xs uppercase tracking-[0.18em] text-white/45">
-                      {item.action} - {item.entityType}
+                      {item.action}
                     </p>
                   </div>
                 ))

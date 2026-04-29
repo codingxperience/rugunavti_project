@@ -66,20 +66,50 @@ export async function POST(request: Request) {
             status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
           },
         })
-      : await db.lesson.create({
-          data: {
-            moduleId: values.moduleId,
-            slug: values.slug,
-            title: values.title,
-            summary: values.summary,
-            body: values.body as Prisma.InputJsonValue,
-            lessonType: values.lessonType,
-            position: values.position,
-            durationMinutes: values.durationMinutes,
-            videoUrl: values.videoUrl,
-            liveSessionUrl: values.liveSessionUrl,
-            status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
-          },
+      : await db.$transaction(async (tx) => {
+          const existingAtPosition = await tx.lesson.findFirst({
+            where: {
+              moduleId: values.moduleId,
+              position: values.position,
+            },
+            select: { id: true },
+          });
+          const lastLesson = existingAtPosition
+            ? await tx.lesson.findFirst({
+                where: { moduleId: values.moduleId },
+                orderBy: { position: "desc" },
+                select: { position: true },
+              })
+            : null;
+          const finalPosition = existingAtPosition
+            ? (lastLesson?.position ?? values.position) + 1
+            : values.position;
+          const existingSlug = await tx.lesson.findUnique({
+            where: {
+              moduleId_slug: {
+                moduleId: values.moduleId,
+                slug: values.slug,
+              },
+            },
+            select: { id: true },
+          });
+          const finalSlug = existingSlug ? `${values.slug}-${Date.now()}` : values.slug;
+
+          return tx.lesson.create({
+            data: {
+              moduleId: values.moduleId,
+              slug: finalSlug,
+              title: values.title,
+              summary: values.summary,
+              body: values.body as Prisma.InputJsonValue,
+              lessonType: values.lessonType,
+              position: finalPosition,
+              durationMinutes: values.durationMinutes,
+              videoUrl: values.videoUrl,
+              liveSessionUrl: values.liveSessionUrl,
+              status: values.published ? ContentStatus.PUBLISHED : ContentStatus.DRAFT,
+            },
+          });
         });
 
     await writeAuditLog({
