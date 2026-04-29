@@ -10,15 +10,23 @@ import { AuthCompletionGuard } from "./auth-completion-guard";
 
 type ClerkAuthFlowProps = {
   mode: "sign-in" | "sign-up";
-  redirectTarget: string;
+  redirectTarget?: string | null;
 };
 
 export function ClerkAuthFlow({ mode, redirectTarget }: ClerkAuthFlowProps) {
   const { isLoaded, isSignedIn } = useAuth({ treatPendingAsSignedOut: false });
-  const safeTarget = resolveSafeRedirectTarget(redirectTarget, "/learn/dashboard");
-  const completionUrl = `/elearning/auth-complete?next=${encodeURIComponent(safeTarget)}`;
-  const signInUrl = `/elearning/login?next=${encodeURIComponent(safeTarget)}`;
-  const signUpUrl = `/elearning/register?next=${encodeURIComponent(safeTarget)}`;
+  const safeTarget = redirectTarget
+    ? resolveSafeRedirectTarget(redirectTarget, "/learn/dashboard")
+    : null;
+  const completionUrl = safeTarget
+    ? `/elearning/auth-complete?next=${encodeURIComponent(safeTarget)}`
+    : "/elearning/auth-complete";
+  const signInUrl = safeTarget
+    ? `/elearning/login?next=${encodeURIComponent(safeTarget)}`
+    : "/elearning/login";
+  const signUpUrl = safeTarget
+    ? `/elearning/register?next=${encodeURIComponent(safeTarget)}`
+    : "/elearning/register";
 
   if (!isLoaded) {
     return (

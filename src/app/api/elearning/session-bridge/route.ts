@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { normalizeRole } from "@/lib/platform/auth";
 import { setClerkBridgeSession } from "@/lib/platform/bridge-session";
 import { getAuthorizedPartyOrigins, hasClerk, platformEnv } from "@/lib/platform/env";
+import { resolveEffectiveSessionRoles } from "@/lib/platform/role-bootstrap";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -215,12 +216,13 @@ export async function POST(request: Request) {
       }
 
       const previewEmail = previewUser ? getPrimaryEmail(previewUser) : tokenHints.email?.trim() || null;
-      const previewRole =
+      const claimedPreviewRole =
         normalizeRole(
           previewUser && typeof previewUser.publicMetadata?.role === "string"
             ? previewUser.publicMetadata.role
             : tokenHints.role
         ) ?? "student";
+      const previewRoles = resolveEffectiveSessionRoles(claimedPreviewRole, previewEmail);
       const previewName =
         (previewUser
           ? [previewUser.firstName, previewUser.lastName].filter(Boolean).join(" ") ||
@@ -232,7 +234,7 @@ export async function POST(request: Request) {
       const exp = normalizeTimestampToSeconds(tokenHints.exp);
       const stored = await setClerkBridgeSession({
         userId: previewUserId,
-        role: previewRole,
+        role: previewRoles.role,
         email: previewEmail,
         name: previewName,
         exp,
@@ -247,7 +249,8 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
-        role: previewRole,
+        role: previewRoles.role,
+        roles: previewRoles.roles,
         expiresAt: exp,
         source: "preview-token-claims",
       });
@@ -329,11 +332,12 @@ export async function POST(request: Request) {
     }
 
     const user = await clerkClient.users.getUser(authenticatedUserId);
-    const role =
+    const claimedRole =
       normalizeRole(
         typeof user.publicMetadata?.role === "string" ? user.publicMetadata.role : null
       ) ?? "student";
     const email = getPrimaryEmail(user);
+    const effectiveRoles = resolveEffectiveSessionRoles(claimedRole, email);
     const name =
       [user.firstName, user.lastName].filter(Boolean).join(" ") ||
       user.username ||
@@ -346,7 +350,7 @@ export async function POST(request: Request) {
 
     const stored = await setClerkBridgeSession({
       userId: authenticatedUserId,
-      role,
+      role: effectiveRoles.role,
       email,
       name,
       exp,
@@ -361,7 +365,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      role,
+      role: effectiveRoles.role,
+      roles: effectiveRoles.roles,
       expiresAt: exp,
     });
   } catch (error) {

@@ -270,6 +270,7 @@ export async function getAdminUsers() {
     name: [user.profile?.firstName, user.profile?.lastName].filter(Boolean).join(" ") || user.email,
     email: user.email,
     roles: user.userRoles.map((item) => item.role.name),
+    roleSlugs: user.userRoles.map((item) => item.role.slug),
     isActive: user.isActive,
     enrollmentCount: user.enrollments.length,
     submissionCount: user.submissions.length,

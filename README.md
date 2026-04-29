@@ -34,6 +34,7 @@ Production-minded Next.js App Router platform for Ruguna Vocational Training Ins
 3. Configure PostgreSQL/Supabase Postgres, Clerk, Supabase Storage, Resend, and PostHog values.
 4. For local-only role access without Clerk, keep `RUGUNA_ALLOW_DEV_AUTH=true`.
 5. For production, set `RUGUNA_USE_DATABASE=true` and `RUGUNA_ALLOW_DEV_AUTH=false`.
+6. Add initial staff access with `RUGUNA_SUPER_ADMIN_EMAILS` and `RUGUNA_INSTRUCTOR_EMAILS`, then manage ongoing roles from `/admin/elearning/users`.
 
 ## Development
 
@@ -82,6 +83,7 @@ Full deployment steps are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - `POST /api/admin/elearning/courses`, `/modules`, `/lessons`, `/resources`, `/assignments`, `/quizzes`, and `/announcements` provide secured instructor/admin content operations.
 - `POST /api/instructor/submissions/grade` grades learner submissions and updates assessment averages.
 - `POST /api/webhooks/clerk` syncs Clerk user lifecycle events into local `User`, `Profile`, and `UserRole` records when `CLERK_WEBHOOK_SECRET` is configured.
+- `/admin/elearning/users` lets super admins assign student, instructor, finance, registrar/admin, and super admin roles, with Clerk public metadata sync and audit logging.
 - Supabase Storage helpers live in `src/lib/platform/storage.ts` and enforce file size and MIME restrictions before signed uploads or private signed downloads are created.
 - Audit logging lives in `src/lib/platform/audit.ts` and is used by backend workflows when database mode is enabled.
 

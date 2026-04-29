@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 
 import { CLERK_BRIDGE_SESSION_COOKIE } from "@/lib/platform/bridge-session";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
-import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
+import {
+  getDefaultWorkspaceRoute,
+  resolveSafeRedirectTarget,
+  resolveWorkspaceAccess,
+} from "@/lib/platform/navigation";
 import { getCurrentSession } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
@@ -46,20 +50,25 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
+  const session = await getCurrentSession();
   const requestedTarget = resolveSafeRedirectTarget(
     searchParams.get("target"),
-    "/learn/dashboard"
+    session.isAuthenticated ? getDefaultWorkspaceRoute(session.role) : "/learn/dashboard"
   );
-  const session = await getCurrentSession();
+  const access = session.isAuthenticated
+    ? resolveWorkspaceAccess(session, requestedTarget)
+    : null;
 
   return NextResponse.json(
     {
       authenticated: session.isAuthenticated,
       source: session.source,
       role: session.role,
+      roles: session.roles,
       sessionStatus: session.sessionStatus,
       requestedTarget,
-      destination: session.isAuthenticated ? resolveWorkspaceRoute(session, requestedTarget) : null,
+      destination: access?.destination ?? null,
+      access,
       diagnostics,
     },
     {

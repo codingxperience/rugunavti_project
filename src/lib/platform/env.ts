@@ -16,6 +16,15 @@ const rawClerkProxyUrl =
   process.env.NEXT_PUBLIC_CLERK_PROXY_URL ||
   (isLocalSiteUrl ? undefined : `${normalizedSiteUrl}/__clerk`);
 
+function parseEmailList(value: string | undefined) {
+  return new Set(
+    (value ?? "")
+      .split(",")
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+  );
+}
+
 export const platformEnv = {
   siteUrl: rawSiteUrl,
   siteOrigin: normalizedSiteOrigin,
@@ -35,6 +44,12 @@ export const platformEnv = {
   resendApiKey: process.env.RESEND_API_KEY,
   posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY,
   posthogHost: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com",
+  bootstrapRoleEmails: {
+    superAdmin: parseEmailList(process.env.RUGUNA_SUPER_ADMIN_EMAILS),
+    registrarAdmin: parseEmailList(process.env.RUGUNA_REGISTRAR_ADMIN_EMAILS),
+    financeAdmin: parseEmailList(process.env.RUGUNA_FINANCE_ADMIN_EMAILS),
+    instructor: parseEmailList(process.env.RUGUNA_INSTRUCTOR_EMAILS),
+  },
 };
 
 export const isProduction = platformEnv.nodeEnv === "production";

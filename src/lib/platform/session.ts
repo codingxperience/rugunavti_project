@@ -1,9 +1,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getDb } from "@/lib/db";
 import { DEV_SESSION_COOKIE, canAccessRole, decodeDevSession, type PlatformRole } from "@/lib/platform/auth";
 import { CLERK_BRIDGE_SESSION_COOKIE, decodeClerkBridgeSession } from "@/lib/platform/bridge-session";
-import { hasClerk, platformEnv } from "@/lib/platform/env";
+import { hasClerk, hasDatabase, platformEnv } from "@/lib/platform/env";
+import { resolveEffectiveSessionRoles } from "@/lib/platform/role-bootstrap";
 
 function isPlaceholderIdentity(value: string | null | undefined) {
   if (!value) {
@@ -50,6 +52,45 @@ function resolveReadableName(name: string | null | undefined, email: string | nu
   return deriveNameFromEmail(email) || "Ruguna Student";
 }
 
+async function getPersistedRoleSlugs(input: {
+  clerkId?: string | null;
+  email?: string | null;
+}) {
+  if (!platformEnv.useDatabase || !hasDatabase) {
+    return [];
+  }
+
+  const email = input.email?.trim().toLowerCase();
+  const filters = [
+    input.clerkId ? { clerkId: input.clerkId } : null,
+    email ? { email } : null,
+  ].filter((filter): filter is { clerkId: string } | { email: string } => Boolean(filter));
+
+  if (!filters.length) {
+    return [];
+  }
+
+  try {
+    const user = await getDb().user.findFirst({
+      where: { OR: filters },
+      select: {
+        userRoles: {
+          select: {
+            role: {
+              select: { slug: true },
+            },
+          },
+        },
+      },
+    });
+
+    return user?.userRoles.map((item) => item.role.slug) ?? [];
+  } catch (error) {
+    console.error("Persisted role lookup failed; using session role only.", error);
+    return [];
+  }
+}
+
 export async function getCurrentSession() {
   if (hasClerk) {
     try {
@@ -74,12 +115,14 @@ export async function getCurrentSession() {
               ? user.publicMetadata.role
               : "student";
 
-        const role = (["applicant", "student", "instructor", "registrar_admin", "finance_admin", "super_admin"] as const).find(
-          (candidate) => candidate === rawRole
-        );
         const email =
           user?.primaryEmailAddress?.emailAddress ??
           (typeof authResult.sessionClaims?.email === "string" ? authResult.sessionClaims.email : null);
+        const persistedRoles = await getPersistedRoleSlugs({
+          clerkId: authResult.userId,
+          email,
+        });
+        const effectiveRoles = resolveEffectiveSessionRoles(rawRole, email, persistedRoles);
         const name = resolveReadableName(
           [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
             user?.username ||
@@ -91,8 +134,8 @@ export async function getCurrentSession() {
 
         return {
           isAuthenticated: true,
-          role: role ?? "student",
-          roles: [role ?? "student"],
+          role: effectiveRoles.role,
+          roles: effectiveRoles.roles,
           email,
           name,
           clerkUserId: authResult.userId,
@@ -114,10 +157,20 @@ export async function getCurrentSession() {
   );
 
   if (bridgeSession) {
+    const persistedRoles = await getPersistedRoleSlugs({
+      clerkId: bridgeSession.userId,
+      email: bridgeSession.email,
+    });
+    const effectiveRoles = resolveEffectiveSessionRoles(
+      bridgeSession.role,
+      bridgeSession.email,
+      persistedRoles
+    );
+
     return {
       isAuthenticated: true,
-      role: bridgeSession.role,
-      roles: [bridgeSession.role],
+      role: effectiveRoles.role,
+      roles: effectiveRoles.roles,
       email: bridgeSession.email,
       name: resolveReadableName(bridgeSession.name, bridgeSession.email),
       clerkUserId: bridgeSession.userId,
@@ -130,10 +183,12 @@ export async function getCurrentSession() {
   const devSession = decodeDevSession(cookieStore.get(DEV_SESSION_COOKIE)?.value);
 
   if (platformEnv.allowDevAuth && devSession) {
+    const effectiveRoles = resolveEffectiveSessionRoles(devSession.role, devSession.email);
+
     return {
       isAuthenticated: true,
-      role: devSession.role,
-      roles: [devSession.role],
+      role: effectiveRoles.role,
+      roles: effectiveRoles.roles,
       email: devSession.email,
       name: resolveReadableName(devSession.name, devSession.email),
       clerkUserId: null,
@@ -159,9 +214,14 @@ export async function getCurrentSession() {
 export async function requireRole(roles: PlatformRole[], redirectTo?: string) {
   const session = await getCurrentSession();
 
-  if (!session.isAuthenticated || !canAccessRole(session, roles)) {
+  if (!session.isAuthenticated) {
     const next = encodeURIComponent(redirectTo ?? "/elearning/login");
     redirect(`/elearning/login?next=${next}`);
+  }
+
+  if (!canAccessRole(session, roles)) {
+    const next = encodeURIComponent(redirectTo ?? "/learn/dashboard");
+    redirect(`/elearning/access-denied?next=${next}`);
   }
 
   return session;

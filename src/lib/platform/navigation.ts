@@ -38,3 +38,27 @@ export function resolveWorkspaceRoute(session: PlatformSession, requestedTarget?
 
   return fallback;
 }
+
+export function resolveWorkspaceAccess(session: PlatformSession, requestedTarget?: string | null) {
+  const fallback = getDefaultWorkspaceRoute(session.role);
+  const target = resolveSafeRedirectTarget(requestedTarget, fallback);
+  const rule = getRouteRule(target);
+
+  if (!rule || canAccessRole(session, rule.roles)) {
+    return {
+      allowed: true,
+      target,
+      destination: target,
+      fallback,
+      requiredRoles: rule?.roles ?? [],
+    };
+  }
+
+  return {
+    allowed: false,
+    target,
+    destination: `/elearning/access-denied?next=${encodeURIComponent(target)}`,
+    fallback,
+    requiredRoles: rule.roles,
+  };
+}

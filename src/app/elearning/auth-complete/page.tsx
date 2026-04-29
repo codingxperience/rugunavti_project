@@ -17,7 +17,7 @@ export default async function ElearningAuthCompletePage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  const redirectTarget = resolveSafeRedirectTarget(next, "/learn/dashboard");
+  const redirectTarget = next ? resolveSafeRedirectTarget(next, "/learn/dashboard") : null;
 
   return (
     <AuthShell

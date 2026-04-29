@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type AuthCompletionGuardProps = {
-  target: string;
+  target?: string | null;
   compact?: boolean;
 };
 
@@ -18,6 +18,7 @@ type SessionStatusResponse = {
   destination: string | null;
   requestedTarget: string;
   role: string | null;
+  roles: string[];
   sessionStatus: "active" | "pending" | null;
   source: string;
   diagnostics: {
@@ -135,7 +136,9 @@ export function AuthCompletionGuard({
         }
 
         const response = await fetch(
-          `/api/elearning/session-status?target=${encodeURIComponent(target)}`,
+          target
+            ? `/api/elearning/session-status?target=${encodeURIComponent(target)}`
+            : "/api/elearning/session-status",
           {
             cache: "no-store",
             credentials: "include",
@@ -210,7 +213,11 @@ export function AuthCompletionGuard({
     const currentTask = session?.currentTask?.key;
 
     if (currentTask) {
-      router.replace(`/elearning/tasks/${currentTask}?next=${encodeURIComponent(target)}`);
+      router.replace(
+        target
+          ? `/elearning/tasks/${currentTask}?next=${encodeURIComponent(target)}`
+          : `/elearning/tasks/${currentTask}`
+      );
       return;
     }
 

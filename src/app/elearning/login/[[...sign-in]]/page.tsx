@@ -65,7 +65,7 @@ export default async function ElearningLoginPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const { next } = await searchParams;
-  const redirectUrl = resolveSafeRedirectTarget(next, "/learn/dashboard");
+  const redirectUrl = next ? resolveSafeRedirectTarget(next, "/learn/dashboard") : null;
 
   return (
     <AuthShell
