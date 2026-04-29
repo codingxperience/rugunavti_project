@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   BookOpenCheck,
@@ -14,7 +15,7 @@ import {
   Smartphone,
   UserRound,
 } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 
 import {
@@ -96,7 +97,14 @@ function SettingsNavLink({
 }
 
 export function ProfileSettingsPanel({ profile }: ProfileSettingsPanelProps) {
+  const router = useRouter();
   const [state, formAction] = useActionState(updateLearnerProfileAction, initialState);
+
+  useEffect(() => {
+    if (state.status === "success") {
+      router.refresh();
+    }
+  }, [router, state.status]);
 
   return (
     <div className="grid gap-6 2xl:grid-cols-[300px_minmax(0,1fr)]">

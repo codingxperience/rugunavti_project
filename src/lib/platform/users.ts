@@ -2,7 +2,11 @@ import { Role } from "@prisma/client";
 
 import { getDb } from "@/lib/db";
 import { canAccessRole, type PlatformRole, type PlatformSession } from "@/lib/platform/auth";
-import { splitResolvedDisplayName } from "@/lib/platform/display-name";
+import {
+  deriveDisplayNameFromEmail,
+  isPlaceholderDisplayName,
+  splitResolvedDisplayName,
+} from "@/lib/platform/display-name";
 import { hasClerk, hasDatabase, platformEnv } from "@/lib/platform/env";
 import { getCurrentSession } from "@/lib/platform/session";
 
@@ -22,6 +26,37 @@ function readClerkIdentity(user: ClerkIdentitySource | null | undefined) {
     name: [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.username || null,
     avatarUrl: user?.imageUrl ?? null,
   };
+}
+
+function normalizeDisplayName(value: string | null | undefined) {
+  return value?.trim().replace(/\s+/g, " ").toLowerCase() ?? "";
+}
+
+function shouldSyncProfileName(
+  profile: { firstName?: string | null; lastName?: string | null } | null | undefined,
+  identityName: string | null | undefined,
+  email: string | null | undefined
+) {
+  if (!profile) {
+    return true;
+  }
+
+  const currentProfileName = [profile.firstName, profile.lastName].filter(Boolean).join(" ");
+
+  if (isPlaceholderDisplayName(currentProfileName)) {
+    return true;
+  }
+
+  const emailDisplayName = deriveDisplayNameFromEmail(email);
+  const normalizedProfileName = normalizeDisplayName(currentProfileName);
+  const normalizedEmailName = normalizeDisplayName(emailDisplayName);
+  const normalizedIdentityName = normalizeDisplayName(identityName);
+  const clerkHasARealName =
+    Boolean(identityName) &&
+    !isPlaceholderDisplayName(identityName) &&
+    normalizedIdentityName !== normalizedEmailName;
+
+  return clerkHasARealName && normalizedProfileName === normalizedEmailName;
 }
 
 async function getClerkIdentity(session: PlatformSession) {
@@ -118,57 +153,70 @@ export async function ensureUserForSession(session?: PlatformSession) {
       : null;
   const candidateEmail = (clerkIdentity?.email || currentSession.email)?.toLowerCase() ?? null;
   const existingByClerkId = clerkIdentity?.clerkId
-    ? await db.user.findUnique({ where: { clerkId: clerkIdentity.clerkId } })
+    ? await db.user.findUnique({
+        where: { clerkId: clerkIdentity.clerkId },
+        include: {
+          profile: true,
+          userRoles: { include: { role: true } },
+        },
+      })
     : null;
   const email = candidateEmail || existingByClerkId?.email || `${currentSession.role}@ruguna.local`;
+  const existingByEmail = !existingByClerkId
+    ? await db.user.findUnique({
+        where: { email },
+        include: {
+          profile: true,
+          userRoles: { include: { role: true } },
+        },
+      })
+    : null;
+  const existingUser = existingByClerkId ?? existingByEmail;
+  const identityName = clerkIdentity?.name || currentSession.name;
   const { firstName, lastName } = splitResolvedDisplayName(
     {
-      name: clerkIdentity?.name || currentSession.name,
+      name: identityName,
       email,
       fallback: "Learner",
     }
   );
   const avatarUrl = clerkIdentity?.avatarUrl || currentSession.avatarUrl || undefined;
+  const syncProfileName = shouldSyncProfileName(existingUser?.profile, identityName, email);
+  const profileUpdate = {
+    ...(syncProfileName ? { firstName, lastName } : {}),
+    ...(avatarUrl && avatarUrl !== existingUser?.profile?.avatarUrl ? { avatarUrl } : {}),
+  };
+  const profileCreate = { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) };
 
-  const user = existingByClerkId
+  const user = existingUser
     ? await db.user.update({
-        where: { id: existingByClerkId.id },
+        where: { id: existingUser.id },
         data: {
-          email,
+          ...(email !== existingUser.email ? { email } : {}),
+          ...(clerkIdentity?.clerkId && clerkIdentity.clerkId !== existingUser.clerkId
+            ? { clerkId: clerkIdentity.clerkId }
+            : {}),
           isActive: true,
           lastLoginAt: new Date(),
-          profile: {
-            upsert: {
-              update: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
-              create: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
-            },
-          },
+          ...(existingUser.profile
+            ? Object.keys(profileUpdate).length
+              ? { profile: { update: profileUpdate } }
+              : {}
+            : { profile: { create: profileCreate } }),
         },
         include: {
           profile: true,
           userRoles: { include: { role: true } },
         },
       })
-    : await db.user.upsert({
-        where: { email },
-        update: {
-          clerkId: clerkIdentity?.clerkId,
-          isActive: true,
-          lastLoginAt: new Date(),
-          profile: {
-            upsert: {
-              update: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
-              create: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
-            },
-          },
-        },
-        create: {
+    : await db.user.create({
+        data: {
           clerkId: clerkIdentity?.clerkId,
           email,
           isActive: true,
           lastLoginAt: new Date(),
           profile: {
-            create: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
+            create: profileCreate,
           },
         },
         include: {
