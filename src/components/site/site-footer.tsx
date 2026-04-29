@@ -33,7 +33,7 @@ export function SiteFooter() {
           <div className="max-w-xl">
             <p className="eyebrow border-white/10 bg-white/6 text-white/72">Ruguna Vocational Training Institute</p>
             <h2 className="font-heading mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
-              Skills for work, life, and the next chapter of Uganda's economy.
+              Skills for work, life, and the next chapter of Uganda&apos;s economy.
             </h2>
             <p className="mt-4 text-base leading-7 text-white/72">
               A modern institute platform built to support discovery, enrollment, certification,
@@ -70,7 +70,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-white/56 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 {siteConfig.name}. All rights reserved.</p>
+          <p>&copy; 2026 {siteConfig.name}. All rights reserved.</p>
           <div className="flex flex-wrap gap-4">
             <Link href="/verification">Certificate Verification</Link>
             <Link href="/student-portal">Student Portal</Link>

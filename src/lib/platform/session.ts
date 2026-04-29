@@ -12,7 +12,13 @@ function isPlaceholderIdentity(value: string | null | undefined) {
 
   const normalized = value.trim().toLowerCase();
 
-  return normalized === "ruguna learner" || normalized === "ruguna user";
+  return (
+    normalized === "ruguna learner" ||
+    normalized === "ruguna user" ||
+    normalized === "ruguna student" ||
+    normalized === "learner" ||
+    normalized === "student"
+  );
 }
 
 function deriveNameFromEmail(email: string | null | undefined) {
@@ -21,8 +27,9 @@ function deriveNameFromEmail(email: string | null | undefined) {
   }
 
   const localPart = email.split("@")[0]?.trim();
+  const domain = email.split("@")[1]?.trim().toLowerCase();
 
-  if (!localPart) {
+  if (!localPart || domain === "ruguna.local") {
     return null;
   }
 
@@ -88,6 +95,8 @@ export async function getCurrentSession() {
           roles: [role ?? "student"],
           email,
           name,
+          clerkUserId: authResult.userId,
+          avatarUrl: user?.imageUrl ?? null,
           sessionStatus: (authResult.sessionStatus === "pending" ? "pending" : "active") as
             | "active"
             | "pending",
@@ -111,6 +120,8 @@ export async function getCurrentSession() {
       roles: [bridgeSession.role],
       email: bridgeSession.email,
       name: resolveReadableName(bridgeSession.name, bridgeSession.email),
+      clerkUserId: bridgeSession.userId,
+      avatarUrl: null,
       sessionStatus: "active" as const,
       source: "bridge" as const,
     };
@@ -125,6 +136,8 @@ export async function getCurrentSession() {
       roles: [devSession.role],
       email: devSession.email,
       name: resolveReadableName(devSession.name, devSession.email),
+      clerkUserId: null,
+      avatarUrl: null,
       sessionStatus: "active" as const,
       source: "dev" as const,
     };
@@ -136,6 +149,8 @@ export async function getCurrentSession() {
     roles: [] as PlatformRole[],
     email: null,
     name: null,
+    clerkUserId: null,
+    avatarUrl: null,
     sessionStatus: null,
     source: "guest" as const,
   };

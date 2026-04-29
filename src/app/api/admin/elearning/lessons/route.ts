@@ -27,19 +27,23 @@ export async function POST(request: Request) {
   const values = result.data;
 
   try {
-    const module = await db.module.findUnique({
+    const courseModule = await db.module.findUnique({
       where: { id: values.moduleId },
       include: { course: true },
     });
 
-    if (!module) {
+    if (!courseModule) {
       return NextResponse.json(
         { success: false, message: "Module was not found." },
         { status: 404 }
       );
     }
 
-    if (auth.session.role === "instructor" && module.course.ownerId && module.course.ownerId !== auth.user.id) {
+    if (
+      auth.session.role === "instructor" &&
+      courseModule.course.ownerId &&
+      courseModule.course.ownerId !== auth.user.id
+    ) {
       return NextResponse.json(
         { success: false, message: "You can only manage lessons for courses assigned to you." },
         { status: 403 }

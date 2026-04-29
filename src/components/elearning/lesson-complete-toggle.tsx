@@ -18,13 +18,25 @@ export function LessonCompleteToggle({
   const [isComplete, setIsComplete] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      const completions = raw ? (JSON.parse(raw) as CompletionMap) : {};
-      setIsComplete(Boolean(completions[`${courseSlug}:${lessonId}`]));
-    } catch {
-      setIsComplete(false);
-    }
+    let active = true;
+
+    queueMicrotask(() => {
+      if (!active) {
+        return;
+      }
+
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        const completions = raw ? (JSON.parse(raw) as CompletionMap) : {};
+        setIsComplete(Boolean(completions[`${courseSlug}:${lessonId}`]));
+      } catch {
+        setIsComplete(false);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
   }, [courseSlug, lessonId]);
 
   function handleToggle() {

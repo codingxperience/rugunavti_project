@@ -2,68 +2,61 @@ import { Role } from "@prisma/client";
 
 import { getDb } from "@/lib/db";
 import { canAccessRole, type PlatformRole, type PlatformSession } from "@/lib/platform/auth";
+import { splitResolvedDisplayName } from "@/lib/platform/display-name";
 import { hasClerk, hasDatabase, platformEnv } from "@/lib/platform/env";
 import { getCurrentSession } from "@/lib/platform/session";
 
-function isPlaceholderIdentity(value: string | null | undefined) {
-  if (!value) {
-    return true;
-  }
+type ClerkIdentitySource = {
+  id?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+  imageUrl?: string | null;
+  primaryEmailAddress?: { emailAddress?: string | null } | null;
+};
 
-  const normalized = value.trim().toLowerCase();
-
-  return normalized === "ruguna learner" || normalized === "ruguna user";
+function readClerkIdentity(user: ClerkIdentitySource | null | undefined) {
+  return {
+    clerkId: user?.id ?? null,
+    email: user?.primaryEmailAddress?.emailAddress ?? null,
+    name: [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.username || null,
+    avatarUrl: user?.imageUrl ?? null,
+  };
 }
 
-function deriveNameFromEmail(email: string | null | undefined) {
-  if (!email) {
-    return null;
-  }
-
-  const localPart = email.split("@")[0]?.trim();
-
-  if (!localPart) {
-    return null;
-  }
-
-  const parts = localPart
-    .split(/[._-]+/)
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1));
-
-  return parts.length ? parts.join(" ") : null;
-}
-
-function splitDisplayName(name: string | null | undefined, email?: string | null) {
-  const resolvedName = isPlaceholderIdentity(name)
-    ? deriveNameFromEmail(email) || "Ruguna Student"
-    : name?.trim() || deriveNameFromEmail(email) || "Ruguna Student";
-  const safeName = resolvedName.trim();
-  const parts = safeName.split(/\s+/);
-  const firstName = parts.shift() ?? "Ruguna";
-  const lastName = parts.length ? parts.join(" ") : "Student";
-
-  return { firstName, lastName };
-}
-
-async function getClerkIdentity() {
+async function getClerkIdentity(session: PlatformSession) {
   if (!hasClerk) {
-    return { clerkId: null, email: null, name: null };
+    return { clerkId: session.clerkUserId ?? null, email: null, name: null, avatarUrl: null };
   }
 
   try {
     const clerk = await import("@clerk/nextjs/server");
     const user = await clerk.currentUser();
 
-    return {
-      clerkId: user?.id ?? null,
-      email: user?.primaryEmailAddress?.emailAddress ?? null,
-      name: [user?.firstName, user?.lastName].filter(Boolean).join(" ") || user?.username || null,
-    };
+    if (user) {
+      return readClerkIdentity(user);
+    }
   } catch {
-    return { clerkId: null, email: null, name: null };
+    // The bridge flow can authenticate the browser before Clerk's Next helpers
+    // can resolve the user on this Vercel domain. Use the backend API below.
   }
+
+  if (session.clerkUserId && platformEnv.clerkSecretKey) {
+    try {
+      const { createClerkClient } = await import("@clerk/nextjs/server");
+      const clerkClient = createClerkClient({
+        secretKey: platformEnv.clerkSecretKey,
+        publishableKey: platformEnv.clerkPublishableKey ?? undefined,
+      });
+      const user = await clerkClient.users.getUser(session.clerkUserId);
+
+      return readClerkIdentity(user);
+    } catch (error) {
+      console.error("Clerk backend user lookup failed; keeping session identity.", error);
+    }
+  }
+
+  return { clerkId: session.clerkUserId ?? null, email: null, name: null, avatarUrl: null };
 }
 
 export async function ensureRole(slug: PlatformRole) {
@@ -119,15 +112,23 @@ export async function ensureUserForSession(session?: PlatformSession) {
   }
 
   const db = getDb();
-  const clerkIdentity = currentSession.source === "clerk" ? await getClerkIdentity() : null;
-  const email = (clerkIdentity?.email || currentSession.email || `${currentSession.role}@ruguna.local`).toLowerCase();
-  const { firstName, lastName } = splitDisplayName(
-    clerkIdentity?.name || currentSession.name,
-    email
-  );
+  const clerkIdentity =
+    currentSession.source === "clerk" || currentSession.source === "bridge"
+      ? await getClerkIdentity(currentSession)
+      : null;
+  const candidateEmail = (clerkIdentity?.email || currentSession.email)?.toLowerCase() ?? null;
   const existingByClerkId = clerkIdentity?.clerkId
     ? await db.user.findUnique({ where: { clerkId: clerkIdentity.clerkId } })
     : null;
+  const email = candidateEmail || existingByClerkId?.email || `${currentSession.role}@ruguna.local`;
+  const { firstName, lastName } = splitResolvedDisplayName(
+    {
+      name: clerkIdentity?.name || currentSession.name,
+      email,
+      fallback: "Learner",
+    }
+  );
+  const avatarUrl = clerkIdentity?.avatarUrl || currentSession.avatarUrl || undefined;
 
   const user = existingByClerkId
     ? await db.user.update({
@@ -138,8 +139,8 @@ export async function ensureUserForSession(session?: PlatformSession) {
           lastLoginAt: new Date(),
           profile: {
             upsert: {
-              update: { firstName, lastName },
-              create: { firstName, lastName },
+              update: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
+              create: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
             },
           },
         },
@@ -156,8 +157,8 @@ export async function ensureUserForSession(session?: PlatformSession) {
           lastLoginAt: new Date(),
           profile: {
             upsert: {
-              update: { firstName, lastName },
-              create: { firstName, lastName },
+              update: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
+              create: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
             },
           },
         },
@@ -167,7 +168,7 @@ export async function ensureUserForSession(session?: PlatformSession) {
           isActive: true,
           lastLoginAt: new Date(),
           profile: {
-            create: { firstName, lastName },
+            create: { firstName, lastName, ...(avatarUrl ? { avatarUrl } : {}) },
           },
         },
         include: {

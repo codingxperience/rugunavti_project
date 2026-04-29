@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const module = values.id
+    const courseModule = values.id
       ? await db.module.update({
           where: { id: values.id },
           data: {
@@ -67,19 +67,19 @@ export async function POST(request: Request) {
       actorId: auth.user.id,
       action: values.id ? AuditAction.UPDATE : AuditAction.CREATE,
       entityType: "Module",
-      entityId: module.id,
-      summary: `${auth.user.email} ${values.id ? "updated" : "created"} module ${module.title}.`,
+      entityId: courseModule.id,
+      summary: `${auth.user.email} ${values.id ? "updated" : "created"} module ${courseModule.title}.`,
       payload: {
         courseId: values.courseId,
-        position: module.position,
-        status: module.status,
+        position: courseModule.position,
+        status: courseModule.status,
       },
     });
 
     return NextResponse.json({
       success: true,
       message: values.id ? "Module updated." : "Module created.",
-      module,
+      module: courseModule,
     });
   } catch (error) {
     console.error("Module upsert failed", error);

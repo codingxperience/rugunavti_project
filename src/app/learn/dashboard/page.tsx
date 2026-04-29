@@ -6,15 +6,19 @@ import { ProgressBar } from "@/components/platform/progress-bar";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { resolveDisplayName } from "@/lib/platform/display-name";
 import { getLearnerWorkspaceRecords } from "@/lib/platform/learning-records";
 
 export const dynamic = "force-dynamic";
 
 export default async function LearnDashboardPage() {
   const workspace = await getLearnerWorkspaceRecords();
-  const displayName = [workspace.user.profile?.firstName, workspace.user.profile?.lastName]
-    .filter(Boolean)
-    .join(" ");
+  const displayName = resolveDisplayName({
+    firstName: workspace.user.profile?.firstName,
+    lastName: workspace.user.profile?.lastName,
+    email: workspace.user.email,
+    fallback: "Learner",
+  });
   const nextCourse = workspace.records.find((course) => course.progress < 100) ?? workspace.records[0];
 
   return (
@@ -52,7 +56,7 @@ export default async function LearnDashboardPage() {
             Welcome back
           </p>
           <h1 className="font-heading mt-4 text-3xl font-bold text-[var(--color-ink)]">
-            {displayName || "Ruguna learner"}
+            {displayName}
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
             Your dashboard is connected to the live eLearning database: enrollments, lessons,

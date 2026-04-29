@@ -25,7 +25,6 @@ import {
 import { useState, type ReactNode } from "react";
 
 import { PortalSignOutButton } from "@/components/platform/portal-sign-out-button";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -82,8 +81,8 @@ function getNavIcon(href: string, label: string) {
     return ScrollText;
   }
 
-  if (href.includes("profile")) {
-    return UserRound;
+  if (href.includes("profile") || label.toLowerCase().includes("settings")) {
+    return label.toLowerCase().includes("settings") ? Settings2 : UserRound;
   }
 
   if (href.includes("support") || href.includes("help")) {
@@ -128,11 +127,7 @@ export function PortalLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const userInitials = getUserInitials(userName);
-  const supportHref = pathname.startsWith("/student")
-    ? "/student/support"
-    : pathname.startsWith("/learn")
-      ? "/learn/help"
-      : "/elearning/contact";
+  const accountHref = pathname.startsWith("/learn") ? "/learn/profile" : "/elearning/contact";
 
   return (
     <div className="min-h-screen bg-[#edece6] p-3 sm:p-4 lg:p-5">
@@ -195,14 +190,14 @@ export function PortalLayout({
                   title={sidebarCollapsed ? item.label : undefined}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
+                    "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
                     sidebarCollapsed && "lg:h-11 lg:w-11 lg:self-center lg:justify-center lg:px-0",
                     active
                       ? "border border-black/6 bg-white text-[var(--color-ink)] shadow-[0_18px_35px_-28px_rgba(17,17,17,0.6)]"
                       : "text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]"
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110" />
                   <span className={cn(sidebarCollapsed && "lg:hidden")}>{item.label}</span>
                 </Link>
               );
@@ -210,54 +205,56 @@ export function PortalLayout({
           </nav>
 
           {sidebarCollapsed ? (
-            <div className="mt-auto rounded-[28px] border border-black/6 bg-[var(--color-ink)] p-3 text-white">
+            <div className="mt-auto rounded-[26px] border border-black/6 bg-white p-2 text-[var(--color-ink)] shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
               <div className="flex justify-center">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-sm font-semibold">
+                <Link
+                  href={accountHref}
+                  title="Account settings"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-ink)] text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                >
                   {userInitials}
-                </div>
+                </Link>
               </div>
               <div className="mt-4 grid gap-2">
                 <Link
-                  href={supportHref}
-                  title="Get support"
-                  className="flex h-10 items-center justify-center rounded-2xl border border-white/12 bg-white/8 text-white transition hover:bg-white/12"
-                >
-                  <CircleHelp className="h-4 w-4" />
-                </Link>
-                <Link
                   href="/"
                   title="Public website"
-                  className="flex h-10 items-center justify-center rounded-2xl border border-white/12 bg-white/8 text-white transition hover:bg-white/12"
+                  className="flex h-10 items-center justify-center rounded-2xl border border-black/6 bg-[#f6f5ef] transition hover:-translate-y-0.5 hover:bg-white"
                 >
                   <House className="h-4 w-4" />
                 </Link>
-                <PortalSignOutButton compact />
+                <PortalSignOutButton
+                  compact
+                  className="border-black/6 bg-[#f6f5ef] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white hover:text-[var(--color-ink)]"
+                />
               </div>
             </div>
           ) : (
-            <div className="mt-auto rounded-[28px] border border-black/6 bg-[var(--color-ink)] p-5 text-white">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/56">
-                Signed in as
-              </p>
-              <p className="font-heading mt-3 text-xl font-bold">{userName}</p>
-              <p className="mt-3 text-sm leading-7 text-white/72">
-                Keep learning records, submissions, certificates, and support in one secure
-                workspace.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white"
+            <div className="mt-auto rounded-[26px] border border-black/6 bg-white p-3 shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
+              <div className="flex items-center gap-3">
+                <Link
+                  href={accountHref}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-ink)] text-sm font-semibold text-white transition hover:-translate-y-0.5"
                 >
-                  <Link href={supportHref}>Get support</Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/">Public website</Link>
-                </Button>
-                <PortalSignOutButton className="border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white">
-                  Sign out
-                </PortalSignOutButton>
+                  {userInitials}
+                </Link>
+                <Link href={accountHref} className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-[var(--color-ink)]">{userName}</p>
+                  <p className="truncate text-xs text-[var(--color-muted)]">Account settings</p>
+                </Link>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Link
+                    href="/"
+                    title="Public website"
+                    className="flex h-10 w-10 items-center justify-center rounded-2xl border border-black/6 bg-[#f6f5ef] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white"
+                  >
+                    <House className="h-4 w-4" />
+                  </Link>
+                  <PortalSignOutButton
+                    compact
+                    className="border-black/6 bg-[#f6f5ef] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white hover:text-[var(--color-ink)]"
+                  />
+                </div>
               </div>
             </div>
           )}
