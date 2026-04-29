@@ -206,16 +206,34 @@ export async function POST(request: Request) {
     let rejectionMessage: string | null = null;
 
     if (canUsePreviewTokenBridge && previewUserId) {
-      const previewRole = normalizeRole(tokenHints.role) ?? "student";
+      let previewUser: Awaited<ReturnType<typeof clerkClient.users.getUser>> | null = null;
+
+      try {
+        previewUser = await clerkClient.users.getUser(previewUserId);
+      } catch (error) {
+        console.error("Clerk preview user lookup failed; falling back to token claims.", error);
+      }
+
+      const previewEmail = previewUser ? getPrimaryEmail(previewUser) : tokenHints.email?.trim() || null;
+      const previewRole =
+        normalizeRole(
+          previewUser && typeof previewUser.publicMetadata?.role === "string"
+            ? previewUser.publicMetadata.role
+            : tokenHints.role
+        ) ?? "student";
       const previewName =
+        (previewUser
+          ? [previewUser.firstName, previewUser.lastName].filter(Boolean).join(" ") ||
+            previewUser.username
+          : null) ||
         tokenHints.fullName?.trim() ||
-        formatEmailLocalPart(tokenHints.email) ||
+        formatEmailLocalPart(previewEmail) ||
         "Ruguna Student";
       const exp = normalizeTimestampToSeconds(tokenHints.exp);
       const stored = await setClerkBridgeSession({
         userId: previewUserId,
         role: previewRole,
-        email: tokenHints.email?.trim() || null,
+        email: previewEmail,
         name: previewName,
         exp,
       });
