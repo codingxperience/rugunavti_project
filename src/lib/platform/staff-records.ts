@@ -1,6 +1,7 @@
 import { AssignmentStatus, ContentStatus, EnrollmentStatus, SubmissionStatus } from "@prisma/client";
 
 import { getDb } from "@/lib/db";
+import { platformEnv } from "@/lib/platform/env";
 import { ensureUserForSession } from "@/lib/platform/users";
 
 function iso(value: Date | null | undefined) {
@@ -276,4 +277,81 @@ export async function getAdminUsers() {
     submissionCount: user.submissions.length,
     createdAt: user.createdAt.toISOString(),
   }));
+}
+
+function readSettingValue(
+  settings: Array<{ settingKey: string; value: unknown }>,
+  key: string
+) {
+  const value = settings.find((setting) => setting.settingKey === key)?.value;
+
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+export async function getAdminElearningSettingsRecords() {
+  const db = getDb();
+  const settings = await db.siteSetting.findMany({
+    where: {
+      settingKey: {
+        in: ["site.utility_header", "elearning.auth", "elearning.storage"],
+      },
+    },
+    orderBy: { settingKey: "asc" },
+  });
+  const utilityHeader = readSettingValue(settings, "site.utility_header");
+  const auth = readSettingValue(settings, "elearning.auth");
+  const storage = readSettingValue(settings, "elearning.storage");
+  const utilityLinks = Array.isArray(utilityHeader.links)
+    ? utilityHeader.links.filter(
+        (item): item is { label?: string; href?: string } =>
+          Boolean(item) && typeof item === "object"
+      )
+    : [];
+
+  return {
+    cards: [
+      {
+        label: "Learner login",
+        value: typeof auth.loginRoute === "string" ? auth.loginRoute : "/elearning/login",
+        detail: "Shared login entry for students, instructors, and admins.",
+      },
+      {
+        label: "After sign-in routing",
+        value:
+          typeof auth.defaultLearnerRoute === "string"
+            ? auth.defaultLearnerRoute
+            : "/learn/dashboard",
+        detail: "The app now redirects by role after the session is confirmed.",
+      },
+      {
+        label: "Storage buckets",
+        value: `${storage.publicBucket ?? platformEnv.supabasePublicBucket} / ${
+          storage.privateBucket ?? platformEnv.supabasePrivateBucket
+        }`,
+        detail: "Public profile/course media and private learner resources.",
+      },
+      {
+        label: "Session policy",
+        value: "Clerk session + Ruguna bridge cookie",
+        detail: "The Ruguna cookie expires with the Clerk session; preview fallback is up to 8 hours.",
+      },
+      {
+        label: "Utility eLearning link",
+        value: utilityLinks.find((link) => link.label?.toLowerCase().includes("learning"))?.href ?? "/elearning",
+        detail: "Public website entry into the eLearning product.",
+      },
+      {
+        label: "Certificate verification",
+        value: "/verification",
+        detail: "Public verification route for issued completion records.",
+      },
+    ],
+    rawSettings: settings.map((setting) => ({
+      key: setting.settingKey,
+      category: setting.category,
+      updatedAt: setting.updatedAt.toISOString(),
+    })),
+  };
 }

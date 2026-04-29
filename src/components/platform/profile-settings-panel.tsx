@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   Bell,
   BookOpenCheck,
+  Camera,
   CheckCircle2,
   LifeBuoy,
   Loader2,
@@ -13,6 +14,7 @@ import {
   MapPin,
   ShieldCheck,
   Smartphone,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import { useActionState, useEffect } from "react";
@@ -29,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 type ProfileSettingsPanelProps = {
+  settingsLabel?: string;
   profile: {
     displayName: string;
     initials: string;
@@ -111,10 +114,10 @@ export function ProfileSettingsPanel({ profile }: ProfileSettingsPanelProps) {
       <aside className="2xl:sticky 2xl:top-8 2xl:self-start">
         <div className="rounded-[32px] border border-black/6 bg-[#f6f5ef] p-4 shadow-[0_26px_70px_-54px_rgba(17,17,17,0.55)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-muted)]">
-            Learner settings
+            Account settings
           </p>
           <h1 className="font-heading mt-3 text-4xl font-bold tracking-[-0.05em] text-[var(--color-ink)]">
-            Profile
+            Settings
           </h1>
           <nav className="mt-7 grid gap-2">
             {settingLinks.map((item) => (
@@ -127,6 +130,7 @@ export function ProfileSettingsPanel({ profile }: ProfileSettingsPanelProps) {
       <div className="grid gap-5">
         <form
           action={formAction}
+          encType="multipart/form-data"
           id="profile-account"
           className="rounded-[34px] border border-black/6 bg-white p-5 shadow-[0_32px_90px_-70px_rgba(17,17,17,0.52)] sm:p-7"
         >
@@ -154,6 +158,29 @@ export function ProfileSettingsPanel({ profile }: ProfileSettingsPanelProps) {
                 <Mail className="h-4 w-4" />
                 {profile.email}
               </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <label className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--color-ink)] px-4 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black">
+                  <Camera className="h-4 w-4" />
+                  Upload photo
+                  <input
+                    type="file"
+                    name="avatar"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                  />
+                </label>
+                {profile.avatarUrl ? (
+                  <button
+                    type="submit"
+                    name="removeAvatar"
+                    value="true"
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 text-sm font-semibold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[#f6f5ef]"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Remove
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
 

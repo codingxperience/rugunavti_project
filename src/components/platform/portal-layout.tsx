@@ -37,6 +37,7 @@ type PortalLayoutProps = {
   heading: string;
   caption: string;
   userName: string;
+  userAvatarUrl?: string | null;
   navItems: NavItem[];
   actions?: ReactNode;
   searchHref?: string;
@@ -109,18 +110,49 @@ function getNavIcon(href: string, label: string) {
 }
 
 function getUserInitials(name: string) {
-  return name
+  const initials = name
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+
+  return initials || "R";
+}
+
+function UserAvatar({
+  name,
+  avatarUrl,
+  className,
+}: {
+  name: string;
+  avatarUrl?: string | null;
+  className?: string;
+}) {
+  const initials = getUserInitials(name);
+
+  return (
+    <span
+      className={cn(
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--color-ink)] text-sm font-semibold text-white",
+        className
+      )}
+    >
+      {avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={avatarUrl} alt={`${name} profile photo`} className="h-full w-full object-cover" />
+      ) : (
+        initials
+      )}
+    </span>
+  );
 }
 
 export function PortalLayout({
   heading,
   caption,
   userName,
+  userAvatarUrl,
   navItems,
   actions,
   searchHref,
@@ -130,8 +162,7 @@ export function PortalLayout({
   const pathname = usePathname();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const userInitials = getUserInitials(userName);
-  const accountHref = pathname.startsWith("/learn") ? "/learn/profile" : "/elearning/contact";
+  const accountHref = "/account/settings";
 
   return (
     <div className="min-h-screen bg-[#edece6] p-3 sm:p-4 lg:p-5">
@@ -159,24 +190,43 @@ export function PortalLayout({
             sidebarCollapsed ? "lg:px-3" : "lg:px-6"
           )}
         >
-          <div className={cn("flex items-center gap-3", sidebarCollapsed && "lg:justify-center")}>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white">
-              <Image
-                src="/brand/ruguna-logo.png"
-                alt="Ruguna logo"
-                width={28}
-                height={28}
-                className="h-7 w-7 object-contain"
-              />
+          <div
+            className={cn(
+              "flex items-center gap-3",
+              sidebarCollapsed ? "lg:flex-col lg:justify-center" : "lg:justify-between"
+            )}
+          >
+            <div className={cn("flex min-w-0 items-center gap-3", sidebarCollapsed && "lg:flex-col")}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white">
+                <Image
+                  src="/brand/ruguna-logo.png"
+                  alt="Ruguna logo"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain"
+                />
+              </div>
+              <div className={cn("min-w-0", sidebarCollapsed && "lg:hidden")}>
+                <p className="font-heading truncate text-xl font-bold text-[var(--color-ink)]">
+                  Ruguna
+                </p>
+                <p className="truncate text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                  eLearning platform
+                </p>
+              </div>
             </div>
-            <div className={cn("min-w-0", sidebarCollapsed && "lg:hidden")}>
-              <p className="font-heading truncate text-xl font-bold text-[var(--color-ink)]">
-                Ruguna
-              </p>
-              <p className="truncate text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                eLearning platform
-              </p>
-            </div>
+            <button
+              type="button"
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setSidebarCollapsed((value) => !value)}
+              className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-black/6 bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)] lg:inline-flex"
+            >
+              {sidebarCollapsed ? (
+                <PanelLeftOpen className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </button>
           </div>
 
           <nav className="mt-8 grid gap-2">
@@ -214,9 +264,9 @@ export function PortalLayout({
                 <Link
                   href={accountHref}
                   title="Account settings"
-                  className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-ink)] text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                  className="transition hover:-translate-y-0.5"
                 >
-                  {userInitials}
+                  <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-11 w-11" />
                 </Link>
               </div>
               <div className="mt-4 grid gap-2">
@@ -238,9 +288,9 @@ export function PortalLayout({
               <div className="flex items-center gap-3">
                 <Link
                   href={accountHref}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-ink)] text-sm font-semibold text-white transition hover:-translate-y-0.5"
+                  className="transition hover:-translate-y-0.5"
                 >
-                  {userInitials}
+                  <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-12 w-12" />
                 </Link>
                 <Link href={accountHref} className="min-w-0 flex-1">
                   <p className="truncate text-sm font-bold text-[var(--color-ink)]">{userName}</p>
@@ -276,18 +326,6 @@ export function PortalLayout({
                 >
                   <Menu className="h-4 w-4 text-[var(--color-ink)]" />
                 </button>
-                <button
-                  type="button"
-                  aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                  onClick={() => setSidebarCollapsed((value) => !value)}
-                  className="hidden rounded-2xl border border-black/6 bg-[#f6f5ef] p-2.5 transition hover:bg-white lg:inline-flex"
-                >
-                  {sidebarCollapsed ? (
-                    <PanelLeftOpen className="h-4 w-4 text-[var(--color-ink)]" />
-                  ) : (
-                    <PanelLeftClose className="h-4 w-4 text-[var(--color-ink)]" />
-                  )}
-                </button>
                 <div>
                   <p className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                     {heading}
@@ -309,9 +347,13 @@ export function PortalLayout({
                 ) : null}
                 <div className="flex items-center gap-3">
                   {actions}
-                  <div className="rounded-full border border-black/6 bg-[#f6f5ef] px-4 py-2 text-sm font-semibold text-[var(--color-ink)]">
-                    {userName}
-                  </div>
+                  <Link
+                    href={accountHref}
+                    className="flex items-center gap-2 rounded-full border border-black/6 bg-[#f6f5ef] py-1.5 pl-1.5 pr-4 text-sm font-semibold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white"
+                  >
+                    <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-8 w-8 text-xs" />
+                    <span className="max-w-[180px] truncate">{userName}</span>
+                  </Link>
                 </div>
               </div>
             </div>

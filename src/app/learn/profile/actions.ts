@@ -1,9 +1,13 @@
 "use server";
 
+import { Buffer } from "node:buffer";
+
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db";
+import { hasSupabase, platformEnv } from "@/lib/platform/env";
+import { getSupabaseAdmin } from "@/lib/platform/storage";
 import { ensureUserForSession } from "@/lib/platform/users";
 
 export type ProfileActionState = {
@@ -30,10 +34,51 @@ const profileSchema = z.object({
   bio: optionalText(320),
 });
 
+const avatarMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const avatarMaxBytes = 3 * 1024 * 1024;
+
 function readFormValue(formData: FormData, key: string) {
   const value = formData.get(key);
 
   return typeof value === "string" ? value : "";
+}
+
+function getAvatarExtension(mimeType: string) {
+  if (mimeType === "image/png") return "png";
+  if (mimeType === "image/webp") return "webp";
+  return "jpg";
+}
+
+async function uploadProfileAvatar(input: {
+  userId: string;
+  file: File;
+}) {
+  if (!hasSupabase || !platformEnv.supabaseUrl || !platformEnv.supabaseServiceRoleKey) {
+    throw new Error("Profile photo upload needs Supabase Storage to be configured.");
+  }
+
+  if (!avatarMimeTypes.has(input.file.type)) {
+    throw new Error("Upload a JPG, PNG, or WebP profile photo.");
+  }
+
+  if (input.file.size > avatarMaxBytes) {
+    throw new Error("Profile photos must be 3 MB or smaller.");
+  }
+
+  const supabase = getSupabaseAdmin();
+  const extension = getAvatarExtension(input.file.type);
+  const path = `profiles/${input.userId}/avatar-${Date.now()}.${extension}`;
+  const buffer = Buffer.from(await input.file.arrayBuffer());
+  const { error } = await supabase.storage.from(platformEnv.supabasePublicBucket).upload(path, buffer, {
+    contentType: input.file.type,
+    upsert: true,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return supabase.storage.from(platformEnv.supabasePublicBucket).getPublicUrl(path).data.publicUrl;
 }
 
 export async function updateLearnerProfileAction(
@@ -61,13 +106,34 @@ export async function updateLearnerProfileAction(
 
   const user = await ensureUserForSession();
   const db = getDb();
+  const avatarFile = formData.get("avatar");
+  const removeAvatar = formData.get("removeAvatar") === "true";
+  let avatarUrl: string | null | undefined;
+
+  try {
+    if (avatarFile instanceof File && avatarFile.size > 0) {
+      avatarUrl = await uploadProfileAvatar({ userId: user.id, file: avatarFile });
+    } else if (removeAvatar) {
+      avatarUrl = null;
+    }
+  } catch (error) {
+    return {
+      status: "error",
+      message: error instanceof Error ? error.message : "Profile photo upload failed.",
+    };
+  }
+
+  const profileData = {
+    ...parsed.data,
+    ...(avatarUrl !== undefined ? { avatarUrl } : {}),
+  };
 
   await db.profile.upsert({
     where: { userId: user.id },
-    update: parsed.data,
+    update: profileData,
     create: {
       userId: user.id,
-      ...parsed.data,
+      ...profileData,
     },
   });
 
@@ -77,15 +143,18 @@ export async function updateLearnerProfileAction(
       action: "UPDATE",
       entityType: "Profile",
       entityId: user.id,
-      summary: "Learner updated profile and learning preferences.",
+      summary: `${user.email} updated account profile and learning preferences.`,
       payload: {
-        fields: Object.keys(parsed.data),
+        fields: Object.keys(profileData),
       },
     },
   });
 
+  revalidatePath("/account/settings");
   revalidatePath("/learn/profile");
   revalidatePath("/learn/dashboard");
+  revalidatePath("/instructor/dashboard");
+  revalidatePath("/admin/elearning");
 
   return {
     status: "success",

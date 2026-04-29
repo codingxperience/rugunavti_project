@@ -52,12 +52,16 @@ function resolveReadableName(name: string | null | undefined, email: string | nu
   return deriveNameFromEmail(email) || "Ruguna Student";
 }
 
-async function getPersistedRoleSlugs(input: {
+async function getPersistedUserSnapshot(input: {
   clerkId?: string | null;
   email?: string | null;
 }) {
   if (!platformEnv.useDatabase || !hasDatabase) {
-    return [];
+    return {
+      roleSlugs: [] as string[],
+      profileName: null as string | null,
+      avatarUrl: null as string | null,
+    };
   }
 
   const email = input.email?.trim().toLowerCase();
@@ -67,13 +71,24 @@ async function getPersistedRoleSlugs(input: {
   ].filter((filter): filter is { clerkId: string } | { email: string } => Boolean(filter));
 
   if (!filters.length) {
-    return [];
+    return {
+      roleSlugs: [] as string[],
+      profileName: null as string | null,
+      avatarUrl: null as string | null,
+    };
   }
 
   try {
     const user = await getDb().user.findFirst({
       where: { OR: filters },
       select: {
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
+        },
         userRoles: {
           select: {
             role: {
@@ -84,10 +99,20 @@ async function getPersistedRoleSlugs(input: {
       },
     });
 
-    return user?.userRoles.map((item) => item.role.slug) ?? [];
+    return {
+      roleSlugs: user?.userRoles.map((item) => item.role.slug) ?? [],
+      profileName: user?.profile
+        ? [user.profile.firstName, user.profile.lastName].filter(Boolean).join(" ") || null
+        : null,
+      avatarUrl: user?.profile?.avatarUrl ?? null,
+    };
   } catch (error) {
     console.error("Persisted role lookup failed; using session role only.", error);
-    return [];
+    return {
+      roleSlugs: [] as string[],
+      profileName: null,
+      avatarUrl: null,
+    };
   }
 }
 
@@ -118,13 +143,14 @@ export async function getCurrentSession() {
         const email =
           user?.primaryEmailAddress?.emailAddress ??
           (typeof authResult.sessionClaims?.email === "string" ? authResult.sessionClaims.email : null);
-        const persistedRoles = await getPersistedRoleSlugs({
+        const persistedUser = await getPersistedUserSnapshot({
           clerkId: authResult.userId,
           email,
         });
-        const effectiveRoles = resolveEffectiveSessionRoles(rawRole, email, persistedRoles);
+        const effectiveRoles = resolveEffectiveSessionRoles(rawRole, email, persistedUser.roleSlugs);
         const name = resolveReadableName(
-          [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+          persistedUser.profileName ||
+            [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
             user?.username ||
             (typeof authResult.sessionClaims?.fullName === "string"
               ? authResult.sessionClaims.fullName
@@ -139,7 +165,7 @@ export async function getCurrentSession() {
           email,
           name,
           clerkUserId: authResult.userId,
-          avatarUrl: user?.imageUrl ?? null,
+          avatarUrl: persistedUser.avatarUrl ?? user?.imageUrl ?? null,
           sessionStatus: (authResult.sessionStatus === "pending" ? "pending" : "active") as
             | "active"
             | "pending",
@@ -157,14 +183,14 @@ export async function getCurrentSession() {
   );
 
   if (bridgeSession) {
-    const persistedRoles = await getPersistedRoleSlugs({
+    const persistedUser = await getPersistedUserSnapshot({
       clerkId: bridgeSession.userId,
       email: bridgeSession.email,
     });
     const effectiveRoles = resolveEffectiveSessionRoles(
       bridgeSession.role,
       bridgeSession.email,
-      persistedRoles
+      persistedUser.roleSlugs
     );
 
     return {
@@ -172,9 +198,9 @@ export async function getCurrentSession() {
       role: effectiveRoles.role,
       roles: effectiveRoles.roles,
       email: bridgeSession.email,
-      name: resolveReadableName(bridgeSession.name, bridgeSession.email),
+      name: resolveReadableName(persistedUser.profileName || bridgeSession.name, bridgeSession.email),
       clerkUserId: bridgeSession.userId,
-      avatarUrl: null,
+      avatarUrl: persistedUser.avatarUrl,
       sessionStatus: "active" as const,
       source: "bridge" as const,
     };
