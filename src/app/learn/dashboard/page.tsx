@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { resolveDisplayName } from "@/lib/platform/display-name";
 import { getLearnerWorkspaceRecords } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function LearnDashboardPage() {
-  const workspace = await getLearnerWorkspaceRecords();
+  const session = await requireRole(["student", "super_admin"], "/learn/dashboard");
+  const workspace = await getLearnerWorkspaceRecords(session);
   const displayName = resolveDisplayName({
     firstName: workspace.user.profile?.firstName,
     lastName: workspace.user.profile?.lastName,

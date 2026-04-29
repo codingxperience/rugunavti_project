@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLearnerWorkspaceRecords } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,8 @@ export default async function LearnMyCoursesPage({
   searchParams: Promise<{ query?: string }>;
 }) {
   const { query } = await searchParams;
-  const workspace = await getLearnerWorkspaceRecords();
+  const session = await requireRole(["student", "super_admin"], "/learn/my-courses");
+  const workspace = await getLearnerWorkspaceRecords(session);
   const normalizedQuery = query?.trim().toLowerCase();
 
   const filteredCourses = normalizedQuery

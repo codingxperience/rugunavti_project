@@ -4,6 +4,7 @@ import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLearnerCertificates } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,8 @@ function formatDate(value: Date) {
 }
 
 export default async function LearnCertificatesPage() {
-  const certificates = await getLearnerCertificates();
+  const session = await requireRole(["student", "super_admin"], "/learn/certificates");
+  const certificates = await getLearnerCertificates(session);
 
   return (
     <div className="grid gap-6">

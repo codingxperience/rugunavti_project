@@ -16,6 +16,21 @@ const rawClerkProxyUrl =
   process.env.NEXT_PUBLIC_CLERK_PROXY_URL ||
   (isLocalSiteUrl ? undefined : `${normalizedSiteUrl}/__clerk`);
 
+function readSecret(value: string | undefined) {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return undefined;
+  }
+
+  // Prevent masked dashboard values such as "••••" from reaching request headers.
+  if (!/^[\x20-\x7E]+$/.test(trimmed) || trimmed.includes("•")) {
+    return undefined;
+  }
+
+  return trimmed;
+}
+
 function parseEmailList(value: string | undefined) {
   return new Set(
     (value ?? "")
@@ -33,7 +48,7 @@ export const platformEnv = {
   allowDevAuth: process.env.RUGUNA_ALLOW_DEV_AUTH === "true",
   enableAnalytics: process.env.RUGUNA_ENABLE_ANALYTICS === "true",
   clerkPublishableKey: rawClerkPublishableKey,
-  clerkSecretKey: process.env.CLERK_SECRET_KEY,
+  clerkSecretKey: readSecret(process.env.CLERK_SECRET_KEY),
   clerkUsesLiveKeys,
   clerkProxyUrl: clerkUsesLiveKeys ? rawClerkProxyUrl : undefined,
   clerkWebhookSecret: process.env.CLERK_WEBHOOK_SECRET,
@@ -108,6 +123,12 @@ export function getProductionEnvWarnings(env: NodeJS.ProcessEnv = process.env) {
   if (env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith("pk_test_")) {
     warnings.push(
       "Clerk is using test keys, so proxy-based Frontend API routing is disabled until live keys are configured."
+    );
+  }
+
+  if (env.CLERK_SECRET_KEY && !readSecret(env.CLERK_SECRET_KEY)) {
+    warnings.push(
+      "CLERK_SECRET_KEY contains invalid characters. Paste the real sk_test_ or sk_live_ value, not a masked dashboard value."
     );
   }
 

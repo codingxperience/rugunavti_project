@@ -4,6 +4,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Clock3, Video } from "lucide-r
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLearnerAcademicCalendar } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -121,7 +122,11 @@ export default async function LearnCalendarPage({
 }: {
   searchParams: Promise<{ view?: string }>;
 }) {
-  const [{ view }, calendar] = await Promise.all([searchParams, getLearnerAcademicCalendar()]);
+  const session = await requireRole(["student", "super_admin"], "/learn/calendar");
+  const [{ view }, calendar] = await Promise.all([
+    searchParams,
+    getLearnerAcademicCalendar(session),
+  ]);
   const selectedView: CalendarView = isCalendarView(view) ? view : "today";
   const agenda = buildAgenda(calendar);
   const today = new Date();

@@ -1,22 +1,35 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Bell, BookOpenText, CalendarDays, FileText, UsersRound } from "lucide-react";
+import {
+  Bell,
+  BookOpenText,
+  CalendarDays,
+  Download,
+  FileText,
+  House,
+  UsersRound,
+} from "lucide-react";
 
 import { CourseEnrollButton } from "@/components/elearning/course-enroll-button";
 import { CourseModuleAccordion } from "@/components/elearning/course-module-accordion";
 import { ProgressBar } from "@/components/platform/progress-bar";
 import { StatusBadge } from "@/components/platform/status-badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLearnerCourseWorkspace } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 const courseViews = [
+  { id: "home", label: "Home", icon: House },
   { id: "lessons", label: "Lessons", icon: BookOpenText },
   { id: "announcements", label: "Announcements", icon: Bell },
+  { id: "syllabus", label: "Syllabus", icon: CalendarDays },
   { id: "grades", label: "Grades", icon: FileText },
   { id: "people", label: "People", icon: UsersRound },
-  { id: "syllabus", label: "Syllabus", icon: FileText },
+  { id: "materials", label: "Course Materials", icon: Download },
 ] as const;
 
 type CourseView = (typeof courseViews)[number]["id"];
@@ -25,21 +38,49 @@ function isCourseView(value: string | undefined): value is CourseView {
   return courseViews.some((item) => item.id === value);
 }
 
-function formatDate(value: Date | string | null) {
-  if (!value) return "No deadline";
+function normalizeCourseView(value: string | undefined, hasLessonQuery: boolean): CourseView {
+  if (value === "modules") {
+    return "lessons";
+  }
+
+  if (isCourseView(value)) {
+    return value;
+  }
+
+  return hasLessonQuery ? "lessons" : "home";
+}
+
+function formatDate(value: Date | string | null | undefined) {
+  if (!value) return "Not scheduled";
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not scheduled";
+  }
 
   return new Intl.DateTimeFormat("en-UG", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(new Date(value));
+  }).format(date);
 }
 
-function formatEnumLabel(value: string) {
+function formatEnumLabel(value: string | null | undefined) {
+  if (!value) return "Not configured";
+
   return value
     .toLowerCase()
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function formatBytes(value: number) {
+  if (value < 1024 * 1024) {
+    return `${Math.max(Math.round(value / 1024), 1)} KB`;
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default async function LearnCoursePlayerPage({
@@ -51,7 +92,8 @@ export default async function LearnCoursePlayerPage({
 }) {
   const { slug } = await params;
   const { lesson, view } = await searchParams;
-  const workspace = await getLearnerCourseWorkspace(slug);
+  const session = await requireRole(["student", "super_admin"], `/learn/course/${slug}`);
+  const workspace = await getLearnerCourseWorkspace(slug, session);
 
   if (!workspace) {
     notFound();
@@ -83,14 +125,24 @@ export default async function LearnCoursePlayerPage({
   const currentLesson =
     lessons.find((item) => item.id === lesson || item.slug === lesson) ??
     lessons.find((item) => !item.completed) ??
-    lessons[0];
-  const currentView: CourseView = isCourseView(view) ? view : "lessons";
+    lessons[0] ??
+    null;
+  const currentView = normalizeCourseView(view, Boolean(lesson));
   const totalLessons = lessons.length;
   const completedLessons = lessons.filter((item) => item.completed).length;
+  const courseResources = lessons.flatMap((item) =>
+    item.resources.map((resource) => ({
+      ...resource,
+      lessonTitle: item.title,
+    }))
+  );
   const instructorName =
     [workspace.course.owner?.profile?.firstName, workspace.course.owner?.profile?.lastName]
       .filter(Boolean)
       .join(" ") || "Ruguna Instructor";
+  const learnerName =
+    [workspace.user.profile?.firstName, workspace.user.profile?.lastName].filter(Boolean).join(" ") ||
+    workspace.user.email;
   const selectedOffering = workspace.enrollment.courseOffering ?? workspace.course.offerings[0] ?? null;
   const plannedWeekCount =
     workspace.course.weekPlans.length ||
@@ -154,21 +206,6 @@ export default async function LearnCoursePlayerPage({
               : null,
         };
       });
-
-  const buildCourseHref = (nextView: CourseView) => {
-    const nextParams = new URLSearchParams();
-
-    if (currentLesson) {
-      nextParams.set("lesson", currentLesson.id);
-    }
-
-    if (nextView !== "lessons") {
-      nextParams.set("view", nextView);
-    }
-
-    return `/learn/course/${workspace.course.slug}?${nextParams.toString()}`;
-  };
-
   const courseAssessments = lessons.flatMap((item) => {
     const entries = [];
 
@@ -197,8 +234,63 @@ export default async function LearnCoursePlayerPage({
     return entries;
   });
 
+  const buildCourseHref = (nextView: CourseView) => {
+    const nextParams = new URLSearchParams();
+
+    if (currentLesson && nextView === "lessons") {
+      nextParams.set("lesson", currentLesson.id);
+    }
+
+    if (nextView !== "home") {
+      nextParams.set("view", nextView);
+    }
+
+    const query = nextParams.toString();
+
+    return `/learn/course/${workspace.course.slug}${query ? `?${query}` : ""}`;
+  };
+
   const content =
-    currentView === "lessons" ? (
+    currentView === "home" ? (
+      <div className="grid gap-4">
+        <Card>
+          <CardContent>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+              Course home
+            </p>
+            <h2 className="font-heading mt-3 text-3xl font-bold text-[var(--color-ink)]">
+              {workspace.course.title}
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+              {workspace.course.description || workspace.course.summary}
+            </p>
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
+              <CourseStat label="Progress" value={`${workspace.enrollment.progressPercent}%`} />
+              <CourseStat label="Lessons" value={`${completedLessons}/${totalLessons}`} />
+              <CourseStat label="Schedule" value={`${plannedWeekCount} weeks`} />
+            </div>
+            {currentLesson ? (
+              <div className="mt-6 rounded-[26px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-muted)]">
+                  Continue learning
+                </p>
+                <h3 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
+                  {currentLesson.title}
+                </h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                  {currentLesson.summary}
+                </p>
+                <div className="mt-5">
+                  <Button asChild>
+                    <Link href={buildCourseHref("lessons")}>Open lesson</Link>
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
+    ) : currentView === "lessons" ? (
       <CourseModuleAccordion
         courseId={workspace.course.id}
         courseSlug={workspace.course.slug}
@@ -208,12 +300,7 @@ export default async function LearnCoursePlayerPage({
     ) : currentView === "announcements" ? (
       <Card>
         <CardContent>
-          <div className="flex items-center gap-3">
-            <Bell className="h-5 w-5 text-[var(--color-ink)]" />
-            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-              Course announcements
-            </h2>
-          </div>
+          <SectionHeading icon={<Bell className="h-5 w-5" />} title="Course announcements" />
           <div className="mt-5 grid gap-3">
             {workspace.course.announcements.length ? (
               workspace.course.announcements.map((item) => (
@@ -226,9 +313,7 @@ export default async function LearnCoursePlayerPage({
                 </div>
               ))
             ) : (
-              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
-                No course announcements have been posted yet.
-              </div>
+              <EmptyState text="No course announcements have been posted yet." />
             )}
           </div>
         </CardContent>
@@ -236,12 +321,7 @@ export default async function LearnCoursePlayerPage({
     ) : currentView === "grades" ? (
       <Card>
         <CardContent>
-          <div className="flex items-center gap-3">
-            <FileText className="h-5 w-5 text-[var(--color-ink)]" />
-            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-              Assessment progress
-            </h2>
-          </div>
+          <SectionHeading icon={<FileText className="h-5 w-5" />} title="Assessment progress" />
           <div className="mt-5 grid gap-3">
             {courseAssessments.length ? (
               courseAssessments.map((item) => (
@@ -263,106 +343,111 @@ export default async function LearnCoursePlayerPage({
                 </div>
               ))
             ) : (
-              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
-                No assignments or quizzes are attached to this course yet.
-              </div>
+              <EmptyState text="No assignments or quizzes are attached to this course yet." />
             )}
           </div>
         </CardContent>
       </Card>
     ) : currentView === "people" ? (
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <UsersRound className="h-5 w-5 text-[var(--color-ink)]" />
-              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                Course people
-              </h2>
-            </div>
-            <div className="mt-5 grid gap-3">
-              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
-                <p className="font-semibold text-[var(--color-ink)]">{instructorName}</p>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">Lead instructor</p>
-                <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                  Course support, grading, announcements, and learning guidance.
-                </p>
-              </div>
-              <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
-                <p className="font-semibold text-[var(--color-ink)]">
-                  {workspace.user.profile?.firstName} {workspace.user.profile?.lastName}
-                </p>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">Current learner</p>
-                <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                  Enrollment status: {workspace.enrollment.status.toLowerCase()}.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardContent>
+          <SectionHeading icon={<UsersRound className="h-5 w-5" />} title="Course people" />
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <PersonCard
+              name={instructorName}
+              role="Lead instructor"
+              detail="Course support, grading, announcements, and learning guidance."
+            />
+            <PersonCard
+              name={learnerName}
+              role="Current learner"
+              detail={`Enrollment status: ${formatEnumLabel(workspace.enrollment.status)}.`}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    ) : currentView === "materials" ? (
+      <Card>
+        <CardContent>
+          <SectionHeading icon={<Download className="h-5 w-5" />} title="Course materials" />
+          <div className="mt-5 grid gap-3">
+            {courseResources.length ? (
+              courseResources.map((resource) => (
+                <div
+                  key={resource.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5"
+                >
+                  <div>
+                    <p className="font-semibold text-[var(--color-ink)]">{resource.title}</p>
+                    <p className="mt-2 text-sm text-[var(--color-muted)]">
+                      {resource.lessonTitle} - {resource.mimeType} - {formatBytes(resource.sizeBytes)}
+                    </p>
+                  </div>
+                  <Button asChild variant="secondary">
+                    <Link href={`/api/elearning/resources/${resource.id}`}>Download</Link>
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <EmptyState text="No downloadable materials have been attached to this course yet." />
+            )}
+          </div>
+        </CardContent>
+      </Card>
     ) : (
       <div className="grid gap-4">
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <Card>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <CalendarDays className="h-5 w-5 text-[var(--color-ink)]" />
-              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                Schedule and learning rhythm
-              </h2>
-            </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4">
-                <p className="font-semibold text-[var(--color-ink)]">Course pace</p>
-                <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                  {selectedOffering ? formatEnumLabel(selectedOffering.pace) : "Fourteen Week"} course
-                  with {plannedWeekCount} planned week(s). Seven-week courses run faster; fourteen-week
-                  courses normally run without a mid-course break.
-                </p>
+          <Card>
+            <CardContent>
+              <SectionHeading
+                icon={<CalendarDays className="h-5 w-5" />}
+                title="Schedule and learning rhythm"
+              />
+              <div className="mt-5 grid gap-3 md:grid-cols-2">
+                <InfoPanel
+                  title="Course pace"
+                  detail={`${selectedOffering ? formatEnumLabel(selectedOffering.pace) : "Fourteen Week"} course with ${plannedWeekCount} planned week(s). Seven-week courses run faster; fourteen-week courses normally run without a mid-course break.`}
+                />
+                <InfoPanel
+                  title="Offering"
+                  detail={`${selectedOffering?.title ?? "Open online course"}. Start: ${
+                    selectedOffering?.startDate ? formatDate(selectedOffering.startDate) : "Self-paced"
+                  }.`}
+                />
               </div>
-              <div className="rounded-[22px] border border-[var(--color-border)] bg-white p-4">
-                <p className="font-semibold text-[var(--color-ink)]">Offering</p>
-                <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                  {selectedOffering?.title ?? "Open online course"}. Start:{" "}
-                  {selectedOffering?.startDate ? formatDate(selectedOffering.startDate) : "Self-paced"}.
-                </p>
-              </div>
-            </div>
 
-            <div className="mt-6 grid gap-3">
-              {pathwayPlacements.map((placement) => (
-                <div
-                  key={`${placement.program.title}-${placement.yearNumber}-${placement.termNumber}`}
-                  className="rounded-[22px] border border-[var(--color-border)] bg-white p-4"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="font-semibold text-[var(--color-ink)]">{placement.program.title}</p>
-                    <StatusBadge
-                      value={`Year ${placement.yearNumber}, Semester ${placement.termNumber}`}
-                    />
+              <div className="mt-6 grid gap-3">
+                {pathwayPlacements.map((placement) => (
+                  <div
+                    key={`${placement.program.title}-${placement.yearNumber}-${placement.termNumber}`}
+                    className="rounded-[22px] border border-[var(--color-border)] bg-white p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="font-semibold text-[var(--color-ink)]">{placement.program.title}</p>
+                      <StatusBadge
+                        value={`Year ${placement.yearNumber}, Semester ${placement.termNumber}`}
+                      />
+                    </div>
+                    <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                      {formatEnumLabel(placement.requirement)} course
+                      {placement.creditUnits ? `, ${placement.creditUnits} credit unit(s)` : ""}.
+                      {placement.program.school.name !== workspace.course.school.name
+                        ? ` Shared from ${workspace.course.school.name}.`
+                        : ""}
+                    </p>
                   </div>
-                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                    {formatEnumLabel(placement.requirement)} course
-                    {placement.creditUnits ? `, ${placement.creditUnits} credit unit(s)` : ""}.
-                    {placement.program.school.name !== workspace.course.school.name
-                      ? ` Shared from ${workspace.course.school.name}.`
-                      : ""}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent>
-            <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-              Assessment weighting
-            </h2>
-            <div className="mt-5 grid gap-3">
-              {assessmentComponents.length ? (
-                assessmentComponents.map((component) => (
+          <Card>
+            <CardContent>
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                Assessment weighting
+              </h2>
+              <div className="mt-5 grid gap-3">
+                {assessmentComponents.map((component) => (
                   <div
                     key={component.id}
                     className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
@@ -375,19 +460,10 @@ export default async function LearnCoursePlayerPage({
                       {component.description}
                     </p>
                   </div>
-                ))
-              ) : (
-                <div
-                  className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
-                >
-                  <p className="text-sm leading-7 text-[var(--color-muted)]">
-                    Assessment weighting has not been configured for this course yet.
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <Card>
@@ -418,25 +494,12 @@ export default async function LearnCoursePlayerPage({
                       <StatusBadge value={week.topic} />
                     </summary>
                     <div className="mt-5 grid gap-3 md:grid-cols-3">
-                      <div className="rounded-[18px] bg-white p-4">
-                        <p className="font-semibold text-[var(--color-ink)]">Preparation</p>
-                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                          {week.preparationQuizTitle}. {week.preparationMaterials}{" "}
-                          {week.preparationReading}
-                        </p>
-                      </div>
-                      <div className="rounded-[18px] bg-white p-4">
-                        <p className="font-semibold text-[var(--color-ink)]">Teach one another</p>
-                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                          {week.teachOneAnotherTask}
-                        </p>
-                      </div>
-                      <div className="rounded-[18px] bg-white p-4">
-                        <p className="font-semibold text-[var(--color-ink)]">Ponder and prove</p>
-                        <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                          {week.ponderProveTask}
-                        </p>
-                      </div>
+                      <InfoPanel
+                        title="Preparation"
+                        detail={`${week.preparationQuizTitle}. ${week.preparationMaterials} ${week.preparationReading}`}
+                      />
+                      <InfoPanel title="Teach one another" detail={week.teachOneAnotherTask} />
+                      <InfoPanel title="Ponder and prove" detail={week.ponderProveTask} />
                     </div>
                     {week.liveSessionNote ? (
                       <p className="mt-4 rounded-[18px] bg-white px-4 py-3 text-sm leading-7 text-[var(--color-muted)]">
@@ -446,9 +509,7 @@ export default async function LearnCoursePlayerPage({
                   </details>
                 ))
               ) : (
-                <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
-                  Weekly planning has not been published for this course yet.
-                </div>
+                <EmptyState text="Weekly planning has not been published for this course yet." />
               )}
             </div>
           </CardContent>
@@ -467,22 +528,32 @@ export default async function LearnCoursePlayerPage({
             {workspace.course.title}
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-            {workspace.course.school.name} with {instructorName}. Review modules, announcements,
-            people, and assessment progress from one connected course workspace.
+            {workspace.course.school.name} with {instructorName}. Your lessons, syllabus,
+            assessments, people, and materials stay inside this course workspace.
           </p>
-
           <div className="mt-6">
             <ProgressBar value={workspace.enrollment.progressPercent} />
           </div>
-
           <div className="mt-4 flex flex-wrap gap-3">
-            <StatusBadge value={workspace.course.program.level.replace(/_/g, " ")} />
-            <StatusBadge value={workspace.course.deliveryMode.replace(/_/g, " ")} />
+            <StatusBadge value={formatEnumLabel(workspace.course.program.level)} />
+            <StatusBadge value={formatEnumLabel(workspace.course.deliveryMode)} />
             <StatusBadge value={`${workspace.enrollment.progressPercent}% complete`} tone="success" />
             <StatusBadge value={`${completedLessons}/${totalLessons} lessons`} />
           </div>
+        </CardContent>
+      </Card>
 
-          <div className="mt-6 flex flex-wrap gap-2">
+      <div className="grid gap-5 xl:grid-cols-[245px_minmax(0,1fr)]">
+        <aside className="rounded-[30px] border border-black/6 bg-white p-4 shadow-[0_25px_70px_-58px_rgba(17,17,17,0.45)] xl:sticky xl:top-6 xl:self-start">
+          <div className="border-b border-black/8 pb-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+              Course menu
+            </p>
+            <p className="font-heading mt-2 text-xl font-bold text-[var(--color-ink)]">
+              {workspace.course.program.title}
+            </p>
+          </div>
+          <nav className="mt-4 grid gap-1">
             {courseViews.map((item) => {
               const active = currentView === item.id;
               const Icon = item.icon;
@@ -491,22 +562,70 @@ export default async function LearnCoursePlayerPage({
                 <Link
                   key={item.id}
                   href={buildCourseHref(item.id)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  className={cn(
+                    "group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition",
                     active
-                      ? "border-black/6 bg-white text-[var(--color-ink)] shadow-[0_16px_30px_-24px_rgba(17,17,17,0.45)]"
-                      : "border-[var(--color-border)] bg-[var(--color-surface-alt)] text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]"
-                  }`}
+                      ? "bg-[var(--color-ink)] text-white shadow-[0_18px_38px_-28px_rgba(17,17,17,0.7)]"
+                      : "text-[var(--color-muted)] hover:bg-[#f6f5ef] hover:text-[var(--color-ink)]"
+                  )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110" />
                   {item.label}
                 </Link>
               );
             })}
-          </div>
-        </CardContent>
-      </Card>
+          </nav>
+        </aside>
 
-      {content}
+        <section>{content}</section>
+      </div>
+    </div>
+  );
+}
+
+function CourseStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[22px] border border-[var(--color-border)] bg-white p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+        {label}
+      </p>
+      <p className="font-heading mt-2 text-2xl font-bold text-[var(--color-ink)]">{value}</p>
+    </div>
+  );
+}
+
+function SectionHeading({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <div className="flex items-center gap-3 text-[var(--color-ink)]">
+      {icon}
+      <h2 className="font-heading text-2xl font-bold">{title}</h2>
+    </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
+      {text}
+    </div>
+  );
+}
+
+function InfoPanel({ title, detail }: { title: string; detail: string }) {
+  return (
+    <div className="rounded-[18px] border border-[var(--color-border)] bg-white p-4">
+      <p className="font-semibold text-[var(--color-ink)]">{title}</p>
+      <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">{detail}</p>
+    </div>
+  );
+}
+
+function PersonCard({ name, role, detail }: { name: string; role: string; detail: string }) {
+  return (
+    <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
+      <p className="font-semibold text-[var(--color-ink)]">{name}</p>
+      <p className="mt-2 text-sm text-[var(--color-muted)]">{role}</p>
+      <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{detail}</p>
     </div>
   );
 }

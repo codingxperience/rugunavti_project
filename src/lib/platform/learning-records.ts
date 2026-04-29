@@ -7,6 +7,7 @@ import {
 } from "@prisma/client";
 
 import { getDb } from "@/lib/db";
+import type { PlatformSession } from "@/lib/platform/auth";
 import { ensureUserForSession } from "@/lib/platform/users";
 
 export type LearnerCourseRecord = {
@@ -44,9 +45,9 @@ function countCourseWeeks(pace: string | null | undefined) {
   return pace === "SEVEN_WEEK" ? 7 : pace === "FOURTEEN_WEEK" ? 14 : null;
 }
 
-export async function getLearnerWorkspaceRecords() {
+export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
   const db = getDb();
-  const user = await ensureUserForSession();
+  const user = await ensureUserForSession(session);
 
   const enrollments = await db.enrollment.findMany({
     where: {
@@ -268,9 +269,9 @@ function lessonTypeLabel(value: string) {
     .join(" ");
 }
 
-export async function getLearnerCourseWorkspace(slug: string) {
+export async function getLearnerCourseWorkspace(slug: string, session?: PlatformSession) {
   const db = getDb();
-  const user = await ensureUserForSession();
+  const user = await ensureUserForSession(session);
   const course = await db.course.findFirst({
     where: {
       slug,
@@ -507,9 +508,9 @@ async function backfillProgramEnrollmentsForUser(userId: string) {
   }
 }
 
-export async function getLearnerProgramPathway() {
+export async function getLearnerProgramPathway(session?: PlatformSession) {
   const db = getDb();
-  const user = await ensureUserForSession();
+  const user = await ensureUserForSession(session);
 
   await backfillProgramEnrollmentsForUser(user.id);
 
@@ -688,9 +689,9 @@ export async function getLearnerProgramPathway() {
   };
 }
 
-export async function getLearnerAcademicCalendar() {
+export async function getLearnerAcademicCalendar(session?: PlatformSession) {
   const db = getDb();
-  const user = await ensureUserForSession();
+  const user = await ensureUserForSession(session);
   const enrollments = await db.enrollment.findMany({
     where: {
       userId: user.id,
@@ -784,8 +785,8 @@ export async function getLearnerAcademicCalendar() {
   };
 }
 
-export async function getLearnerAssignments() {
-  const workspace = await getLearnerWorkspaceRecords();
+export async function getLearnerAssignments(session?: PlatformSession) {
+  const workspace = await getLearnerWorkspaceRecords(session);
   const db = getDb();
   const assignments = await db.assignment.findMany({
     where: {
@@ -810,8 +811,8 @@ export async function getLearnerAssignments() {
   return assignments;
 }
 
-export async function getLearnerQuizzes() {
-  const workspace = await getLearnerWorkspaceRecords();
+export async function getLearnerQuizzes(session?: PlatformSession) {
+  const workspace = await getLearnerWorkspaceRecords(session);
   const db = getDb();
   const quizzes = await db.quiz.findMany({
     where: {
@@ -836,8 +837,8 @@ export async function getLearnerQuizzes() {
   return quizzes;
 }
 
-export async function getLearnerCertificates() {
-  const user = await ensureUserForSession();
+export async function getLearnerCertificates(session?: PlatformSession) {
+  const user = await ensureUserForSession(session);
   const db = getDb();
 
   return db.certificate.findMany({
@@ -853,8 +854,8 @@ export async function getLearnerCertificates() {
   });
 }
 
-export async function getLearnerDownloads() {
-  const user = await ensureUserForSession();
+export async function getLearnerDownloads(session?: PlatformSession) {
+  const user = await ensureUserForSession(session);
   const db = getDb();
 
   return db.lessonResource.findMany({

@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLearnerDownloads } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,8 @@ function formatBytes(value: number) {
 }
 
 export default async function LearnDownloadsPage() {
-  const resources = await getLearnerDownloads();
+  const session = await requireRole(["student", "super_admin"], "/learn/downloads");
+  const resources = await getLearnerDownloads(session);
 
   return (
     <div className="grid gap-6">

@@ -4,11 +4,13 @@ import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLearnerQuizzes } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 
 export default async function LearnQuizzesPage() {
-  const quizzes = await getLearnerQuizzes();
+  const session = await requireRole(["student", "super_admin"], "/learn/quizzes");
+  const quizzes = await getLearnerQuizzes(session);
 
   return (
     <div className="grid gap-6">
