@@ -518,42 +518,54 @@ export default async function LearnCoursePlayerPage({
     );
 
   return (
-    <div className="grid gap-6">
-      <Card>
-        <CardContent>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-            Selected course
-          </p>
-          <h1 className="font-heading mt-4 text-4xl font-bold text-[var(--color-ink)]">
-            {workspace.course.title}
-          </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-            {workspace.course.school.name} with {instructorName}. Your lessons, syllabus,
-            assessments, people, and materials stay inside this course workspace.
-          </p>
-          <div className="mt-6">
-            <ProgressBar value={workspace.enrollment.progressPercent} />
+    <div className="grid gap-5">
+      <section className="rounded-[30px] border border-black/8 bg-white/82 px-5 py-5 shadow-[0_22px_70px_-62px_rgba(17,17,17,0.55)] sm:px-6">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+              Selected course
+            </p>
+            <h1 className="font-heading mt-3 text-3xl font-bold leading-tight text-[var(--color-ink)] sm:text-4xl">
+              {workspace.course.title}
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+              {workspace.course.school.name} with {instructorName}.
+            </p>
           </div>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <StatusBadge value={formatEnumLabel(workspace.course.program.level)} />
-            <StatusBadge value={formatEnumLabel(workspace.course.deliveryMode)} />
-            <StatusBadge value={`${workspace.enrollment.progressPercent}% complete`} tone="success" />
-            <StatusBadge value={`${completedLessons}/${totalLessons} lessons`} />
-          </div>
-        </CardContent>
-      </Card>
 
-      <div className="grid gap-5 xl:grid-cols-[245px_minmax(0,1fr)]">
-        <aside className="rounded-[30px] border border-black/6 bg-white p-4 shadow-[0_25px_70px_-58px_rgba(17,17,17,0.45)] xl:sticky xl:top-6 xl:self-start">
-          <div className="border-b border-black/8 pb-4">
+          <div className="rounded-[24px] border border-black/8 bg-[#f8f7f1] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+                Progress
+              </p>
+              <p className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                {workspace.enrollment.progressPercent}%
+              </p>
+            </div>
+            <div className="mt-3">
+              <ProgressBar value={workspace.enrollment.progressPercent} />
+            </div>
+            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+              {completedLessons}/{totalLessons} lessons complete
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <StatusBadge value={formatEnumLabel(workspace.course.program.level)} />
+          <StatusBadge value={formatEnumLabel(workspace.course.deliveryMode)} />
+          <StatusBadge value={`${plannedWeekCount} week plan`} />
+        </div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
+        <aside className="rounded-[26px] border border-black/8 bg-white/80 p-3 shadow-[0_18px_55px_-50px_rgba(17,17,17,0.45)] xl:sticky xl:top-6 xl:self-start">
+          <div className="px-2 pb-3">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
               Course menu
             </p>
-            <p className="font-heading mt-2 text-xl font-bold text-[var(--color-ink)]">
-              {workspace.course.program.title}
-            </p>
           </div>
-          <nav className="mt-4 grid gap-1">
+          <nav className="grid gap-1">
             {courseViews.map((item) => {
               const active = currentView === item.id;
               const Icon = item.icon;
@@ -563,10 +575,10 @@ export default async function LearnCoursePlayerPage({
                   key={item.id}
                   href={buildCourseHref(item.id)}
                   className={cn(
-                    "group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold transition",
+                    "group flex items-center gap-3 rounded-[18px] border px-3 py-2.5 text-sm font-semibold transition",
                     active
-                      ? "bg-[var(--color-ink)] text-white shadow-[0_18px_38px_-28px_rgba(17,17,17,0.7)]"
-                      : "text-[var(--color-muted)] hover:bg-[#f6f5ef] hover:text-[var(--color-ink)]"
+                      ? "border-[#f3d53b] bg-[#fff5ad] text-[var(--color-ink)] shadow-none"
+                      : "border-transparent text-[var(--color-muted)] hover:border-black/6 hover:bg-[#f6f5ef] hover:text-[var(--color-ink)]"
                   )}
                 >
                   <Icon className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110" />
@@ -577,7 +589,7 @@ export default async function LearnCoursePlayerPage({
           </nav>
         </aside>
 
-        <section>{content}</section>
+        <section className="min-w-0">{content}</section>
       </div>
     </div>
   );

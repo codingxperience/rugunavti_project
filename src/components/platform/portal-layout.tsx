@@ -220,14 +220,14 @@ export function PortalLayout({
               aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               onClick={() => setSidebarCollapsed((value) => !value)}
               className={cn(
-                "hidden h-11 w-11 items-center justify-center rounded-2xl border border-black/6 bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)] lg:inline-flex",
-                sidebarCollapsed ? "lg:mt-3" : "lg:absolute lg:right-0 lg:top-0"
+                "hidden h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-ink)] shadow-[0_12px_30px_-24px_rgba(17,17,17,0.65)] transition hover:-translate-y-0.5 hover:bg-[#fff5ad] lg:inline-flex",
+                sidebarCollapsed ? "lg:mt-4" : "lg:absolute lg:right-0 lg:top-1"
               )}
             >
               {sidebarCollapsed ? (
-                <ChevronsRight className="h-4 w-4" />
+                <ChevronsRight className="h-3.5 w-3.5" />
               ) : (
-                <ChevronsLeft className="h-4 w-4" />
+                <ChevronsLeft className="h-3.5 w-3.5" />
               )}
             </button>
           </div>

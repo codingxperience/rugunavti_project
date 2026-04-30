@@ -109,25 +109,25 @@ export function CourseModuleAccordion({
   };
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-2.5">
       {modules.map((module, moduleIndex) => {
         const isOpen = openModules.includes(module.id);
 
         return (
           <section
             key={module.id}
-            className="overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-white"
+            className="overflow-hidden rounded-[24px] border border-black/8 bg-white/90 shadow-[0_18px_55px_-52px_rgba(17,17,17,0.45)]"
           >
             <button
               type="button"
               onClick={() => toggleModule(module.id)}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-[#fbfaf4]"
             >
-              <span>
-                <span className="font-heading text-lg font-bold text-[var(--color-ink)]">
+              <span className="min-w-0">
+                <span className="font-heading block truncate text-lg font-bold text-[var(--color-ink)]">
                   Module {moduleIndex + 1}: {module.title.replace(/^Module\s+\d+:\s*/i, "")}
                 </span>
-                <span className="mt-2 flex flex-wrap gap-3 text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                <span className="mt-2 flex flex-wrap gap-3 text-xs uppercase tracking-[0.14em] text-[var(--color-muted)]">
                   <span>{module.lessons.length} lessons</span>
                   <span>{module.progress}% complete</span>
                 </span>
@@ -141,7 +141,7 @@ export function CourseModuleAccordion({
             </button>
 
             {isOpen ? (
-              <div className="border-t border-[var(--color-border)] px-4 pb-4 pt-4">
+              <div className="border-t border-black/8 bg-[#fbfaf4] px-4 pb-4 pt-4">
                 <div className="grid gap-3">
                   {module.lessons.map((lesson) => {
                     const active = lesson.id === currentLessonId || lesson.slug === currentLessonId;
@@ -152,7 +152,7 @@ export function CourseModuleAccordion({
                         className={cn(
                           "rounded-[22px] border px-4 py-4 transition",
                           active
-                            ? "border-black/6 bg-[var(--color-surface-alt)] shadow-[0_18px_35px_-28px_rgba(17,17,17,0.45)]"
+                            ? "border-[#f3d53b] bg-white shadow-[0_18px_35px_-30px_rgba(17,17,17,0.5)]"
                             : "border-[var(--color-border)] bg-white"
                         )}
                       >
