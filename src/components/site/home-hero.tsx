@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CircleCheckBig } from "lucide-react";
 
@@ -43,18 +42,19 @@ export function HomeHero() {
           </div>
         </div>
 
-        <div className="fade-up-delay relative">
-          <div className="absolute -left-6 -top-6 h-24 w-24 rounded-full bg-[var(--color-accent)] blur-2xl sm:h-32 sm:w-32" />
-          <div className="relative overflow-hidden rounded-[34px] bg-white/70 shadow-[0_28px_90px_-60px_rgba(17,17,17,0.9)]">
-            <Image
-              src="/brand/hero_illustration.jpg"
-              alt="Ruguna student reading in a bright study environment"
-              width={1024}
-              height={1024}
-              priority
-              className="aspect-square w-full object-cover object-center"
-            />
-          </div>
+        <div className="fade-up-delay relative flex min-h-[320px] items-center justify-center lg:min-h-[520px]">
+          <div className="pointer-events-none absolute left-6 top-10 h-28 w-28 rounded-full bg-[var(--color-accent)] opacity-70 blur-3xl sm:h-40 sm:w-40" />
+          <video
+            aria-label="Animated Ruguna learner illustration"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="relative z-10 w-full max-w-[620px] object-contain mix-blend-multiply"
+          >
+            <source src="/brand/home_hero_illustrator.mp4" type="video/mp4" />
+          </video>
 
           {/*
           <div className="grid gap-3 sm:grid-cols-4">
