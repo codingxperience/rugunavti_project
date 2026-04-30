@@ -156,22 +156,16 @@ export default async function LearnCalendarPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/learn/my-courses"
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-[var(--color-ink)] px-6 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-black"
-          >
-            Open courses
-          </Link>
-          <div className="flex rounded-full border border-black/8 bg-white p-1 shadow-[0_16px_40px_-32px_rgba(17,17,17,0.5)]">
+          <div className="flex rounded-full border border-black/8 bg-white p-1 shadow-[0_16px_40px_-34px_rgba(17,17,17,0.45)]">
             {(["today", "week", "month"] as const).map((item) => (
               <Link
                 key={item}
                 href={`/learn/calendar?view=${item}`}
                 className={cn(
-                  "rounded-full px-6 py-3 text-sm font-bold capitalize transition",
+                  "rounded-full border px-6 py-3 text-sm font-bold capitalize transition",
                   selectedView === item
-                    ? "bg-[var(--color-soft-accent)] text-[var(--color-ink)]"
-                    : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
+                    ? "border-[#f3d53b] bg-[#fff5ad] text-[var(--color-ink)]"
+                    : "border-transparent text-[var(--color-muted)] hover:bg-[#f6f5ef] hover:text-[var(--color-ink)]"
                 )}
               >
                 {item}
