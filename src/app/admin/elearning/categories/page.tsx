@@ -1,9 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import { getAdminCategories } from "@/lib/platform/staff-records";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningCategoriesPage() {
+  await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/categories");
   const categories = await getAdminCategories();
 
   return (

@@ -48,7 +48,7 @@ export default async function ContinueLearningPage() {
                 </div>
                 <div className="flex justify-start xl:justify-end">
                   <Button asChild>
-                    <Link href={`/learn/course/${course.slug}?lesson=${course.nextLesson?.id}`}>
+                    <Link href={`/learn/course/${course.slug}?lesson=${course.nextLesson?.id}&view=modules`}>
                       Resume lesson
                     </Link>
                   </Button>

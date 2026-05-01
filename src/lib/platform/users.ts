@@ -135,6 +135,28 @@ export async function attachUserRole(userId: string, role: Role | PlatformRole) 
   });
 }
 
+function getPersistentSessionRoles(roles: PlatformRole[], fallbackRole: PlatformRole | null) {
+  const sourceRoles = roles.length ? roles : fallbackRole ? [fallbackRole] : [];
+  const staffRoles: PlatformRole[] = [
+    "instructor",
+    "registrar_admin",
+    "finance_admin",
+    "super_admin",
+  ];
+
+  if (sourceRoles.includes("super_admin")) {
+    return ["super_admin"] as PlatformRole[];
+  }
+
+  const staffAccess = sourceRoles.filter((role) => staffRoles.includes(role));
+
+  if (staffAccess.length) {
+    return staffAccess;
+  }
+
+  return sourceRoles;
+}
+
 export async function ensureUserForSession(session?: PlatformSession) {
   const currentSession = session ?? (await getCurrentSession());
 
@@ -225,7 +247,7 @@ export async function ensureUserForSession(session?: PlatformSession) {
         },
       });
 
-  for (const role of currentSession.roles.length ? currentSession.roles : currentSession.role ? [currentSession.role] : []) {
+  for (const role of getPersistentSessionRoles(currentSession.roles, currentSession.role)) {
     await attachUserRole(user.id, role);
   }
 

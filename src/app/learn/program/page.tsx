@@ -1,12 +1,23 @@
 import Link from "next/link";
-import { BookOpenCheck, CalendarDays, GraduationCap, Layers3 } from "lucide-react";
+import { ProgramLevel } from "@prisma/client";
+import {
+  ArrowRight,
+  BookOpenCheck,
+  CalendarDays,
+  GraduationCap,
+  Layers3,
+  Sparkles,
+} from "lucide-react";
 
 import { CourseEnrollButton } from "@/components/elearning/course-enroll-button";
 import { ProgressBar } from "@/components/platform/progress-bar";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getLearnerProgramPathway } from "@/lib/platform/learning-records";
+import {
+  getLearnerProgramPathway,
+  getLearnerWorkspaceRecords,
+} from "@/lib/platform/learning-records";
 import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +30,23 @@ function formatDate(value: string | null) {
   return new Intl.DateTimeFormat("en-UG", { dateStyle: "medium" }).format(new Date(value));
 }
 
+function formatEnumLabel(value: string) {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export default async function LearnProgramPage() {
   const session = await requireRole(["student", "super_admin"], "/learn/program");
-  const pathway = await getLearnerProgramPathway(session);
+  const [pathway, workspace] = await Promise.all([
+    getLearnerProgramPathway(session),
+    getLearnerWorkspaceRecords(session),
+  ]);
+  const recommendedShortCourses = workspace.recommendedCourses
+    .filter((course) => course.program.level === ProgramLevel.SHORT_COURSE)
+    .slice(0, 3);
 
   return (
     <div className="grid gap-6">
@@ -36,8 +61,8 @@ export default async function LearnProgramPage() {
                 My Program
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-                See the programme you are pursuing, the courses planned by semester, shared courses
-                from other Ruguna schools, and the courses available for enrollment now.
+                Full certificate, diploma, and bachelor pathways appear here after admissions or
+                admin placement. Short courses remain open for direct online enrollment.
               </p>
             </div>
             <StatusBadge
@@ -208,28 +233,114 @@ export default async function LearnProgramPage() {
           );
         })
       ) : (
-        <Card>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <GraduationCap className="h-5 w-5 text-[var(--color-ink)]" />
-              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                Choose a Ruguna programme or course
-              </h2>
-            </div>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
-              Your programme pathway appears after you enroll into a Ruguna online course or after
-              admissions attaches your account to a programme intake.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/elearning/courses">Browse online courses</Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <Link href="/programs">View programmes</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-5">
+          <Card>
+            <CardContent>
+              <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <GraduationCap className="h-5 w-5 text-[var(--color-ink)]" />
+                    <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                      No admitted programme plan yet
+                    </h2>
+                  </div>
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+                    Academic programmes are not self-enrolled. Admissions reviews entry
+                    requirements, equivalent qualifications, international documents, and the
+                    correct intake before your semester-by-semester course plan appears here.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <Button asChild>
+                      <Link href="/apply">
+                        Apply for a programme
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button asChild variant="secondary">
+                      <Link href="/elearning/courses?level=Short%20Course">
+                        Browse open short courses
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+                    How placement works
+                  </p>
+                  <div className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <p>1. Submit programme application details and qualification history.</p>
+                    <p>2. Admissions verifies requirements, equivalencies, and intake availability.</p>
+                    <p>3. Admin attaches the approved programme and semester course plan.</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="h-5 w-5 text-[var(--color-ink)]" />
+                    <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                      Recommended open courses
+                    </h2>
+                  </div>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-muted)]">
+                    These short courses can be started while admissions reviews a longer programme
+                    application, or as standalone upskilling.
+                  </p>
+                </div>
+                <Button asChild variant="secondary">
+                  <Link href="/elearning/courses?level=Short%20Course">See all short courses</Link>
+                </Button>
+              </div>
+
+              {recommendedShortCourses.length ? (
+                <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                  {recommendedShortCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="flex min-h-full flex-col rounded-[26px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5"
+                    >
+                      <div className="flex flex-wrap gap-2">
+                        <StatusBadge value={formatEnumLabel(course.program.level)} />
+                        <StatusBadge value={formatEnumLabel(course.deliveryMode)} />
+                      </div>
+                      <h3 className="font-heading mt-4 text-xl font-bold text-[var(--color-ink)]">
+                        {course.title}
+                      </h3>
+                      <p className="mt-3 flex-1 text-sm leading-7 text-[var(--color-muted)]">
+                        {course.summary}
+                      </p>
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        <Button asChild size="sm">
+                          <Link href={`/elearning/courses/${course.slug}`}>View course</Link>
+                        </Button>
+                        <Button asChild size="sm" variant="secondary">
+                          <Link
+                            href={`/elearning/login?next=${encodeURIComponent(
+                              `/learn/course/${course.slug}`
+                            )}`}
+                          >
+                            Start learning
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-6 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 text-sm leading-7 text-[var(--color-muted)]">
+                  No open short-course recommendation is available for this learner yet. Browse the
+                  eLearning catalog or contact admissions for a guided starting point.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );

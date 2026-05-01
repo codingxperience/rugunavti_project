@@ -12,6 +12,7 @@ import { MetricCard } from "@/components/platform/metric-card";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getAdminElearningRecords } from "@/lib/platform/learning-records";
+import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,7 @@ function activityLabel(summary: string) {
 }
 
 export default async function AdminElearningDashboardPage() {
+  await requireRole(["registrar_admin", "super_admin"], "/admin/elearning");
   const records = await getAdminElearningRecords();
 
   return (

@@ -2,7 +2,7 @@ import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getAdminUsers } from "@/lib/platform/staff-records";
-import { getCurrentSession } from "@/lib/platform/session";
+import { requireRole } from "@/lib/platform/session";
 
 import { updateUserRoleAction } from "./actions";
 
@@ -44,10 +44,10 @@ export default async function AdminElearningUsersPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
-  const [{ status }, users, session] = await Promise.all([
+  const session = await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/users");
+  const [{ status }, users] = await Promise.all([
     searchParams,
     getAdminUsers(),
-    getCurrentSession(),
   ]);
   const canManageRoles = session.roles.includes("super_admin");
   const statusMessage = status ? statusMessages[status] : null;

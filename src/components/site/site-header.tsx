@@ -26,10 +26,10 @@ export function SiteHeader() {
   const isElearning = pathname.startsWith("/elearning");
   const logoHref = isElearning ? "/elearning" : "/";
   const logoAlt = isElearning
-    ? "Ruguna eLearning logo"
-    : "Ruguna Vocational Training Institute logo";
-  const logoTitle = isElearning ? "Ruguna eLearning" : "Ruguna";
-  const logoSubtitle = isElearning ? "Online Learning Platform" : "Vocational Training Institute";
+    ? "Ruguna College eLearning logo"
+    : "Ruguna College logo";
+  const logoTitle = isElearning ? "Ruguna eLearning" : "Ruguna College";
+  const logoSubtitle = isElearning ? "Online Learning Platform" : siteConfig.motto;
   const primaryCtaHref = isElearning ? "/elearning/login" : "/apply";
   const primaryCtaLabel = isElearning ? "Log In" : "Apply Now";
 
@@ -39,7 +39,7 @@ export function SiteHeader() {
         <div className="container-width flex items-center justify-between gap-5 px-5 py-2.5 text-[11px] sm:px-8 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-white/72">
             {utilityLinks.map((item, index) => (
-              <div key={item.href} className="flex items-center gap-3">
+              <div key={`${item.href}-${item.label}`} className="flex items-center gap-3">
                 <Link
                   href={item.href}
                   className="font-medium uppercase tracking-[0.1em] transition hover:text-[var(--color-accent)]"
@@ -66,11 +66,11 @@ export function SiteHeader() {
         <Link href={logoHref} className="flex min-w-0 flex-1 items-center gap-3 xl:flex-none">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
             <Image
-              src="/brand/ruguna-logo.png"
+              src="/brand/ruguna-college-logo.jpeg"
               alt={logoAlt}
-              width={30}
-              height={30}
-              className="h-7 w-7 object-contain"
+              width={38}
+              height={38}
+              className="h-9 w-9 object-contain"
             />
           </div>
           <div className="min-w-0">
@@ -120,7 +120,7 @@ export function SiteHeader() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
               Intakes
             </p>
-            <p className="text-sm font-semibold text-[var(--color-ink)]">Jan | May | Sep</p>
+            <p className="text-sm font-semibold text-[var(--color-ink)]">May | Sep</p>
           </div>
           <Button asChild>
             <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
@@ -135,7 +135,7 @@ export function SiteHeader() {
             <div className="grid gap-2 border-b border-[var(--color-border)] pb-4">
               {utilityLinks.map((item) => (
                 <Link
-                  key={item.href}
+                  key={`${item.href}-${item.label}`}
                   href={item.href}
                   className="rounded-2xl border border-transparent px-4 py-3 text-sm font-medium text-[var(--color-ink)] transition hover:border-[var(--color-border)] hover:bg-[var(--color-soft-accent)]"
                 >

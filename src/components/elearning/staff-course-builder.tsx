@@ -11,6 +11,13 @@ import { cn } from "@/lib/utils";
 
 type BuilderCourse = {
   id: string;
+  weekPlans: {
+    id: string;
+    weekNumber: number;
+    title: string;
+    topic: string;
+    status: string;
+  }[];
   modules: {
     id: string;
     title: string;
@@ -137,11 +144,11 @@ export function StaffCourseBuilder({ course }: StaffCourseBuilderProps) {
           Course builder
         </p>
         <h2 className="font-heading mt-2 text-2xl font-bold text-[var(--color-ink)]">
-          Add content
+          Build course content
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-          Open one action at a time. This keeps module, lesson, resource, assignment, and quiz
-          creation clear for both admin and instructor workspaces.
+          Open one action at a time. Weekly plans shape the learner module list; modules and
+          lessons hold the classroom content, resources, assignments, and quizzes.
         </p>
         {message ? (
           <div className="mt-4 rounded-2xl border border-black/8 bg-white px-4 py-3 text-sm font-semibold text-[var(--color-ink)]">
@@ -175,6 +182,64 @@ export function StaffCourseBuilder({ course }: StaffCourseBuilderProps) {
           </label>
           <Button type="submit" disabled={pending === "/api/admin/elearning/modules"}>
             {pending === "/api/admin/elearning/modules" ? "Saving..." : "Save module"}
+          </Button>
+        </form>
+      </ActionDisclosure>
+
+      <ActionDisclosure
+        title="Add weekly plan"
+        description="Create the week-by-week learning rhythm students see in Modules and Syllabus."
+      >
+        <form
+          onSubmit={(event) =>
+            handleSubmit(event, "/api/admin/elearning/weeks", (formData) => ({
+              courseId: course.id,
+              weekNumber: Number(formData.get("weekNumber") ?? course.weekPlans.length + 1),
+              title: String(formData.get("title") ?? ""),
+              overview: String(formData.get("overview") ?? ""),
+              topic: String(formData.get("topic") ?? ""),
+              preparationQuizTitle: String(formData.get("preparationQuizTitle") ?? ""),
+              preparationMaterials: String(formData.get("preparationMaterials") ?? ""),
+              preparationReading: String(formData.get("preparationReading") ?? ""),
+              teachOneAnotherTask: String(formData.get("teachOneAnotherTask") ?? ""),
+              ponderProveTask: String(formData.get("ponderProveTask") ?? ""),
+              liveSessionNote: String(formData.get("liveSessionNote") ?? "") || undefined,
+              dueDateOffsetDays: Number(formData.get("dueDateOffsetDays") ?? 7),
+              published: formData.get("published") === "on",
+            }))
+          }
+          className="grid gap-4"
+        >
+          <div className="grid gap-3 md:grid-cols-[160px_minmax(0,1fr)]">
+            <Input
+              name="weekNumber"
+              type="number"
+              min={1}
+              max={52}
+              defaultValue={course.weekPlans.length + 1}
+              required
+            />
+            <Input name="title" required placeholder="Week 01: Topic title" />
+          </div>
+          <Input name="topic" required placeholder="Weekly topic" />
+          <Textarea name="overview" required placeholder="What this week is about" />
+          <Input name="preparationQuizTitle" required placeholder="Preparation quiz title" />
+          <div className="grid gap-3 md:grid-cols-2">
+            <Textarea name="preparationMaterials" required placeholder="Preparation materials" />
+            <Textarea name="preparationReading" required placeholder="Reading or study guidance" />
+          </div>
+          <Textarea name="teachOneAnotherTask" required placeholder="Teach One Another group task" />
+          <Textarea name="ponderProveTask" required placeholder="Ponder and Prove paper/project task" />
+          <div className="grid gap-3 md:grid-cols-2">
+            <Input name="liveSessionNote" placeholder="Optional live or blended session note" />
+            <Input name="dueDateOffsetDays" type="number" min={0} max={400} defaultValue={7} />
+          </div>
+          <label className="inline-flex items-center gap-2 text-sm font-medium">
+            <input name="published" type="checkbox" defaultChecked />
+            Publish weekly plan
+          </label>
+          <Button type="submit" disabled={pending === "/api/admin/elearning/weeks"}>
+            {pending === "/api/admin/elearning/weeks" ? "Saving..." : "Save weekly plan"}
           </Button>
         </form>
       </ActionDisclosure>

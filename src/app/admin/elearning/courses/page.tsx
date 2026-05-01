@@ -4,12 +4,14 @@ import { StaffCourseForm } from "@/components/elearning/staff-course-form";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import { getStaffCourseManagementRecords } from "@/lib/platform/staff-records";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningCoursesPage() {
-  const records = await getStaffCourseManagementRecords();
+  const session = await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/courses");
+  const records = await getStaffCourseManagementRecords(session);
 
   return (
     <div className="grid gap-6">
@@ -27,31 +29,32 @@ export default async function AdminElearningCoursesPage() {
 
       <StaffCourseForm schools={records.schools} programs={records.programs} />
 
-      <div className="grid gap-4">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {records.courses.map((course) => (
-          <Card key={course.id}>
+          <Card key={course.id} className="overflow-hidden border-black/8 bg-white">
+            <div
+              className="min-h-32 bg-cover bg-center p-5 text-white"
+              style={{
+                backgroundImage: `linear-gradient(135deg, rgba(17,17,17,0.84), rgba(17,17,17,0.16)), url(${course.thumbnailUrl || "/brand/hero_illustration.jpg"})`,
+              }}
+            >
+              <StatusBadge value={course.programLevel.replace(/_/g, " ")} />
+              <h2 className="font-heading mt-10 text-2xl font-bold leading-tight">{course.title}</h2>
+            </div>
             <CardContent>
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_220px] xl:items-center">
-                <div>
-                  <div className="flex flex-wrap gap-2">
-                    <StatusBadge value={course.programLevel.replace(/_/g, " ")} />
-                    <StatusBadge value={course.status} tone={course.status === "PUBLISHED" ? "success" : "warning"} />
-                  </div>
-                  <h2 className="font-heading mt-4 text-2xl font-bold text-[var(--color-ink)]">
-                    {course.title}
-                  </h2>
-                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                    {course.schoolName} - {course.deliveryMode.replace(/_/g, " ")} - {course.enrollmentCount} learners
-                  </p>
-                  <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
-                    {course.moduleCount} modules, {course.lessonCount} lessons. Owner: {course.ownerName}.
-                  </p>
-                </div>
-                <div className="flex justify-start xl:justify-end">
-                  <Button asChild>
-                    <Link href={`/admin/elearning/courses/${course.id}/builder`}>Open builder</Link>
-                  </Button>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <StatusBadge value={course.deliveryMode.replace(/_/g, " ")} />
+                <StatusBadge value={course.status} tone={course.status === "PUBLISHED" ? "success" : "warning"} />
+              </div>
+              <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
+                {course.schoolName}. {course.enrollmentCount} learners, {course.weekCount || 14} planned week(s),
+                {course.moduleCount} modules, {course.lessonCount} lessons.
+              </p>
+              <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">Owner: {course.ownerName}.</p>
+              <div className="mt-5">
+                <Button asChild>
+                  <Link href={`/admin/elearning/courses/${course.id}/builder`}>Open builder</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -6,13 +6,24 @@ import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { admissionRequirements, applyTracks, intakeMoments, programs, siteConfig } from "@/data";
 
-export default function ApplyPage() {
+export default async function ApplyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ program?: string }>;
+}) {
+  const { program } = await searchParams;
+  const requestedProgram = program?.trim();
+  const selectedProgram = requestedProgram
+    ? programs.find((item) => item.title.toLowerCase() === requestedProgram.toLowerCase())
+    : null;
+  const programOptions = programs.map((item) => item.title);
+
   return (
     <>
       <PageHero
         eyebrow="Apply online"
         title="Start your Ruguna application with a guided, phone-friendly admissions flow"
-        description="Applicants can compare levels, choose a programme, submit personal and academic details, and move into admissions review with a clear reference number."
+        description="Applicants can choose a programme, ask for award-level guidance, add optional supporting documents, and move into admissions review with a clear reference number."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Intake rhythm</p>
@@ -23,16 +34,15 @@ export default function ApplyPage() {
 
       <section className="section-padding pt-0">
         <div className="container-width flex flex-wrap gap-3">
-          {applyTracks.map((track, index) => (
+          {applyTracks.map((track) => (
             <div
               key={track.label}
-              className={`rounded-full px-5 py-4 text-sm font-semibold ${
-                index === 0
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "border border-[var(--color-border)] bg-white text-[var(--color-ink)]"
-              }`}
+              className="rounded-[22px] border border-[var(--color-border)] bg-white px-5 py-4 text-sm font-semibold text-[var(--color-ink)] shadow-[0_18px_55px_-48px_rgba(17,17,17,0.65)]"
             >
-              {track.label}
+              <span className="block">{track.label}</span>
+              <span className="mt-1 block max-w-[260px] text-xs font-medium leading-5 text-[var(--color-muted)]">
+                {track.detail}
+              </span>
             </div>
           ))}
         </div>
@@ -44,7 +54,10 @@ export default function ApplyPage() {
             <CardContent>
               <ApplicationInterestForm
                 intakeOptions={[...intakeMoments]}
-                programOptions={programs.slice(0, 8).map((program) => program.title)}
+                programOptions={programOptions}
+                defaultProgram={selectedProgram?.title}
+                defaultLevel={selectedProgram?.level}
+                defaultStudyMode={selectedProgram?.studyMode}
               />
             </CardContent>
           </Card>
@@ -59,6 +72,10 @@ export default function ApplyPage() {
                       {item}
                     </div>
                   ))}
+                  <div className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-7 text-white/80">
+                    If you are not sure about your award level, previous qualification, or documents,
+                    submit what you have and Ruguna admissions will advise you.
+                  </div>
                 </div>
               </CardContent>
             </Card>

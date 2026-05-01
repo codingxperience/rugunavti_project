@@ -1,6 +1,7 @@
 import { AssignmentStatus, ContentStatus, EnrollmentStatus, SubmissionStatus } from "@prisma/client";
 
 import { getDb } from "@/lib/db";
+import type { PlatformSession } from "@/lib/platform/auth";
 import { platformEnv } from "@/lib/platform/env";
 import { ensureUserForSession } from "@/lib/platform/users";
 
@@ -12,8 +13,8 @@ function canSeeOwnedOrUnassigned(role: string | null, userId: string) {
   return role === "instructor" ? { OR: [{ ownerId: userId }, { ownerId: null }] } : {};
 }
 
-export async function getStaffCourseManagementRecords() {
-  const user = await ensureUserForSession();
+export async function getStaffCourseManagementRecords(session?: PlatformSession) {
+  const user = await ensureUserForSession(session);
   const role = user.userRoles[0]?.role.slug ?? null;
   const db = getDb();
   const [schools, programs, courses] = await Promise.all([
@@ -38,6 +39,8 @@ export async function getStaffCourseManagementRecords() {
           },
           orderBy: { position: "asc" },
         },
+        weekPlans: true,
+        assessmentComponents: true,
         enrollments: true,
         owner: { include: { profile: true } },
       },
@@ -69,6 +72,8 @@ export async function getStaffCourseManagementRecords() {
         course.owner?.email ||
         "Unassigned",
       moduleCount: course.modules.length,
+      weekCount: course.weekPlans.length,
+      assessmentComponentCount: course.assessmentComponents.length,
       lessonCount: course.modules.reduce((count, module) => count + module.lessons.length, 0),
       enrollmentCount: course.enrollments.length,
       updatedAt: course.updatedAt.toISOString(),
@@ -76,8 +81,8 @@ export async function getStaffCourseManagementRecords() {
   };
 }
 
-export async function getStaffCourseBuilderRecord(courseId: string) {
-  const user = await ensureUserForSession();
+export async function getStaffCourseBuilderRecord(courseId: string, session?: PlatformSession) {
+  const user = await ensureUserForSession(session);
   const role = user.userRoles[0]?.role.slug ?? null;
   const db = getDb();
   const course = await db.course.findFirst({
@@ -101,6 +106,12 @@ export async function getStaffCourseBuilderRecord(courseId: string) {
         },
         orderBy: { position: "asc" },
       },
+      weekPlans: {
+        orderBy: { weekNumber: "asc" },
+      },
+      assessmentComponents: {
+        orderBy: { position: "asc" },
+      },
       enrollments: true,
     },
   });
@@ -121,6 +132,26 @@ export async function getStaffCourseBuilderRecord(courseId: string) {
     schoolName: course.school.name,
     programTitle: course.program.title,
     enrollmentCount: course.enrollments.length,
+    weekPlans: course.weekPlans.map((week) => ({
+      id: week.id,
+      weekNumber: week.weekNumber,
+      title: week.title,
+      topic: week.topic,
+      overview: week.overview,
+      preparationQuizTitle: week.preparationQuizTitle,
+      teachOneAnotherTask: week.teachOneAnotherTask,
+      ponderProveTask: week.ponderProveTask,
+      liveSessionNote: week.liveSessionNote,
+      status: week.status,
+    })),
+    assessmentComponents: course.assessmentComponents.map((component) => ({
+      id: component.id,
+      title: component.title,
+      description: component.description,
+      weightPercent: component.weightPercent,
+      category: component.category,
+      position: component.position,
+    })),
     modules: course.modules.map((module) => ({
       id: module.id,
       title: module.title,
@@ -163,8 +194,8 @@ export async function getStaffCourseBuilderRecord(courseId: string) {
   };
 }
 
-export async function getStaffAnnouncementRecords() {
-  const records = await getStaffCourseManagementRecords();
+export async function getStaffAnnouncementRecords(session?: PlatformSession) {
+  const records = await getStaffCourseManagementRecords(session);
   const db = getDb();
   const announcements = await db.announcement.findMany({
     where:
@@ -197,8 +228,8 @@ export async function getStaffAnnouncementRecords() {
   };
 }
 
-export async function getStaffSubmissions() {
-  const user = await ensureUserForSession();
+export async function getStaffSubmissions(session?: PlatformSession) {
+  const user = await ensureUserForSession(session);
   const role = user.userRoles[0]?.role.slug ?? null;
   const db = getDb();
   const submissions = await db.submission.findMany({

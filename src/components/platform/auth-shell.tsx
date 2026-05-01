@@ -31,19 +31,19 @@ export function AuthShell({
           <Link href="/elearning" className="flex items-center gap-3">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-black/8 bg-white shadow-[0_18px_50px_-38px_rgba(17,17,17,0.55)]">
               <Image
-                src="/brand/ruguna-logo.png"
-                alt="Ruguna logo"
-                width={28}
-                height={28}
-                className="h-7 w-7 object-contain"
+                src="/brand/ruguna-college-logo.jpeg"
+                alt="Ruguna College logo"
+                width={38}
+                height={38}
+                className="h-9 w-9 object-contain"
               />
             </span>
             <span>
               <span className="font-heading block text-xl font-bold text-[var(--color-ink)]">
-                Ruguna eLearning
+                Ruguna College eLearning
               </span>
               <span className="block text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                Secure classroom access
+                One Who Prevails
               </span>
             </span>
           </Link>

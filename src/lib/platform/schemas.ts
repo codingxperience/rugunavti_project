@@ -7,21 +7,109 @@ export const contactFormSchema = z.object({
   message: z.string().min(20, "Provide enough detail for the team to help."),
 });
 
-export const applicationFormSchema = z.object({
-  fullName: z.string().min(3, "Enter the applicant's full name."),
-  email: z.string().email("Enter a valid email address."),
-  whatsapp: z.string().min(9, "Enter a valid phone or WhatsApp number."),
-  nationality: z.string().min(2, "Select a nationality."),
-  preferredLevel: z.string().min(2, "Select an award level."),
-  preferredIntake: z.string().min(2, "Select an intake."),
-  firstChoice: z.string().min(2, "Select a first programme choice."),
-  secondChoice: z.string().optional(),
-  studyMode: z.string().min(2, "Select a study mode."),
-  goals: z.string().min(20, "Tell admissions a little about your goals."),
-  previousSchool: z.string().min(2, "Enter your previous school or institution."),
-  highestQualification: z.string().min(2, "Select a qualification."),
-  yearCompleted: z.string().regex(/^\d{4}$/, "Enter a valid completion year."),
+const optionalTrimmedText = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  z.string().trim().optional()
+);
+
+const requiredPhoneInput = z
+  .string()
+  .trim()
+  .min(4, "Enter a reachable phone number.")
+  .max(40, "Phone number is too long.")
+  .regex(/^[+\d\s().-]+$/, "Use digits, +, spaces, brackets, dots, or hyphens only.");
+
+const optionalPhoneInput = z.preprocess(
+  (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+  requiredPhoneInput.optional()
+);
+
+const requiredDialCode = z.string().trim().min(1, "Select a country code.");
+const yesNoSchema = z.enum(["Yes", "No"], { message: "Choose Yes or No." });
+
+function validDateParts(day: string, month: string, year: string) {
+  const parsedDay = Number(day);
+  const parsedMonth = Number(month);
+  const parsedYear = Number(year);
+  const date = new Date(Date.UTC(parsedYear, parsedMonth - 1, parsedDay));
+  const currentYear = new Date().getFullYear();
+
+  return (
+    Number.isInteger(parsedDay) &&
+    Number.isInteger(parsedMonth) &&
+    Number.isInteger(parsedYear) &&
+    parsedYear >= 1900 &&
+    parsedYear <= currentYear &&
+    date.getUTCFullYear() === parsedYear &&
+    date.getUTCMonth() === parsedMonth - 1 &&
+    date.getUTCDate() === parsedDay
+  );
+}
+
+export const applicationDocumentSchema = z.object({
+  originalName: z.string().trim().min(1),
+  mimeType: z.string().trim().min(3),
+  sizeBytes: z.coerce.number().int().positive(),
+  bucket: z.string().trim().min(2),
+  path: z.string().trim().min(3),
+  category: z.string().trim().min(2),
 });
+
+export const applicationFormSchema = z
+  .object({
+    fullName: z.string().trim().min(3, "Enter the applicant's full name."),
+    email: z.string().trim().email("Enter a valid email address."),
+    gender: z.enum(["Female", "Male"], { message: "Select a gender." }),
+    dateOfBirthDay: z.string().trim().regex(/^\d{1,2}$/, "Enter day as DD."),
+    dateOfBirthMonth: z.string().trim().regex(/^\d{1,2}$/, "Enter month as MM."),
+    dateOfBirthYear: z.string().trim().regex(/^\d{4}$/, "Enter year as YYYY."),
+    nationality: z.string().trim().min(2, "Select a nationality."),
+    hasDisability: yesNoSchema,
+    whatsappCountryCode: requiredDialCode,
+    whatsapp: requiredPhoneInput,
+    alternativePhoneCountryCode: requiredDialCode,
+    alternativePhone: optionalPhoneInput,
+    nextOfKinName: z.string().trim().min(3, "Enter next of kin name."),
+    nextOfKinEmail: z.string().trim().email("Enter next of kin email."),
+    nextOfKinRelationship: z.string().trim().min(2, "Enter the relationship."),
+    nextOfKinPhoneCountryCode: requiredDialCode,
+    nextOfKinPhone: requiredPhoneInput,
+    preferredLevel: z.string().trim().min(2, "Select an award level."),
+    preferredIntake: z.string().trim().min(2, "Select an intake."),
+    firstChoice: z.string().trim().min(2, "Select a first programme choice."),
+    secondChoice: optionalTrimmedText,
+    studyMode: z.string().trim().min(2, "Select a study mode."),
+    goals: z.preprocess(
+      (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+      z.string().trim().min(10, "Use at least a short two-line explanation.").max(1200).optional()
+    ),
+    previousDegreeProgramme: z
+      .string()
+      .trim()
+      .min(2, "Enter the previous degree, diploma, certificate, or school programme."),
+    classOfDegree: z.string().trim().min(2, "Enter the class or result level."),
+    highestQualification: z.string().trim().min(2, "Select a qualification."),
+    creditTransfer: yesNoSchema,
+    referralSource: z.string().trim().min(2, "Select how you heard about Ruguna."),
+    confirmationAnswer: z
+      .string()
+      .trim()
+      .refine((value) => value === "24", "Enter the correct answer to continue."),
+    documentUploadChoice: z.enum(["now", "later"]).default("later"),
+    uploadedDocuments: z.array(applicationDocumentSchema).max(10).default([]),
+  })
+  .refine(
+    (values) =>
+      validDateParts(
+        values.dateOfBirthDay,
+        values.dateOfBirthMonth,
+        values.dateOfBirthYear
+      ),
+    {
+      message: "Enter a valid date of birth.",
+      path: ["dateOfBirthDay"],
+    }
+  );
 
 export const verificationSchema = z.object({
   code: z.string().min(6, "Enter a verification code."),
@@ -144,6 +232,23 @@ export const moduleUpsertSchema = z.object({
   published: z.boolean().default(true),
 });
 
+export const courseWeekUpsertSchema = z.object({
+  id: z.string().min(2).optional(),
+  courseId: z.string().min(2, "Choose a course."),
+  weekNumber: z.coerce.number().int().min(1).max(52),
+  title: z.string().trim().min(3, "Add a week title."),
+  overview: z.string().trim().min(10, "Add a week overview."),
+  topic: z.string().trim().min(3, "Add the weekly topic."),
+  preparationQuizTitle: z.string().trim().min(3, "Add the preparation quiz title."),
+  preparationMaterials: z.string().trim().min(10, "Add preparation materials."),
+  preparationReading: z.string().trim().min(10, "Add preparation reading."),
+  teachOneAnotherTask: z.string().trim().min(10, "Add the peer teaching task."),
+  ponderProveTask: z.string().trim().min(10, "Add the proof-of-learning task."),
+  liveSessionNote: z.string().trim().optional(),
+  dueDateOffsetDays: z.coerce.number().int().min(0).max(400).optional(),
+  published: z.boolean().default(true),
+});
+
 export const lessonUpsertSchema = z.object({
   id: z.string().min(2).optional(),
   moduleId: z.string().min(2, "Choose a module."),
@@ -242,6 +347,8 @@ export const certificateIssueSchema = z.object({
 });
 
 export type ContactFormInput = z.infer<typeof contactFormSchema>;
+export type ApplicationDocumentInput = z.infer<typeof applicationDocumentSchema>;
+export type ApplicationFormRawInput = z.input<typeof applicationFormSchema>;
 export type ApplicationFormInput = z.infer<typeof applicationFormSchema>;
 export type VerificationInput = z.infer<typeof verificationSchema>;
 export type CourseEnrollmentInput = z.infer<typeof courseEnrollmentSchema>;
@@ -254,6 +361,7 @@ export type SupportTicketInput = z.infer<typeof supportTicketSchema>;
 export type AnnouncementInput = z.infer<typeof announcementSchema>;
 export type CourseUpsertInput = z.infer<typeof courseUpsertSchema>;
 export type ModuleUpsertInput = z.infer<typeof moduleUpsertSchema>;
+export type CourseWeekUpsertInput = z.infer<typeof courseWeekUpsertSchema>;
 export type LessonUpsertInput = z.infer<typeof lessonUpsertSchema>;
 export type LessonResourceUpsertInput = z.infer<typeof lessonResourceUpsertSchema>;
 export type AssignmentUpsertInput = z.infer<typeof assignmentUpsertSchema>;

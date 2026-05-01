@@ -63,6 +63,12 @@ export async function POST(request: Request) {
   const db = getDb();
   const values = result.data;
   const { firstName, lastName } = splitName(values.fullName);
+  const whatsapp = `${values.whatsappCountryCode} ${values.whatsapp}`.trim();
+  const alternativePhone = values.alternativePhone
+    ? `${values.alternativePhoneCountryCode} ${values.alternativePhone}`.trim()
+    : null;
+  const nextOfKinPhone = `${values.nextOfKinPhoneCountryCode} ${values.nextOfKinPhone}`.trim();
+  const dateOfBirth = `${values.dateOfBirthYear}-${values.dateOfBirthMonth.padStart(2, "0")}-${values.dateOfBirthDay.padStart(2, "0")}`;
 
   try {
     const reference = await createUniqueReference("RUG-APP", async (candidate) => {
@@ -79,14 +85,16 @@ export async function POST(request: Request) {
             update: {
               firstName,
               lastName,
-              whatsapp: values.whatsapp,
+              phone: alternativePhone,
+              whatsapp,
               nationality: values.nationality,
               country: values.nationality,
             },
             create: {
               firstName,
               lastName,
-              whatsapp: values.whatsapp,
+              phone: alternativePhone,
+              whatsapp,
               nationality: values.nationality,
               country: values.nationality,
             },
@@ -100,7 +108,8 @@ export async function POST(request: Request) {
           create: {
             firstName,
             lastName,
-            whatsapp: values.whatsapp,
+            phone: alternativePhone,
+            whatsapp,
             nationality: values.nationality,
             country: values.nationality,
           },
@@ -164,14 +173,47 @@ export async function POST(request: Request) {
         reference,
         firstChoice: values.firstChoice,
         secondChoice: values.secondChoice || null,
-        notes: values.goals,
+        notes: values.goals || null,
         documents: {
+          applicant: {
+            fullName: values.fullName,
+            email: values.email,
+            gender: values.gender,
+            dateOfBirth,
+            nationality: values.nationality,
+            hasDisability: values.hasDisability,
+          },
+          contact: {
+            whatsappCountryCode: values.whatsappCountryCode,
+            whatsapp: values.whatsapp,
+            whatsappFormatted: whatsapp,
+            alternativePhoneCountryCode: values.alternativePhoneCountryCode,
+            alternativePhone: values.alternativePhone ?? null,
+            alternativePhoneFormatted: alternativePhone,
+          },
+          nextOfKin: {
+            name: values.nextOfKinName,
+            email: values.nextOfKinEmail,
+            relationship: values.nextOfKinRelationship,
+            phoneCountryCode: values.nextOfKinPhoneCountryCode,
+            phone: values.nextOfKinPhone,
+            phoneFormatted: nextOfKinPhone,
+          },
           preferredLevel: values.preferredLevel,
           preferredIntake: values.preferredIntake,
           studyMode: values.studyMode,
-          previousSchool: values.previousSchool,
+          education: {
+            previousDegreeProgramme: values.previousDegreeProgramme,
+            classOfDegree: values.classOfDegree,
+            highestQualification: values.highestQualification,
+            creditTransfer: values.creditTransfer,
+          },
           highestQualification: values.highestQualification,
-          yearCompleted: values.yearCompleted,
+          creditTransfer: values.creditTransfer,
+          referralSource: values.referralSource,
+          documentUploadChoice: values.documentUploadChoice,
+          uploadedDocuments: values.uploadedDocuments,
+          documentCount: values.uploadedDocuments.length,
           submittedFrom: "website",
         },
         submittedAt: new Date(),
@@ -187,13 +229,17 @@ export async function POST(request: Request) {
         reference: application.reference,
         firstChoice: values.firstChoice,
         preferredIntake: values.preferredIntake,
+        preferredLevel: values.preferredLevel,
+        creditTransfer: values.creditTransfer,
+        referralSource: values.referralSource,
+        documentCount: values.uploadedDocuments.length,
       },
     });
 
     await sendTransactionalEmail({
       to: values.email,
       subject: `Ruguna application received: ${application.reference}`,
-      text: `Dear ${values.fullName},\n\nYour Ruguna application interest has been received.\n\nReference: ${application.reference}\nProgramme: ${values.firstChoice}\n\nAdmissions will review your submission and follow up through your provided contacts.\n\nRuguna Vocational Training Institute`,
+      text: `Dear ${values.fullName},\n\nYour Ruguna College application interest has been received.\n\nReference: ${application.reference}\nProgramme: ${values.firstChoice}\nAward level: ${values.preferredLevel}\nIntake: ${values.preferredIntake}\nWhatsApp: ${whatsapp}\nCredit transfer: ${values.creditTransfer}\nDocuments uploaded: ${values.uploadedDocuments.length}\n\nAdmissions will review your submission and follow up through your provided contacts.\n\nRuguna College\nOne Who Prevails`,
     });
 
     return NextResponse.json({

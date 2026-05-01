@@ -4,6 +4,7 @@ import { ArrowRight, FolderKanban, Megaphone, PenTool, Users2 } from "lucide-rea
 import { MetricCard } from "@/components/platform/metric-card";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import {
   getStaffAnnouncementRecords,
   getStaffCourseManagementRecords,
@@ -13,10 +14,11 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function InstructorDashboardPage() {
+  const session = await requireRole(["instructor", "super_admin"], "/instructor/dashboard");
   const [courseRecords, submissions, announcements] = await Promise.all([
-    getStaffCourseManagementRecords(),
-    getStaffSubmissions(),
-    getStaffAnnouncementRecords(),
+    getStaffCourseManagementRecords(session),
+    getStaffSubmissions(session),
+    getStaffAnnouncementRecords(session),
   ]);
   const pendingSubmissions = submissions.filter((item) => item.status !== "GRADED").length;
   const learnerCount = courseRecords.courses.reduce(
@@ -80,25 +82,33 @@ export default async function InstructorDashboardPage() {
                   <Link
                     key={course.id}
                     href={`/instructor/course/${course.id}/builder`}
-                    className="group rounded-[26px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5 transition hover:-translate-y-1 hover:bg-white"
+                    className="group overflow-hidden rounded-[24px] border border-[var(--color-border)] bg-white transition hover:-translate-y-1"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <p className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                        {course.title}
-                      </p>
-                      <StatusBadge
-                        value={course.status}
-                        tone={course.status === "PUBLISHED" ? "success" : "warning"}
-                      />
+                    <div
+                      className="min-h-24 bg-cover bg-center p-4 text-white"
+                      style={{
+                        backgroundImage: `linear-gradient(135deg, rgba(17,17,17,0.84), rgba(17,17,17,0.14)), url(${course.thumbnailUrl || "/brand/hero_illustration.jpg"})`,
+                      }}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="font-heading text-2xl font-bold">{course.title}</p>
+                        <StatusBadge
+                          value={course.status}
+                          tone={course.status === "PUBLISHED" ? "success" : "warning"}
+                        />
+                      </div>
                     </div>
-                    <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-                      {course.deliveryMode.replace(/_/g, " ")} delivery - {course.enrollmentCount}{" "}
-                      learners - {course.moduleCount} modules - {course.lessonCount} lessons
-                    </p>
-                    <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--color-ink)]">
-                      Open builder{" "}
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                    </p>
+                    <div className="p-5">
+                      <p className="text-sm leading-7 text-[var(--color-muted)]">
+                        {course.deliveryMode.replace(/_/g, " ")} delivery - {course.enrollmentCount}{" "}
+                        learners - {course.weekCount || 14} weeks - {course.moduleCount} modules -{" "}
+                        {course.lessonCount} lessons
+                      </p>
+                      <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--color-ink)]">
+                        Open builder{" "}
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                      </p>
+                    </div>
                   </Link>
                 ))
               ) : (

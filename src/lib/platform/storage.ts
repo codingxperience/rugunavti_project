@@ -4,12 +4,20 @@ import { hasSupabase, platformEnv } from "@/lib/platform/env";
 
 export const allowedUploadMimeTypes = [
   "application/pdf",
+  "application/msword",
   "image/jpeg",
   "image/png",
   "image/webp",
+  "image/gif",
+  "image/heic",
+  "image/heif",
+  "text/plain",
   "text/csv",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ] as const;
 
 export const maxUploadBytes = 20 * 1024 * 1024;

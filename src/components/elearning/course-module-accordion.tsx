@@ -97,7 +97,15 @@ export function CourseModuleAccordion({
   defaultExpandAll = false,
 }: CourseModuleAccordionProps) {
   const [openModules, setOpenModules] = useState<string[]>(
-    defaultExpandAll ? modules.map((module) => module.id) : []
+    defaultExpandAll
+      ? modules.map((module) => module.id)
+      : modules
+          .filter((module) =>
+            module.lessons.some(
+              (lesson) => lesson.id === currentLessonId || lesson.slug === currentLessonId
+            )
+          )
+          .map((module) => module.id)
   );
 
   const toggleModule = (moduleId: string) => {
@@ -109,25 +117,25 @@ export function CourseModuleAccordion({
   };
 
   return (
-    <div className="grid gap-2.5">
+    <div className="grid gap-2">
       {modules.map((module, moduleIndex) => {
         const isOpen = openModules.includes(module.id);
 
         return (
           <section
             key={module.id}
-            className="overflow-hidden rounded-[24px] border border-black/8 bg-white/90 shadow-[0_18px_55px_-52px_rgba(17,17,17,0.45)]"
+            className="overflow-hidden rounded-[2px] border border-black/10 bg-white"
           >
             <button
               type="button"
               onClick={() => toggleModule(module.id)}
-              className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-[#fbfaf4]"
+              className="flex w-full items-center justify-between gap-4 bg-[#f4f5f5] px-4 py-3 text-left transition hover:bg-[#fbfaf4]"
             >
               <span className="min-w-0">
-                <span className="font-heading block truncate text-lg font-bold text-[var(--color-ink)]">
+                <span className="block truncate text-sm font-bold text-[var(--color-ink)]">
                   Module {moduleIndex + 1}: {module.title.replace(/^Module\s+\d+:\s*/i, "")}
                 </span>
-                <span className="mt-2 flex flex-wrap gap-3 text-xs uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                <span className="mt-1 flex flex-wrap gap-3 text-[11px] uppercase tracking-[0.14em] text-[var(--color-muted)]">
                   <span>{module.lessons.length} lessons</span>
                   <span>{module.progress}% complete</span>
                 </span>
@@ -141,24 +149,19 @@ export function CourseModuleAccordion({
             </button>
 
             {isOpen ? (
-              <div className="border-t border-black/8 bg-[#fbfaf4] px-4 pb-4 pt-4">
-                <div className="grid gap-3">
+              <div className="border-t border-black/8 bg-white">
+                <div className="divide-y divide-black/8">
                   {module.lessons.map((lesson) => {
                     const active = lesson.id === currentLessonId || lesson.slug === currentLessonId;
 
                     return (
                       <article
                         key={lesson.id}
-                        className={cn(
-                          "rounded-[22px] border px-4 py-4 transition",
-                          active
-                            ? "border-[#f3d53b] bg-white shadow-[0_18px_35px_-30px_rgba(17,17,17,0.5)]"
-                            : "border-[var(--color-border)] bg-white"
-                        )}
+                        className={cn("px-4 py-3 transition", active ? "bg-[#fffbe1]" : "bg-white")}
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
-                          <Link href={`/learn/course/${courseSlug}?lesson=${lesson.id}`}>
-                            <p className="font-semibold text-[var(--color-ink)]">{lesson.title}</p>
+                          <Link href={`/learn/course/${courseSlug}?lesson=${lesson.id}&view=modules`}>
+                            <p className="font-semibold text-[#0b74aa]">{lesson.title}</p>
                             <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
                               {lesson.summary}
                             </p>

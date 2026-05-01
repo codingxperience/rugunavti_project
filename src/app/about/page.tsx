@@ -18,7 +18,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About Ruguna"
         title="Practical, future-ready vocational education for Uganda and the wider region"
-        description="Ruguna Vocational Training Institute positions technical and professional education around employability, entrepreneurship, flexible access, and credible digital delivery."
+        description="Ruguna College positions technical and professional education around employability, entrepreneurship, flexible access, and credible digital delivery."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Mission</p>

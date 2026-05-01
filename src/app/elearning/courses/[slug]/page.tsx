@@ -19,6 +19,8 @@ export default async function ElearningCourseDetailPage({
     notFound();
   }
 
+  const isSelfEnroll = course.level === "Short Course";
+
   return (
     <section className="section-padding pt-10 sm:pt-14">
       <div className="container-width grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -34,7 +36,16 @@ export default async function ElearningCourseDetailPage({
                   {course.overview}
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <CourseEnrollButton courseSlug={course.slug} />
+                  {isSelfEnroll ? (
+                    <CourseEnrollButton courseSlug={course.slug} />
+                  ) : (
+                    <Button asChild size="lg">
+                      <Link href={`/apply?program=${encodeURIComponent(course.title)}`}>
+                        Apply for programme admission
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  )}
                   <Button asChild size="lg" variant="secondary">
                     <Link href="/elearning/courses">
                       Back to catalog
@@ -123,7 +134,9 @@ export default async function ElearningCourseDetailPage({
         <div className="grid gap-4">
           <Card className="bg-[var(--color-ink)] text-white">
             <CardContent>
-              <h2 className="font-heading text-3xl font-bold">Course overview</h2>
+              <h2 className="font-heading text-3xl font-bold">
+                {isSelfEnroll ? "Course overview" : "Programme overview"}
+              </h2>
               <div className="mt-5 grid gap-4 text-sm leading-7 text-white/74">
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">Who it is for</p>
@@ -144,8 +157,15 @@ export default async function ElearningCourseDetailPage({
           <Card>
             <CardContent>
               <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                Prerequisites
+                {isSelfEnroll ? "Prerequisites" : "Admissions requirements"}
               </h2>
+              {!isSelfEnroll ? (
+                <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                  This is an academic programme pathway, so Ruguna reviews entry requirements,
+                  equivalencies, prior qualifications, and international applicant documents
+                  before the student is placed into a programme plan.
+                </p>
+              ) : null}
               <div className="mt-5 grid gap-3">
                 {course.prerequisites.map((item) => (
                   <div

@@ -32,8 +32,8 @@ export default async function ElearningCoursesPage({
           Browse Ruguna online and blended learning
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--color-muted)]">
-          Search across short courses, certificates, and blended pathways built for
-          flexible digital delivery.
+          Browse course-level learning opportunities. Short courses can be started online;
+          academic courses open after admissions confirms placement and enrollment.
         </p>
 
         <form className="mt-8 grid gap-4 rounded-[34px] border border-black/6 bg-white p-5 shadow-[0_24px_90px_-72px_rgba(17,17,17,0.65)] xl:grid-cols-[minmax(0,1.2fr)_repeat(5,minmax(0,0.75fr))]">
@@ -111,7 +111,7 @@ export default async function ElearningCoursesPage({
           </p>
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm text-[var(--color-muted)]">
             <Filter className="h-4 w-4 text-[var(--color-ink)]" />
-            Search, compare, and enroll
+            Search, compare, start, or apply
           </div>
         </div>
 

@@ -1,12 +1,12 @@
 export const siteConfig = {
-  name: "Ruguna Vocational Training Institute",
-  shortName: "Ruguna",
-  motto: "Learn Skills. Build Futures.",
+  name: "Ruguna College",
+  shortName: "Ruguna College",
+  motto: "One Who Prevails",
   headline: "Build Practical Skills for the Jobs of Today and Tomorrow",
   subheadline:
     "Certificate, diploma, bachelor's, and short courses designed for Uganda and the modern economy.",
   description:
-    "A modern Ugandan vocational institute platform that moves learners from interest to enrollment, certification, and employability.",
+    "A modern Ugandan college platform that moves learners from interest to enrollment, certification, and employability.",
   location: "Uganda",
   phone: "+256 700 123 456",
   whatsapp: "+256 754 000 321",
@@ -121,7 +121,7 @@ export const applyTracks = [
   },
 ];
 
-export const intakeMoments = ["January", "May", "September"] as const;
+export const intakeMoments = ["May", "September"] as const;
 
 export const publicStats = [
   { label: "Schools", value: "13" },

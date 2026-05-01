@@ -170,8 +170,8 @@ export function PortalLayout({
         className={cn(
           "relative mx-auto max-w-[1600px] overflow-hidden rounded-[38px] border border-black/6 bg-[#fbfbf7] shadow-[0_40px_120px_-78px_rgba(17,17,17,0.5)] lg:grid lg:min-h-[calc(100vh-2.5rem)]",
           sidebarCollapsed
-            ? "lg:grid-cols-[112px_minmax(0,1fr)]"
-            : "lg:grid-cols-[290px_minmax(0,1fr)]"
+            ? "lg:grid-cols-[88px_minmax(0,1fr)]"
+            : "lg:grid-cols-[132px_minmax(0,1fr)]"
         )}
       >
         {mobileSidebarOpen ? (
@@ -185,33 +185,33 @@ export function PortalLayout({
 
         <aside
           className={cn(
-            "fixed inset-y-3 left-3 z-40 flex w-[290px] max-w-[calc(100vw-1.5rem)] flex-col rounded-[34px] border border-black/6 bg-[#f6f5ef] px-5 py-6 shadow-[0_32px_80px_-50px_rgba(17,17,17,0.45)] transition-transform duration-300 lg:static lg:inset-auto lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0 lg:rounded-none lg:border-0 lg:border-r lg:border-black/6 lg:px-6 lg:py-8 lg:shadow-none",
+            "fixed inset-y-3 left-3 z-40 flex w-[220px] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-[34px] border border-black/6 bg-[#f6f5ef] px-4 py-5 shadow-[0_32px_80px_-50px_rgba(17,17,17,0.45)] transition-transform duration-300 lg:sticky lg:top-5 lg:inset-auto lg:z-auto lg:h-[calc(100vh-2.5rem)] lg:w-auto lg:max-w-none lg:translate-x-0 lg:rounded-none lg:border-0 lg:border-r lg:border-black/6 lg:px-3 lg:py-5 lg:shadow-none",
             mobileSidebarOpen ? "translate-x-0" : "-translate-x-[108%] lg:translate-x-0",
-            sidebarCollapsed ? "lg:px-3" : "lg:px-6"
+            sidebarCollapsed ? "lg:px-2" : "lg:px-3"
           )}
         >
           <div
             className={cn(
-              "relative flex items-center gap-3",
-              sidebarCollapsed ? "lg:flex-col lg:justify-center" : "lg:pr-12"
+              "relative flex flex-col items-center gap-3",
+              sidebarCollapsed ? "lg:justify-center" : "lg:pr-0"
             )}
           >
-            <div className={cn("flex min-w-0 items-center gap-3", sidebarCollapsed && "lg:flex-col")}>
+            <div className="flex min-w-0 flex-col items-center gap-2 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white">
                 <Image
-                  src="/brand/ruguna-logo.png"
-                  alt="Ruguna logo"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain"
+                  src="/brand/ruguna-college-logo.jpeg"
+                  alt="Ruguna College logo"
+                  width={38}
+                  height={38}
+                  className="h-9 w-9 object-contain"
                 />
               </div>
               <div className={cn("min-w-0", sidebarCollapsed && "lg:hidden")}>
-                <p className="font-heading truncate text-xl font-bold text-[var(--color-ink)]">
-                  Ruguna
+                <p className="font-heading truncate text-lg font-bold text-[var(--color-ink)]">
+                  Ruguna College
                 </p>
-                <p className="truncate text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                  eLearning platform
+                <p className="truncate text-[10px] uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                  One Who Prevails
                 </p>
               </div>
             </div>
@@ -221,7 +221,7 @@ export function PortalLayout({
               onClick={() => setSidebarCollapsed((value) => !value)}
               className={cn(
                 "hidden h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-ink)] shadow-[0_12px_30px_-24px_rgba(17,17,17,0.65)] transition hover:-translate-y-0.5 hover:bg-[#fff5ad] lg:inline-flex",
-                sidebarCollapsed ? "lg:mt-4" : "lg:absolute lg:right-0 lg:top-1"
+                sidebarCollapsed ? "lg:mt-2" : "lg:absolute lg:-right-1 lg:top-1"
               )}
             >
               {sidebarCollapsed ? (
@@ -232,7 +232,7 @@ export function PortalLayout({
             </button>
           </div>
 
-          <nav className="mt-8 grid gap-2">
+          <nav className="mt-6 grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pr-1">
             {navItems.map((item) => {
               const active =
                 pathname === item.href ||
@@ -247,22 +247,22 @@ export function PortalLayout({
                   title={sidebarCollapsed ? item.label : undefined}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={cn(
-                    "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
-                    sidebarCollapsed && "lg:h-11 lg:w-11 lg:self-center lg:justify-center lg:px-0",
+                    "group flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-center text-[11px] font-semibold leading-tight transition",
+                    sidebarCollapsed && "lg:h-12 lg:w-12 lg:self-center lg:px-0",
                     active
                       ? "border border-black/6 bg-white text-[var(--color-ink)] shadow-[0_18px_35px_-28px_rgba(17,17,17,0.6)]"
                       : "text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]"
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110" />
-                  <span className={cn(sidebarCollapsed && "lg:hidden")}>{item.label}</span>
+                  <span className={cn("max-w-full truncate", sidebarCollapsed && "lg:hidden")}>{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
           {sidebarCollapsed ? (
-            <div className="mt-auto rounded-[26px] border border-black/6 bg-white p-2 text-[var(--color-ink)] shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
+            <div className="mt-4 shrink-0 rounded-[26px] border border-black/6 bg-white p-2 text-[var(--color-ink)] shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
               <div className="flex justify-center">
                 <Link
                   href={accountHref}
@@ -287,19 +287,18 @@ export function PortalLayout({
               </div>
             </div>
           ) : (
-            <div className="mt-auto rounded-[26px] border border-black/6 bg-white p-3 shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
-              <div className="flex items-center gap-3">
+            <div className="mt-4 shrink-0 rounded-[26px] border border-black/6 bg-white p-2 shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
+              <div className="grid gap-2">
                 <Link
                   href={accountHref}
-                  className="transition hover:-translate-y-0.5"
+                  className="flex flex-col items-center gap-2 rounded-2xl px-2 py-2 text-center transition hover:-translate-y-0.5 hover:bg-[#f6f5ef]"
                 >
                   <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-12 w-12" />
+                  <span className="max-w-full truncate text-xs font-bold text-[var(--color-ink)]">
+                    {userName}
+                  </span>
                 </Link>
-                <Link href={accountHref} className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-[var(--color-ink)]">{userName}</p>
-                  <p className="truncate text-xs text-[var(--color-muted)]">Account settings</p>
-                </Link>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/"
                     title="Public website"

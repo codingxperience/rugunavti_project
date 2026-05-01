@@ -41,7 +41,7 @@ export function DashboardPreview() {
                 key={item.label}
                 className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold ${
                   item.active
-                    ? "bg-[var(--color-ink)] text-white"
+                    ? "border border-[#f3d53b] bg-[var(--color-soft-accent)] text-[var(--color-ink)]"
                     : "bg-white text-[var(--color-muted)]"
                 }`}
               >

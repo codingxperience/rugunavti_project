@@ -18,6 +18,8 @@ export type LearnerCourseRecord = {
   school: string;
   program: string;
   delivery: string;
+  thumbnailUrl: string | null;
+  estimatedHours: number;
   progress: number;
   status: string;
   moduleCount: number;
@@ -134,6 +136,8 @@ export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
       school: enrollment.course.school.name,
       program: enrollment.course.program.title,
       delivery: enrollment.course.deliveryMode.replace(/_/g, " "),
+      thumbnailUrl: enrollment.course.thumbnailUrl,
+      estimatedHours: enrollment.course.estimatedHours,
       progress: enrollment.progressPercent,
       status: enrollment.status,
       moduleCount: enrollment.course.modules.length,
@@ -363,8 +367,47 @@ export async function getLearnerCourseWorkspace(slug: string, session?: Platform
   const enrollment = course.enrollments[0] ?? null;
 
   if (!enrollment) {
-    return { user, course, enrollment: null, modules: [] };
+    return { user, course, enrollment: null, modules: [], roster: [] };
   }
+
+  const roster = await db.enrollment.findMany({
+    where: {
+      courseId: course.id,
+      status: { in: [EnrollmentStatus.ACTIVE, EnrollmentStatus.COMPLETED] },
+    },
+    select: {
+      id: true,
+      status: true,
+      progressPercent: true,
+      user: {
+        select: {
+          id: true,
+          email: true,
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+              city: true,
+              country: true,
+            },
+          },
+          userRoles: {
+            select: {
+              role: {
+                select: {
+                  slug: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "asc" },
+    take: 80,
+  });
 
   const modules = course.modules.map((module) => {
     const lessons = module.lessons.map((lesson) => {
@@ -466,6 +509,27 @@ export async function getLearnerCourseWorkspace(slug: string, session?: Platform
     course,
     enrollment,
     modules,
+    roster: roster.map((item) => {
+      const profile = item.user.profile;
+      const name =
+        [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") || item.user.email;
+      const primaryRole =
+        item.user.userRoles.find((role) => role.role.slug === "instructor")?.role.name ||
+        item.user.userRoles[0]?.role.name ||
+        "Learner";
+
+      return {
+        id: item.id,
+        userId: item.user.id,
+        name,
+        email: item.user.email,
+        avatarUrl: profile?.avatarUrl ?? null,
+        location: [profile?.city, profile?.country].filter(Boolean).join(", ") || "Not provided",
+        role: primaryRole,
+        status: item.status,
+        progress: item.progressPercent,
+      };
+    }),
   };
 }
 

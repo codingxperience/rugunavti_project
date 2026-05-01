@@ -66,17 +66,17 @@ export default async function ProgramDetailPage({
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h3 className="font-heading text-xl font-bold">Learning outcomes</h3>
-                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <ul className="mt-4 grid list-disc gap-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
                       {program.learningOutcomes.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-heading text-xl font-bold">Entry requirements</h3>
-                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <ul className="mt-4 grid list-disc gap-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
                       {program.entryRequirements.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>
@@ -85,17 +85,17 @@ export default async function ProgramDetailPage({
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h3 className="font-heading text-xl font-bold">Module structure</h3>
-                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <ul className="mt-4 grid list-disc gap-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
                       {program.modules.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-heading text-xl font-bold">Career opportunities</h3>
-                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <ul className="mt-4 grid list-disc gap-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
                       {program.careerOpportunities.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>
@@ -104,17 +104,17 @@ export default async function ProgramDetailPage({
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h3 className="font-heading text-xl font-bold">Assessment model</h3>
-                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <ul className="mt-4 grid list-disc gap-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
                       {defaultAssessments.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
                     <h3 className="font-heading text-xl font-bold">Tools and equipment</h3>
-                    <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
+                    <ul className="mt-4 grid list-disc gap-3 pl-5 text-sm leading-7 text-[var(--color-muted)]">
                       {defaultTools.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>{item}</li>
                       ))}
                     </ul>
                   </div>

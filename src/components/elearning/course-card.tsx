@@ -12,6 +12,8 @@ type CourseCardProps = {
 };
 
 export function CourseCard({ course, compact = false }: CourseCardProps) {
+  const isSelfEnroll = course.level === "Short Course";
+
   return (
     <Card className="h-full border-black/6 bg-white shadow-[0_24px_80px_-64px_rgba(17,17,17,0.55)]">
       <CardContent className="flex h-full flex-col gap-5">
@@ -84,7 +86,15 @@ export function CourseCard({ course, compact = false }: CourseCardProps) {
             </Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link href="/elearning/login">Start learning</Link>
+            <Link
+              href={
+                isSelfEnroll
+                  ? `/learn/course/${course.slug}`
+                  : `/apply?program=${encodeURIComponent(course.title)}`
+              }
+            >
+              {isSelfEnroll ? "Start learning" : "Apply for programme"}
+            </Link>
           </Button>
         </div>
       </CardContent>

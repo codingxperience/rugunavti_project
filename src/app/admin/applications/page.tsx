@@ -1,7 +1,14 @@
 import { AdminApplicationsTable } from "@/components/platform/admin-applications-table";
 import { Card, CardContent } from "@/components/ui/card";
+import { getAdminApplicationRecords } from "@/lib/platform/admissions-records";
+import { requireRole } from "@/lib/platform/session";
 
-export default function AdminApplicationsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminApplicationsPage() {
+  await requireRole(["registrar_admin", "super_admin"], "/admin/applications");
+  const applications = await getAdminApplicationRecords();
+
   return (
     <div className="grid gap-6">
       <Card>
@@ -12,7 +19,7 @@ export default function AdminApplicationsPage() {
           </p>
         </CardContent>
       </Card>
-      <AdminApplicationsTable />
+      <AdminApplicationsTable data={applications} />
     </div>
   );
 }

@@ -375,7 +375,7 @@ export const elearningCourses: ElearningCourse[] = [
       "Verified certificate issuance follows course completion and graded support scenarios.",
     tools: ["Browser", "Spreadsheet tools", "Email", "Documentation templates"],
     instructor: "Daniel Oketcho",
-    startWindow: "January, May, September",
+    startWindow: "May, September",
     enrollmentStatus: "Assigned by admissions",
     featured: false,
     popular: false,

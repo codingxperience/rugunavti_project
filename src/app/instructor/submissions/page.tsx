@@ -1,6 +1,7 @@
 import { SubmissionGradeForm } from "@/components/elearning/submission-grade-form";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import { getStaffSubmissions } from "@/lib/platform/staff-records";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,8 @@ function formatDate(value: string | null) {
 }
 
 export default async function InstructorSubmissionsPage() {
-  const submissions = await getStaffSubmissions();
+  const session = await requireRole(["instructor", "super_admin"], "/instructor/submissions");
+  const submissions = await getStaffSubmissions(session);
 
   return (
     <div className="grid gap-6">

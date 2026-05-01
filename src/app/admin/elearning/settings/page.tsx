@@ -1,11 +1,13 @@
 import { Database, KeyRound, Link2, ShieldCheck } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import { getAdminElearningSettingsRecords } from "@/lib/platform/staff-records";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningSettingsPage() {
+  await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/settings");
   const settings = await getAdminElearningSettingsRecords();
 
   return (

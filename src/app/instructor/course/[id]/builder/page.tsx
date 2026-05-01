@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { StaffCourseBuilder } from "@/components/elearning/staff-course-builder";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import { getStaffCourseBuilderRecord } from "@/lib/platform/staff-records";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,8 @@ export default async function InstructorCourseBuilderPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const course = await getStaffCourseBuilderRecord(id);
+  const session = await requireRole(["instructor", "super_admin"], `/instructor/course/${id}/builder`);
+  const course = await getStaffCourseBuilderRecord(id, session);
 
   if (!course) {
     notFound();
@@ -42,13 +44,54 @@ export default async function InstructorCourseBuilderPage({
 
       <StaffCourseBuilder course={course} />
 
+      <Card>
+        <CardContent>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                Weekly course map
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-[var(--color-muted)]">
+                This is the week-by-week structure learners see under Modules and Syllabus.
+              </p>
+            </div>
+            <StatusBadge value={`${course.weekPlans.length} week(s)`} />
+          </div>
+          <div className="mt-5 grid gap-2">
+            {course.weekPlans.length ? (
+              course.weekPlans.map((week) => (
+                <div
+                  key={week.id}
+                  className="grid gap-3 rounded-[2px] border border-black/10 bg-[#f8f8f5] px-4 py-3 md:grid-cols-[110px_minmax(0,1fr)_120px]"
+                >
+                  <p className="font-semibold text-[var(--color-ink)]">Week {week.weekNumber}</p>
+                  <div>
+                    <p className="font-semibold text-[var(--color-ink)]">{week.title}</p>
+                    <p className="mt-1 text-sm text-[var(--color-muted)]">{week.topic}</p>
+                  </div>
+                  <StatusBadge
+                    value={week.status}
+                    tone={week.status === "PUBLISHED" ? "success" : "warning"}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[22px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4 text-sm leading-7 text-[var(--color-muted)]">
+                No weekly plan has been added yet. Use the builder above to add Week 1, Week 2,
+                and continue up to the course pace.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4">
         {course.modules.map((module) => (
           <details
             key={module.id}
-            className="group rounded-[28px] border border-[var(--color-border)] bg-white"
+            className="group rounded-[2px] border border-black/10 bg-white"
           >
-            <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-4 px-5 py-4">
+            <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-4 bg-[#f4f5f5] px-5 py-4">
               <div>
                 <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
                   Module {module.position}: {module.title}

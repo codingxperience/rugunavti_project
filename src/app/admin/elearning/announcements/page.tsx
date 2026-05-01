@@ -1,12 +1,14 @@
 import { StaffAnnouncementForm } from "@/components/elearning/staff-announcement-form";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireRole } from "@/lib/platform/session";
 import { getStaffAnnouncementRecords } from "@/lib/platform/staff-records";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningAnnouncementsPage() {
-  const records = await getStaffAnnouncementRecords();
+  const session = await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/announcements");
+  const records = await getStaffAnnouncementRecords(session);
 
   return (
     <div className="grid gap-6">

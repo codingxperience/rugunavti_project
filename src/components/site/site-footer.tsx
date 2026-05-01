@@ -31,13 +31,16 @@ export function SiteFooter() {
       <div className="container-width overflow-hidden rounded-[36px] border border-[var(--color-border)] bg-[var(--color-ink)] px-6 py-10 text-white sm:px-10 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
           <div className="max-w-xl">
-            <p className="eyebrow border-white/10 bg-white/6 text-white/72">Ruguna Vocational Training Institute</p>
+            <p className="eyebrow border-white/10 bg-white/6 text-white/72">{siteConfig.name}</p>
             <h2 className="font-heading mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
               Skills for work, life, and the next chapter of Uganda&apos;s economy.
             </h2>
             <p className="mt-4 text-base leading-7 text-white/72">
               A modern institute platform built to support discovery, enrollment, certification,
               and career-readiness from one trusted digital home.
+            </p>
+            <p className="mt-4 font-heading text-xl font-bold text-[var(--color-accent)]">
+              {siteConfig.motto}
             </p>
             <div className="mt-8 grid gap-2 text-sm text-white/72">
               <p>{siteConfig.address}</p>

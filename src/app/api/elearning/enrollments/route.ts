@@ -1,4 +1,4 @@
-import { AuditAction, ContentStatus, EnrollmentStatus } from "@prisma/client";
+import { AuditAction, ContentStatus, EnrollmentStatus, ProgramLevel } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
@@ -33,7 +33,11 @@ export async function POST(request: Request) {
       },
       include: {
         program: true,
-        programCourses: true,
+        programCourses: {
+          include: {
+            program: true,
+          },
+        },
         offerings: {
           where: { status: ContentStatus.PUBLISHED },
           orderBy: { startDate: "asc" },
@@ -55,6 +59,33 @@ export async function POST(request: Request) {
       requestedProgramId === course.programId ||
       course.programCourses.some((item) => item.programId === requestedProgramId);
     const programId = requestedProgramId && belongsToRequestedProgram ? requestedProgramId : course.programId;
+    const selectedProgram =
+      programId === course.programId
+        ? course.program
+        : course.programCourses.find((item) => item.programId === programId)?.program ?? course.program;
+    const existingProgramEnrollment = await db.programEnrollment.findUnique({
+      where: {
+        userId_programId: {
+          userId: auth.user.id,
+          programId,
+        },
+      },
+    });
+    const hasAcademicPlacement =
+      existingProgramEnrollment?.status === EnrollmentStatus.ACTIVE ||
+      existingProgramEnrollment?.status === EnrollmentStatus.PENDING;
+
+    if (selectedProgram.level !== ProgramLevel.SHORT_COURSE && !hasAcademicPlacement) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "This course belongs to an academic programme. Apply through admissions first so Ruguna can verify entry requirements, equivalencies, intake placement, and your approved course plan.",
+        },
+        { status: 403 }
+      );
+    }
+
     const requestedOffering = result.data.courseOfferingId
       ? course.offerings.find(
           (offering) =>
@@ -66,22 +97,28 @@ export async function POST(request: Request) {
       requestedOffering ??
       course.offerings.find((offering) => !offering.programId || offering.programId === programId) ??
       null;
-    const programEnrollment = await db.programEnrollment.upsert({
-      where: {
-        userId_programId: {
+    let programEnrollment = existingProgramEnrollment;
+
+    if (
+      programEnrollment &&
+      selectedProgram.level === ProgramLevel.SHORT_COURSE &&
+      programEnrollment.status !== EnrollmentStatus.ACTIVE
+    ) {
+      programEnrollment = await db.programEnrollment.update({
+        where: { id: programEnrollment.id },
+        data: { status: EnrollmentStatus.ACTIVE },
+      });
+    }
+
+    if (!programEnrollment) {
+      programEnrollment = await db.programEnrollment.create({
+        data: {
           userId: auth.user.id,
           programId,
+          status: EnrollmentStatus.ACTIVE,
         },
-      },
-      update: {
-        status: EnrollmentStatus.ACTIVE,
-      },
-      create: {
-        userId: auth.user.id,
-        programId,
-        status: EnrollmentStatus.ACTIVE,
-      },
-    });
+      });
+    }
 
     const enrollment = await db.enrollment.upsert({
       where: {

@@ -7,9 +7,9 @@ export type PortalNavItem = {
 
 export const learnerNavItems: PortalNavItem[] = [
   { href: "/learn/dashboard", label: "Dashboard" },
-  { href: "/learn/program", label: "My Program" },
-  { href: "/learn/my-courses", label: "My Courses" },
-  { href: "/learn/continue", label: "Continue Learning" },
+  { href: "/learn/program", label: "Program" },
+  { href: "/learn/my-courses", label: "Courses" },
+  { href: "/learn/continue", label: "Continue" },
   { href: "/learn/calendar", label: "Calendar" },
   { href: "/learn/assignments", label: "Assignments" },
   { href: "/learn/quizzes", label: "Quizzes" },
