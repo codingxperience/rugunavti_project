@@ -62,19 +62,19 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div className="container-width flex items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-10">
-        <Link href={logoHref} className="flex min-w-0 flex-1 items-center gap-3 xl:flex-none">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
+      <div className="container-width flex items-center justify-between gap-4 px-5 py-3.5 sm:px-8 lg:px-10">
+        <Link href={logoHref} className="flex min-w-0 flex-1 items-center gap-3.5 xl:flex-none">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] border border-[var(--color-border)] bg-white shadow-sm lg:h-16 lg:w-16">
             <Image
               src="/brand/ruguna-college-logo.jpeg"
               alt={logoAlt}
-              width={38}
-              height={38}
-              className="h-9 w-9 object-contain"
+              width={58}
+              height={58}
+              className="h-12 w-12 object-contain lg:h-14 lg:w-14"
             />
           </div>
           <div className="min-w-0">
-            <p className="font-heading truncate text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-ink)] sm:text-sm">
+            <p className="font-heading truncate text-sm font-bold uppercase tracking-[0.14em] text-[var(--color-ink)] sm:text-base">
               {logoTitle}
             </p>
             <p className="hidden truncate text-[11px] text-[var(--color-muted)] sm:block sm:text-xs">

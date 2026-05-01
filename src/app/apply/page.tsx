@@ -9,14 +9,25 @@ import { admissionRequirements, applyTracks, intakeMoments, programs, siteConfig
 export default async function ApplyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ program?: string }>;
+  searchParams: Promise<{ program?: string; level?: string }>;
 }) {
-  const { program } = await searchParams;
+  const { program, level } = await searchParams;
   const requestedProgram = program?.trim();
+  const requestedLevel = level?.trim();
   const selectedProgram = requestedProgram
     ? programs.find((item) => item.title.toLowerCase() === requestedProgram.toLowerCase())
     : null;
   const programOptions = programs.map((item) => item.title);
+  const trackLevels = new Map([
+    ["Certificate Application", "Certificate"],
+    ["Diploma Application", "Diploma"],
+    ["Bachelor's Application", "Bachelor's"],
+    ["Short Course Interest", "Short Course"],
+  ]);
+  const selectedLevel =
+    [...trackLevels.values()].find((item) => item === requestedLevel) ??
+    selectedProgram?.level ??
+    "Certificate";
 
   return (
     <>
@@ -33,46 +44,63 @@ export default async function ApplyPage({
       />
 
       <section className="section-padding pt-0">
-        <div className="container-width flex flex-wrap gap-3">
+        <div className="container-width grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {applyTracks.map((track) => (
-            <div
+            <Link
               key={track.label}
-              className="rounded-[22px] border border-[var(--color-border)] bg-white px-5 py-4 text-sm font-semibold text-[var(--color-ink)] shadow-[0_18px_55px_-48px_rgba(17,17,17,0.65)]"
+              href={{
+                pathname: "/apply",
+                query: {
+                  ...(selectedProgram ? { program: selectedProgram.title } : {}),
+                  level: trackLevels.get(track.label) ?? "Certificate",
+                },
+              }}
+              className={`rounded-[22px] border px-5 py-4 text-sm font-semibold shadow-[0_18px_55px_-48px_rgba(17,17,17,0.65)] transition hover:-translate-y-0.5 hover:border-black/20 ${
+                selectedLevel === trackLevels.get(track.label)
+                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                  : "border-[var(--color-border)] bg-white text-[var(--color-ink)]"
+              }`}
             >
               <span className="block">{track.label}</span>
-              <span className="mt-1 block max-w-[260px] text-xs font-medium leading-5 text-[var(--color-muted)]">
+              <span
+                className={`mt-1 block max-w-[260px] text-xs font-medium leading-5 ${
+                  selectedLevel === trackLevels.get(track.label)
+                    ? "text-white/68"
+                    : "text-[var(--color-muted)]"
+                }`}
+              >
                 {track.detail}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
 
       <section className="section-padding pt-0">
-        <div className="container-width grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="container-width grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_340px]">
           <Card>
             <CardContent>
               <ApplicationInterestForm
                 intakeOptions={[...intakeMoments]}
                 programOptions={programOptions}
                 defaultProgram={selectedProgram?.title}
-                defaultLevel={selectedProgram?.level}
+                defaultLevel={selectedLevel}
                 defaultStudyMode={selectedProgram?.studyMode}
               />
             </CardContent>
           </Card>
 
-          <div className="grid gap-4">
+          <aside className="grid self-start lg:sticky lg:top-28">
             <Card className="bg-[var(--color-ink)] text-white">
-              <CardContent>
+              <CardContent className="p-5 sm:p-6">
                 <p className="text-xs uppercase tracking-[0.22em] text-white/56">Before you submit</p>
-                <div className="mt-5 grid gap-3">
+                <div className="mt-5 grid gap-2.5">
                   {admissionRequirements.map((item) => (
-                    <div key={item} className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-7 text-white/80">
+                    <div key={item} className="rounded-2xl border border-white/10 bg-white/7 px-3.5 py-3 text-xs leading-6 text-white/78">
                       {item}
                     </div>
                   ))}
-                  <div className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-7 text-white/80">
+                  <div className="rounded-2xl border border-[var(--color-accent)]/35 bg-[var(--color-accent)]/10 px-3.5 py-3 text-xs leading-6 text-white/82">
                     If you are not sure about your award level, previous qualification, or documents,
                     submit what you have and Ruguna admissions will advise you.
                   </div>
@@ -80,8 +108,8 @@ export default async function ApplyPage({
               </CardContent>
             </Card>
 
-            <Card>
-              <CardContent>
+            <Card className="mt-4">
+              <CardContent className="p-5 sm:p-6">
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-muted)]">Support options</p>
                 <div className="mt-4 grid gap-2 text-sm font-semibold text-[var(--color-ink)]">
                   <Link href={siteConfig.prospectusHref}>Download prospectus</Link>
@@ -92,7 +120,7 @@ export default async function ApplyPage({
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </aside>
         </div>
       </section>
 
