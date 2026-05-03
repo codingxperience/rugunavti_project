@@ -304,6 +304,8 @@ export async function getAdminUsers() {
     roles: user.userRoles.map((item) => item.role.name),
     roleSlugs: user.userRoles.map((item) => item.role.slug),
     isActive: user.isActive,
+    clerkLinked: Boolean(user.clerkId),
+    lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
     enrollmentCount: user.enrollments.length,
     submissionCount: user.submissions.length,
     createdAt: user.createdAt.toISOString(),

@@ -6,7 +6,7 @@ import { createSignedDownloadUrl } from "@/lib/platform/storage";
 import { requireApiUser } from "@/lib/platform/users";
 
 function safeFilename(title: string, mimeType: string) {
-  const extension = mimeType.includes("csv") ? "csv" : mimeType.includes("pdf") ? "txt" : "txt";
+  const extension = mimeType.includes("csv") ? "csv" : mimeType.includes("pdf") ? "pdf" : "txt";
   const base = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
   return `${base || "ruguna-resource"}.${extension}`;

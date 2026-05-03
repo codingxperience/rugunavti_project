@@ -39,6 +39,21 @@ const statusMessages: Record<string, { title: string; tone: "success" | "warning
   },
 };
 
+function formatDateTime(value: string | null) {
+  if (!value) {
+    return "Not recorded";
+  }
+
+  return new Intl.DateTimeFormat("en-UG", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Africa/Kampala",
+  }).format(new Date(value));
+}
+
 export default async function AdminElearningUsersPage({
   searchParams,
 }: {
@@ -85,15 +100,27 @@ export default async function AdminElearningUsersPage({
                   {user.name}
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-muted)]">{user.email}</p>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">
-                  {user.enrollmentCount} enrollments - {user.submissionCount} submissions
-                </p>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-[var(--color-muted)]">
+                  <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-1">
+                    {user.enrollmentCount} enrollments
+                  </span>
+                  <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-1">
+                    {user.submissionCount} submissions
+                  </span>
+                  <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-1">
+                    Last sign-in: {formatDateTime(user.lastLoginAt)}
+                  </span>
+                </div>
               </div>
               <div className="flex flex-wrap gap-2">
                 {user.roles.map((role) => (
                   <StatusBadge key={role} value={role} />
                 ))}
                 <StatusBadge value={user.isActive ? "Active" : "Inactive"} tone={user.isActive ? "success" : "warning"} />
+                <StatusBadge
+                  value={user.clerkLinked ? "Clerk linked" : "Local/applicant record"}
+                  tone={user.clerkLinked ? "success" : "neutral"}
+                />
               </div>
               {canManageRoles ? (
                 <form action={updateUserRoleAction} className="flex flex-wrap items-center gap-3">

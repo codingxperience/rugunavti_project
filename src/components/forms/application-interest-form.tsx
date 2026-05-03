@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type {
   ChangeEvent,
   InputHTMLAttributes,
@@ -7,7 +8,7 @@ import type {
   SelectHTMLAttributes,
 } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -49,6 +50,7 @@ const acceptedApplicationFiles = [
 ].join(",");
 
 const maxApplicationFileBytes = 20 * 1024 * 1024;
+const applicationDraftKey = "ruguna-application-draft-v2";
 const intakeChoices = ["May", "September"];
 const referralOptions = [
   "Online Search Engines (Google, Bing, Yahoo, etc.)",
@@ -70,6 +72,8 @@ export function ApplicationInterestForm({
   const [serverMessage, setServerMessage] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadedDocuments, setUploadedDocuments] = useState<ApplicationDocumentInput[]>([]);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
@@ -111,6 +115,49 @@ export function ApplicationInterestForm({
       uploadedDocuments: [],
     },
   });
+
+  useEffect(() => {
+    try {
+      const savedDraft = window.localStorage.getItem(applicationDraftKey);
+
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft) as Partial<ApplicationFormRawInput>;
+
+        form.reset({
+          ...form.getValues(),
+          ...parsed,
+          confirmationAnswer: "",
+          documentUploadChoice: parsed.documentUploadChoice === "now" ? "later" : "later",
+          uploadedDocuments: [],
+        });
+        setDocumentUploadChoice("later");
+        setDraftRestored(true);
+      }
+    } catch {
+      window.localStorage.removeItem(applicationDraftKey);
+    } finally {
+      setDraftReady(true);
+    }
+  }, [form]);
+
+  useEffect(() => {
+    if (!draftReady || submissionSuccess) {
+      return undefined;
+    }
+
+    const subscription = form.watch((value) => {
+      const draft = {
+        ...value,
+        confirmationAnswer: "",
+        documentUploadChoice: "later",
+        uploadedDocuments: [],
+      };
+
+      window.localStorage.setItem(applicationDraftKey, JSON.stringify(draft));
+    });
+
+    return () => subscription.unsubscribe();
+  }, [draftReady, form, submissionSuccess]);
 
   function chooseDocumentUploadChoice(choice: "now" | "later") {
     setDocumentUploadChoice(choice);
@@ -209,10 +256,141 @@ export function ApplicationInterestForm({
     setServerMessage(payload.message);
     setReference(payload.reference ?? null);
     setSubmissionSuccess(response.ok && payload.success);
+
+    if (response.ok && payload.success) {
+      window.localStorage.removeItem(applicationDraftKey);
+      setSelectedFiles([]);
+      setUploadedDocuments([]);
+      setUploadMessage(null);
+      setDocumentUploadChoice("later");
+      setFileInputKey((value) => value + 1);
+      form.reset({
+        ...form.getValues(),
+        confirmationAnswer: "",
+        uploadedDocuments: [],
+        documentUploadChoice: "later",
+      });
+    }
   });
+
+  function startAnotherApplication() {
+    const nextDefaults: ApplicationFormRawInput = {
+      fullName: "",
+      email: "",
+      gender: "Female",
+      dateOfBirthDay: "",
+      dateOfBirthMonth: "",
+      dateOfBirthYear: "",
+      whatsapp: "",
+      whatsappCountryCode: ugandaDialCode,
+      alternativePhone: "",
+      alternativePhoneCountryCode: ugandaDialCode,
+      nationality: "Uganda",
+      hasDisability: "No",
+      nextOfKinName: "",
+      nextOfKinEmail: "",
+      nextOfKinRelationship: "",
+      nextOfKinPhone: "",
+      nextOfKinPhoneCountryCode: ugandaDialCode,
+      preferredLevel: defaultLevel ?? "Undecided / I need guidance",
+      preferredIntake: intakeChoices[0],
+      firstChoice: defaultProgram ?? programOptions[0] ?? "",
+      secondChoice: programOptions.find((option) => option !== defaultProgram) ?? "",
+      studyMode: defaultStudyMode ?? "Blended",
+      goals: "",
+      previousDegreeProgramme: "",
+      classOfDegree: "",
+      highestQualification: "UCE",
+      creditTransfer: "No",
+      referralSource: "",
+      confirmationAnswer: "",
+      documentUploadChoice: "later" as const,
+      uploadedDocuments: [],
+    };
+
+    window.localStorage.removeItem(applicationDraftKey);
+    form.reset(nextDefaults);
+    setServerMessage(null);
+    setReference(null);
+    setSubmissionSuccess(false);
+    setDraftRestored(false);
+    setSelectedFiles([]);
+    setUploadedDocuments([]);
+    setUploadMessage(null);
+    setDocumentUploadChoice("later");
+    setFileInputKey((value) => value + 1);
+  }
+
+  if (submissionSuccess) {
+    return (
+      <section className="rounded-[34px] border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-[#fff8bf] p-6 shadow-[0_28px_90px_-64px_rgba(17,17,17,0.85)] sm:p-8">
+        <div className="inline-flex rounded-full bg-emerald-100 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-900">
+          Submitted
+        </div>
+        <h2 className="font-heading mt-5 text-3xl font-bold tracking-tight text-[var(--color-ink)]">
+          Application received
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-950">
+          {serverMessage ?? "Your Ruguna College application has been saved and sent to admissions review."}
+        </p>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
+          <div className="rounded-[24px] border border-emerald-200 bg-white p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+              Reference
+            </p>
+            <p className="mt-2 font-heading text-xl font-bold text-[var(--color-ink)]">
+              {reference}
+            </p>
+          </div>
+          <div className="rounded-[24px] border border-emerald-200 bg-white p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+              Next step
+            </p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-ink)]">
+              Admissions will review your details and contact you by email, phone, or WhatsApp.
+            </p>
+          </div>
+          <div className="rounded-[24px] border border-emerald-200 bg-white p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+              Keep safe
+            </p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-ink)]">
+              Save this reference for follow-up and document verification.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <Button type="button" onClick={startAnotherApplication}>
+            Submit another application
+          </Button>
+          <Link
+            href="/admissions"
+            className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-5 text-sm font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)]"
+          >
+            View admissions guidance
+          </Link>
+          <Link
+            href="/contact"
+            className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-5 text-sm font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)]"
+          >
+            Contact admissions
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <form onSubmit={onSubmit} className="grid gap-6">
+      {draftRestored ? (
+        <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-950">
+          We restored your saved application draft on this device. Review the details, re-enter the
+          confirmation answer, and submit when ready.
+        </div>
+      ) : null}
+
       {serverMessage ? (
         <div
           className={

@@ -8,6 +8,7 @@ import {
   Users2,
 } from "lucide-react";
 
+import { AuditActivityList } from "@/components/platform/audit-activity-list";
 import { MetricCard } from "@/components/platform/metric-card";
 import { StatusBadge } from "@/components/platform/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,15 +16,6 @@ import { getAdminElearningRecords } from "@/lib/platform/learning-records";
 import { requireRole } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
-
-function activityLabel(summary: string) {
-  return summary
-    .replace(/^Clerk\s+/i, "")
-    .replace(/\.$/, "")
-    .replace(/Learner updated profile and learning preferences/i, "Profile updated")
-    .replace(/student@ruguna\.local/i, "Learner")
-    .replace(/write2fredokorio@gmail\.com/i, "Fred Okorio");
-}
 
 export default async function AdminElearningDashboardPage() {
   await requireRole(["registrar_admin", "super_admin"], "/admin/elearning");
@@ -142,35 +134,21 @@ export default async function AdminElearningDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-[var(--color-ink)] text-white">
-          <CardContent>
-            <h2 className="font-heading text-2xl font-bold">Recent activity</h2>
-            <div className="mt-5 grid gap-3">
-              {records.auditLogs.length ? (
-                records.auditLogs.slice(0, 6).map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-[22px] border border-white/10 bg-white/6 p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-semibold leading-6 text-white">
-                        {activityLabel(item.summary)}
-                      </p>
-                      <span className="rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">
-                        {item.entityType}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-xs uppercase tracking-[0.18em] text-white/45">
-                      {item.action}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-7 text-white/80">
-                  Admin, instructor, and learner activity will appear here.
-                </div>
-              )}
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)] bg-[var(--color-surface-alt)] px-6 py-5">
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                Recent activity
+              </h2>
+              <Link
+                href="/admin/elearning/audit"
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-xs font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)]"
+              >
+                View <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
+
+            <AuditActivityList records={records.auditLogs.slice(0, 5)} compact />
           </CardContent>
         </Card>
       </section>

@@ -59,6 +59,7 @@ async function getPersistedUserSnapshot(input: {
   if (!platformEnv.useDatabase || !hasDatabase) {
     return {
       roleSlugs: [] as string[],
+      email: null as string | null,
       profileName: null as string | null,
       avatarUrl: null as string | null,
     };
@@ -73,6 +74,7 @@ async function getPersistedUserSnapshot(input: {
   if (!filters.length) {
     return {
       roleSlugs: [] as string[],
+      email: null as string | null,
       profileName: null as string | null,
       avatarUrl: null as string | null,
     };
@@ -82,6 +84,7 @@ async function getPersistedUserSnapshot(input: {
     const user = await getDb().user.findFirst({
       where: { OR: filters },
       select: {
+        email: true,
         profile: {
           select: {
             firstName: true,
@@ -101,6 +104,7 @@ async function getPersistedUserSnapshot(input: {
 
     return {
       roleSlugs: user?.userRoles.map((item) => item.role.slug) ?? [],
+      email: user?.email ?? null,
       profileName: user?.profile
         ? [user.profile.firstName, user.profile.lastName].filter(Boolean).join(" ") || null
         : null,
@@ -110,6 +114,7 @@ async function getPersistedUserSnapshot(input: {
     console.error("Persisted role lookup failed; using session role only.", error);
     return {
       roleSlugs: [] as string[],
+      email: null,
       profileName: null,
       avatarUrl: null,
     };
@@ -123,38 +128,29 @@ export async function getCurrentSession() {
       const authResult = await clerk.auth({ treatPendingAsSignedOut: false });
 
       if (authResult.userId) {
-        let user: Awaited<ReturnType<typeof clerk.currentUser>> | null = null;
-
-        try {
-          user = await clerk.currentUser();
-        } catch (error) {
-          console.error("Clerk currentUser lookup failed; falling back to auth() claims.", error);
-        }
-
         const rawRole =
           typeof authResult.sessionClaims?.metadata === "object" &&
           authResult.sessionClaims?.metadata &&
           "role" in authResult.sessionClaims.metadata
             ? String(authResult.sessionClaims.metadata.role)
-            : typeof user?.publicMetadata?.role === "string"
-              ? user.publicMetadata.role
-              : "student";
+            : "student";
 
-        const email =
-          user?.primaryEmailAddress?.emailAddress ??
-          (typeof authResult.sessionClaims?.email === "string" ? authResult.sessionClaims.email : null);
+        const claims = authResult.sessionClaims as Record<string, unknown> | null | undefined;
+        const claimsEmail =
+          typeof claims?.email === "string"
+            ? claims.email
+            : typeof claims?.email_address === "string"
+              ? claims.email_address
+              : null;
+        const claimsFullName = typeof claims?.fullName === "string" ? claims.fullName : null;
         const persistedUser = await getPersistedUserSnapshot({
           clerkId: authResult.userId,
-          email,
+          email: claimsEmail,
         });
+        const email = claimsEmail ?? persistedUser.email;
         const effectiveRoles = resolveEffectiveSessionRoles(rawRole, email, persistedUser.roleSlugs);
         const name = resolveReadableName(
-          persistedUser.profileName ||
-            [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-            user?.username ||
-            (typeof authResult.sessionClaims?.fullName === "string"
-              ? authResult.sessionClaims.fullName
-              : null),
+          persistedUser.profileName || claimsFullName,
           email
         );
 
@@ -165,7 +161,7 @@ export async function getCurrentSession() {
           email,
           name,
           clerkUserId: authResult.userId,
-          avatarUrl: persistedUser.avatarUrl ?? user?.imageUrl ?? null,
+          avatarUrl: persistedUser.avatarUrl,
           sessionStatus: (authResult.sessionStatus === "pending" ? "pending" : "active") as
             | "active"
             | "pending",

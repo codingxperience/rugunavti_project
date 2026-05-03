@@ -53,6 +53,14 @@ function validateStoragePath(path: string) {
   }
 }
 
+export function assertStoragePathWithinPrefixes(path: string, prefixes: string[]) {
+  validateStoragePath(path);
+
+  if (!prefixes.some((prefix) => path.startsWith(prefix))) {
+    throw new Error("This storage path is outside the allowed Ruguna workspace.");
+  }
+}
+
 let supabaseAdminClient: ReturnType<typeof createClient> | null = null;
 
 export function getSupabaseAdmin() {

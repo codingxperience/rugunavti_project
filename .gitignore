@@ -17,3 +17,5 @@ yarn.lock
 coverage
 dist
 *.tsbuildinfo
+.eslintcache
+reports/**/chrome-profile*/

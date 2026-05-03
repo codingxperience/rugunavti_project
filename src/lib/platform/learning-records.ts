@@ -226,8 +226,8 @@ export async function getAdminElearningRecords() {
     }),
     db.auditLog.findMany({
       orderBy: { createdAt: "desc" },
-      take: 8,
-      include: { actor: true },
+      take: 12,
+      include: { actor: { include: { profile: true } } },
     }),
   ]);
 
@@ -241,6 +241,16 @@ export async function getAdminElearningRecords() {
     announcements,
     auditLogs,
   };
+}
+
+export async function getAdminAuditRecords(limit = 50) {
+  const db = getDb();
+
+  return db.auditLog.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { actor: { include: { profile: true } } },
+  });
 }
 
 function readLessonBody(body: unknown) {

@@ -7,8 +7,6 @@ import {
   Bell,
   BookOpenText,
   CalendarDays,
-  ChevronsLeft,
-  ChevronsRight,
   CircleHelp,
   FileBadge2,
   FolderCheck,
@@ -160,19 +158,13 @@ export function PortalLayout({
   children,
 }: PortalLayoutProps) {
   const pathname = usePathname();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const accountHref = "/account/settings";
 
   return (
-    <div className="min-h-screen bg-[#edece6] p-3 sm:p-4 lg:p-5">
+    <div className="min-h-dvh bg-[#edece6] p-2 sm:p-3 lg:p-3">
       <div
-        className={cn(
-          "relative mx-auto max-w-[1600px] overflow-hidden rounded-[38px] border border-black/6 bg-[#fbfbf7] shadow-[0_40px_120px_-78px_rgba(17,17,17,0.5)] lg:grid lg:min-h-[calc(100vh-2.5rem)]",
-          sidebarCollapsed
-            ? "lg:grid-cols-[88px_minmax(0,1fr)]"
-            : "lg:grid-cols-[132px_minmax(0,1fr)]"
-        )}
+        className="relative mx-auto max-w-[1600px] rounded-[34px] border border-black/6 bg-[#fbfbf7] shadow-[0_40px_120px_-78px_rgba(17,17,17,0.5)] lg:grid lg:grid-cols-[160px_minmax(0,1fr)] lg:items-start"
       >
         {mobileSidebarOpen ? (
           <button
@@ -185,17 +177,11 @@ export function PortalLayout({
 
         <aside
           className={cn(
-            "fixed inset-y-3 left-3 z-40 flex w-[220px] max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-[34px] border border-black/6 bg-[#f6f5ef] px-4 py-5 shadow-[0_32px_80px_-50px_rgba(17,17,17,0.45)] transition-transform duration-300 lg:sticky lg:top-5 lg:inset-auto lg:z-auto lg:h-[calc(100vh-2.5rem)] lg:w-auto lg:max-w-none lg:translate-x-0 lg:rounded-none lg:border-0 lg:border-r lg:border-black/6 lg:px-3 lg:py-5 lg:shadow-none",
-            mobileSidebarOpen ? "translate-x-0" : "-translate-x-[108%] lg:translate-x-0",
-            sidebarCollapsed ? "lg:px-2" : "lg:px-3"
+            "fixed inset-y-2 left-2 z-40 flex w-[220px] max-w-[calc(100vw-1rem)] flex-col overflow-y-auto rounded-[32px] border border-black/6 bg-[#f6f5ef] px-4 py-4 shadow-[0_32px_80px_-50px_rgba(17,17,17,0.45)] transition-transform duration-300 lg:sticky lg:top-3 lg:inset-auto lg:z-auto lg:min-h-[calc(100dvh-1.5rem)] lg:w-auto lg:max-w-none lg:translate-x-0 lg:overflow-visible lg:rounded-l-[34px] lg:rounded-r-none lg:border-0 lg:border-r lg:border-black/6 lg:px-3 lg:py-4 lg:shadow-none",
+            mobileSidebarOpen ? "translate-x-0" : "-translate-x-[108%] lg:translate-x-0"
           )}
         >
-          <div
-            className={cn(
-              "relative flex flex-col items-center gap-3",
-              sidebarCollapsed ? "lg:justify-center" : "lg:pr-0"
-            )}
-          >
+          <div className="relative flex flex-col items-center gap-3">
             <div className="flex min-w-0 flex-col items-center gap-2 text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-white">
                 <Image
@@ -206,7 +192,7 @@ export function PortalLayout({
                   className="h-9 w-9 object-contain"
                 />
               </div>
-              <div className={cn("min-w-0", sidebarCollapsed && "lg:hidden")}>
+              <div className="min-w-0">
                 <p className="font-heading truncate text-lg font-bold text-[var(--color-ink)]">
                   Ruguna College
                 </p>
@@ -215,24 +201,9 @@ export function PortalLayout({
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              onClick={() => setSidebarCollapsed((value) => !value)}
-              className={cn(
-                "hidden h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-ink)] shadow-[0_12px_30px_-24px_rgba(17,17,17,0.65)] transition hover:-translate-y-0.5 hover:bg-[#fff5ad] lg:inline-flex",
-                sidebarCollapsed ? "lg:mt-2" : "lg:absolute lg:-right-1 lg:top-1"
-              )}
-            >
-              {sidebarCollapsed ? (
-                <ChevronsRight className="h-3.5 w-3.5" />
-              ) : (
-                <ChevronsLeft className="h-3.5 w-3.5" />
-              )}
-            </button>
           </div>
 
-          <nav className="mt-6 grid min-h-0 flex-1 content-start gap-2 overflow-y-auto pr-1">
+          <nav className="mt-5 grid content-start gap-2">
             {navItems.map((item) => {
               const active =
                 pathname === item.href ||
@@ -244,39 +215,37 @@ export function PortalLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  title={sidebarCollapsed ? item.label : undefined}
                   onClick={() => setMobileSidebarOpen(false)}
                   className={cn(
                     "group flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-center text-[11px] font-semibold leading-tight transition",
-                    sidebarCollapsed && "lg:h-12 lg:w-12 lg:self-center lg:px-0",
                     active
                       ? "border border-black/6 bg-white text-[var(--color-ink)] shadow-[0_18px_35px_-28px_rgba(17,17,17,0.6)]"
                       : "text-[var(--color-muted)] hover:bg-white hover:text-[var(--color-ink)]"
                   )}
                 >
                   <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110" />
-                  <span className={cn("max-w-full truncate", sidebarCollapsed && "lg:hidden")}>{item.label}</span>
+                  <span className="max-w-full text-center">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {sidebarCollapsed ? (
-            <div className="mt-4 shrink-0 rounded-[26px] border border-black/6 bg-white p-2 text-[var(--color-ink)] shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
-              <div className="flex justify-center">
-                <Link
-                  href={accountHref}
-                  title="Account settings"
-                  className="transition hover:-translate-y-0.5"
-                >
-                  <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-11 w-11" />
-                </Link>
-              </div>
-              <div className="mt-4 grid gap-2">
+          <div className="mt-4 shrink-0 rounded-[26px] border border-black/6 bg-white p-2 shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
+            <div className="grid gap-2">
+              <Link
+                href={accountHref}
+                className="flex flex-col items-center gap-2 rounded-2xl px-2 py-2 text-center transition hover:-translate-y-0.5 hover:bg-[#f6f5ef]"
+              >
+                <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-12 w-12" />
+                <span className="max-w-full truncate text-xs font-bold text-[var(--color-ink)]">
+                  {userName}
+                </span>
+              </Link>
+              <div className="grid grid-cols-2 gap-2">
                 <Link
                   href="/"
                   title="Public website"
-                  className="flex h-10 items-center justify-center rounded-2xl border border-black/6 bg-[#f6f5ef] transition hover:-translate-y-0.5 hover:bg-white"
+                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-black/6 bg-[#f6f5ef] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white"
                 >
                   <House className="h-4 w-4" />
                 </Link>
@@ -286,38 +255,11 @@ export function PortalLayout({
                 />
               </div>
             </div>
-          ) : (
-            <div className="mt-4 shrink-0 rounded-[26px] border border-black/6 bg-white p-2 shadow-[0_18px_40px_-32px_rgba(17,17,17,0.55)]">
-              <div className="grid gap-2">
-                <Link
-                  href={accountHref}
-                  className="flex flex-col items-center gap-2 rounded-2xl px-2 py-2 text-center transition hover:-translate-y-0.5 hover:bg-[#f6f5ef]"
-                >
-                  <UserAvatar name={userName} avatarUrl={userAvatarUrl} className="h-12 w-12" />
-                  <span className="max-w-full truncate text-xs font-bold text-[var(--color-ink)]">
-                    {userName}
-                  </span>
-                </Link>
-                <div className="grid grid-cols-2 gap-2">
-                  <Link
-                    href="/"
-                    title="Public website"
-                    className="flex h-10 w-10 items-center justify-center rounded-2xl border border-black/6 bg-[#f6f5ef] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white"
-                  >
-                    <House className="h-4 w-4" />
-                  </Link>
-                  <PortalSignOutButton
-                    compact
-                    className="border-black/6 bg-[#f6f5ef] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white hover:text-[var(--color-ink)]"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </aside>
 
-        <div className="flex min-h-screen flex-col">
-          <header className="border-b border-black/6 bg-white/82 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
+        <div className="flex min-h-[calc(100dvh-1rem)] min-w-0 flex-col">
+          <header className="sticky top-0 z-20 border-b border-black/6 bg-white/90 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-3">
                 <button
@@ -361,7 +303,9 @@ export function PortalLayout({
             </div>
           </header>
 
-          <div className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+          <div className="px-4 py-6 sm:px-6 lg:px-8">
+            {children}
+          </div>
         </div>
       </div>
     </div>

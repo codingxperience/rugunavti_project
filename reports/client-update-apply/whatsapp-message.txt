@@ -1,0 +1,15 @@
+Client update - Ruguna College application page
+
+Implemented and polished the admissions form into a more complete applicant flow:
+
+1. Brand updated to Ruguna College with the motto One Who Prevails.
+2. Application entry routes now cover Certificate, Diploma, Bachelor's, and Short Course Interest.
+3. Required fields are clearly marked with asterisks.
+4. Personal details now include gender, date of birth, nationality, and disability question.
+5. WhatsApp, alternative phone, and next-of-kin phone now support country codes for international applicants.
+6. Next-of-kin details were added for student support and admissions follow-up.
+7. Education background now captures previous programme and class/result level.
+8. Credit transfer, referral source, document upload choice, and confirmation check were added.
+9. The side guidance cards were cleaned so the page reads better and does not feel derailed.
+
+Attached are annotated screenshots showing the main improvements.

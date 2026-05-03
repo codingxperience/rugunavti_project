@@ -104,7 +104,7 @@ export default async function ElearningLoginPage({
           </div>
         )}
 
-        {platformEnv.allowDevAuth ? (
+        {platformEnv.allowDevAuth && !hasClerk ? (
           <details className="rounded-[24px] border border-dashed border-black/14 bg-white p-4">
             <summary className="cursor-pointer list-none text-center text-sm font-semibold text-[var(--color-ink)]">
               Development access only

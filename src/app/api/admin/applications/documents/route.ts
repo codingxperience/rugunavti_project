@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
-import { createSignedDownloadUrl } from "@/lib/platform/storage";
+import { platformEnv } from "@/lib/platform/env";
+import { assertStoragePathWithinPrefixes, createSignedDownloadUrl } from "@/lib/platform/storage";
 import { requireApiUser } from "@/lib/platform/users";
 
 function readDocumentAt(value: unknown, index: number) {
@@ -56,6 +57,22 @@ export async function GET(request: Request) {
     return NextResponse.json(
       { success: false, message: "That application document was not found." },
       { status: 404 }
+    );
+  }
+
+  if (document.bucket !== platformEnv.supabasePrivateBucket) {
+    return NextResponse.json(
+      { success: false, message: "That application document is not in Ruguna private storage." },
+      { status: 400 }
+    );
+  }
+
+  try {
+    assertStoragePathWithinPrefixes(document.path, ["applications/"]);
+  } catch {
+    return NextResponse.json(
+      { success: false, message: "That application document path is not allowed." },
+      { status: 400 }
     );
   }
 

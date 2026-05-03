@@ -2,12 +2,47 @@ import { AuditAction } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { writeAuditLog } from "@/lib/platform/audit";
-import { hasSupabase } from "@/lib/platform/env";
+import { hasSupabase, platformEnv } from "@/lib/platform/env";
+import { enforceRateLimit } from "@/lib/platform/rate-limit";
 import { signedUploadSchema } from "@/lib/platform/schemas";
-import { createSignedUploadUrl } from "@/lib/platform/storage";
+import { assertStoragePathWithinPrefixes, createSignedUploadUrl } from "@/lib/platform/storage";
 import { requireApiUser } from "@/lib/platform/users";
 
+function hasStaffUploadAccess(user: { userRoles: Array<{ role: { slug: string } }> }) {
+  return user.userRoles.some(({ role }) =>
+    ["instructor", "registrar_admin", "super_admin"].includes(role.slug)
+  );
+}
+
+function allowedUploadPrefixes(userId: string, staffAccess: boolean) {
+  if (staffAccess) {
+    return [
+      "course-resources/",
+      "courses/",
+      "lessons/",
+      "assignments/feedback/",
+      "announcements/",
+    ];
+  }
+
+  return [
+    `submissions/${userId}/`,
+    `learners/${userId}/assignments/`,
+    `learners/${userId}/support/`,
+  ];
+}
+
 export async function POST(request: Request) {
+  const rateLimitResponse = enforceRateLimit(request, {
+    keyPrefix: "elearning-signed-uploads",
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   const auth = await requireApiUser(["student", "instructor", "registrar_admin", "super_admin"]);
 
   if (!auth.ok) {
@@ -32,7 +67,22 @@ export async function POST(request: Request) {
   }
 
   try {
-    const signedUpload = await createSignedUploadUrl(result.data);
+    if (result.data.bucket !== platformEnv.supabasePrivateBucket) {
+      return NextResponse.json(
+        { success: false, message: "eLearning uploads must use Ruguna private storage." },
+        { status: 400 }
+      );
+    }
+
+    const staffAccess = hasStaffUploadAccess(auth.user);
+    const prefixes = allowedUploadPrefixes(auth.user.id, staffAccess);
+
+    assertStoragePathWithinPrefixes(result.data.path, prefixes);
+
+    const signedUpload = await createSignedUploadUrl({
+      ...result.data,
+      bucket: platformEnv.supabasePrivateBucket,
+    });
 
     await writeAuditLog({
       actorId: auth.user.id,
@@ -43,6 +93,7 @@ export async function POST(request: Request) {
       payload: {
         bucket: signedUpload.bucket,
         path: signedUpload.path,
+        scope: staffAccess ? "staff-course-content" : "learner-workspace",
         mimeType: result.data.mimeType,
         sizeBytes: result.data.sizeBytes,
       },
