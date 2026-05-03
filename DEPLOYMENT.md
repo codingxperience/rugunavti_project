@@ -26,12 +26,8 @@ CLERK_SECRET_KEY=
 CLERK_WEBHOOK_SECRET=
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/elearning/login
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/elearning/register
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/learn/dashboard
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/learn/dashboard
 CLERK_SIGN_IN_URL=/elearning/login
 CLERK_SIGN_UP_URL=/elearning/register
-CLERK_AFTER_SIGN_IN_URL=/learn/dashboard
-CLERK_AFTER_SIGN_UP_URL=/learn/dashboard
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_BUCKET_PUBLIC=ruguna-public
@@ -70,8 +66,8 @@ Required Clerk URLs:
 
 - Sign in URL: `/elearning/login`
 - Sign up URL: `/elearning/register`
-- After sign in URL: `/learn/dashboard`
-- After sign up URL: `/learn/dashboard`
+- The app handles post-auth redirects through `/elearning/auth-complete`.
+- Do not set legacy `AFTER_SIGN_IN` or `AFTER_SIGN_UP` env vars; the auth UI uses Clerk's current redirect props.
 
 Create a Clerk webhook endpoint:
 
