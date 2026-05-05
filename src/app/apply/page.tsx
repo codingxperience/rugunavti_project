@@ -19,10 +19,10 @@ export default async function ApplyPage({
     : null;
   const programOptions = programs.map((item) => item.title);
   const trackLevels = new Map([
-    ["Certificate Application", "Certificate"],
-    ["Diploma Application", "Diploma"],
-    ["Bachelor's Application", "Bachelor's"],
-    ["Short Course Interest", "Short Course"],
+    ["Certificate", "Certificate"],
+    ["Diploma", "Diploma"],
+    ["Bachelor's", "Bachelor's"],
+    ["Short Courses", "Short Course"],
   ]);
   const selectedLevel =
     [...trackLevels.values()].find((item) => item === requestedLevel) ??
@@ -33,12 +33,12 @@ export default async function ApplyPage({
     <>
       <PageHero
         eyebrow="Apply online"
-        title="Start your Ruguna application with a guided, phone-friendly admissions flow"
-        description="Applicants can choose a programme, ask for award-level guidance, add optional supporting documents, and move into admissions review with a clear reference number."
+        title="Apply to Ruguna College in minutes"
+        description="Choose your study path, share your details, and send your application for admissions review."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
-            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Intake rhythm</p>
-            <p>{intakeMoments.join(", ")} intakes with programme-specific start dates and admissions guidance.</p>
+            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Next intakes</p>
+            <p>{intakeMoments.join(", ")} intakes with programme-specific dates.</p>
           </div>
         }
       />
@@ -55,20 +55,14 @@ export default async function ApplyPage({
                   level: trackLevels.get(track.label) ?? "Certificate",
                 },
               }}
-              className={`rounded-[22px] border px-5 py-4 text-sm font-semibold shadow-[0_18px_55px_-48px_rgba(17,17,17,0.65)] transition hover:-translate-y-0.5 hover:border-black/20 ${
+              className={`rounded-2xl border px-5 py-4 text-sm font-semibold transition hover:border-black/20 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#fde047]/40 ${
                 selectedLevel === trackLevels.get(track.label)
-                  ? "border-[var(--color-ink)] bg-[var(--color-ink)] text-white"
+                  ? "border-[#d6a500] bg-[#fff8cc] text-[var(--color-ink)] ring-1 ring-[#fde047]"
                   : "border-[var(--color-border)] bg-white text-[var(--color-ink)]"
               }`}
             >
               <span className="block">{track.label}</span>
-              <span
-                className={`mt-1 block max-w-[260px] text-xs font-medium leading-5 ${
-                  selectedLevel === trackLevels.get(track.label)
-                    ? "text-white/68"
-                    : "text-[var(--color-muted)]"
-                }`}
-              >
+              <span className="mt-1 block max-w-[260px] text-xs font-medium leading-5 text-[var(--color-muted)]">
                 {track.detail}
               </span>
             </Link>

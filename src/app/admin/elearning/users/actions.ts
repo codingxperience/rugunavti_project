@@ -12,6 +12,14 @@ import { hasClerk, platformEnv } from "@/lib/platform/env";
 import { requireApiUser } from "@/lib/platform/users";
 
 const assignableRoles = platformRoles.filter((role) => role !== "applicant");
+const roleLabels: Record<PlatformRole, string> = {
+  applicant: "Applicant",
+  student: "Student",
+  instructor: "Instructor",
+  registrar_admin: "Registrar",
+  finance_admin: "Finance Officer",
+  super_admin: "Super Admin",
+};
 
 const updateUserRoleSchema = z.object({
   userId: z.string().min(1),
@@ -72,10 +80,8 @@ export async function updateUserRoleAction(formData: FormData) {
     update: {},
     create: {
       slug: parsed.data.role,
-      name: parsed.data.role
-        .replace(/_/g, " ")
-        .replace(/\b\w/g, (letter) => letter.toUpperCase()),
-      description: `${parsed.data.role.replace(/_/g, " ")} access for Ruguna eLearning.`,
+      name: roleLabels[parsed.data.role],
+      description: `${roleLabels[parsed.data.role]} access for Ruguna eLearning.`,
     },
   });
 

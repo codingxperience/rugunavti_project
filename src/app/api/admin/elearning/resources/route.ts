@@ -8,7 +8,7 @@ import { validateUploadMetadata } from "@/lib/platform/storage";
 import { requireApiUser } from "@/lib/platform/users";
 
 export async function POST(request: Request) {
-  const auth = await requireApiUser(["instructor", "registrar_admin", "super_admin"]);
+  const auth = await requireApiUser(["instructor", "super_admin"]);
 
   if (!auth.ok) {
     return NextResponse.json(auth.response, { status: auth.status });

@@ -4,13 +4,13 @@ import { PortalLayout } from "@/components/platform/portal-layout";
 import { resolveDisplayName } from "@/lib/platform/display-name";
 import { adminNavItems } from "@/lib/platform/portal-nav";
 import { requireRole } from "@/lib/platform/session";
-import { ensureUserForSession } from "@/lib/platform/users";
+import { getPortalUserForSession } from "@/lib/platform/users";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const session = await requireRole(["registrar_admin", "super_admin"], "/admin/elearning");
-  const user = await ensureUserForSession(session);
+  const session = await requireRole(["super_admin"], "/admin/elearning");
+  const user = await getPortalUserForSession(session);
   const userName = resolveDisplayName({
     firstName: user.profile?.firstName,
     lastName: user.profile?.lastName,
@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <PortalLayout
       heading="eLearning administration"
-      caption="Courses, categories, users, announcements, settings, and audit visibility."
+      caption="Courses, users, announcements, settings, and audit records."
       userName={userName}
       userAvatarUrl={user.profile?.avatarUrl ?? session.avatarUrl}
       navItems={adminNavItems}

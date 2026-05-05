@@ -9,7 +9,7 @@ import { requireRole } from "@/lib/platform/session";
 export const dynamic = "force-dynamic";
 
 export default async function AdminAuditTrailPage() {
-  await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/audit");
+  await requireRole(["super_admin"], "/admin/elearning/audit");
   const auditLogs = await getAdminAuditRecords(50);
 
   return (

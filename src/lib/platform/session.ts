@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/lib/db";
 import { DEV_SESSION_COOKIE, canAccessRole, decodeDevSession, type PlatformRole } from "@/lib/platform/auth";
 import { CLERK_BRIDGE_SESSION_COOKIE, decodeClerkBridgeSession } from "@/lib/platform/bridge-session";
+import { logDataAccessError } from "@/lib/platform/database-errors";
 import { hasClerk, hasDatabase, platformEnv } from "@/lib/platform/env";
 import { resolveEffectiveSessionRoles } from "@/lib/platform/role-bootstrap";
 
@@ -111,7 +112,7 @@ async function getPersistedUserSnapshot(input: {
       avatarUrl: user?.profile?.avatarUrl ?? null,
     };
   } catch (error) {
-    console.error("Persisted role lookup failed; using session role only.", error);
+    logDataAccessError("Persisted role lookup failed; using session role only", error);
     return {
       roleSlugs: [] as string[],
       email: null,

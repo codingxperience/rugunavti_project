@@ -1,4 +1,4 @@
-import { AuditAction, ContentStatus } from "@prisma/client";
+import { ApplicationStatus, AuditAction, ContentStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
@@ -20,6 +20,22 @@ function splitName(fullName: string) {
 function createFallbackReference() {
   return `RUG-APP-${new Date().getFullYear()}-${Math.floor(Math.random() * 90000 + 10000)}`;
 }
+
+function formatStatus(status: ApplicationStatus) {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+const activeApplicationStatuses = [
+  ApplicationStatus.SUBMITTED,
+  ApplicationStatus.IN_REVIEW,
+  ApplicationStatus.DOCUMENTS_REQUIRED,
+  ApplicationStatus.OFFERED,
+  ApplicationStatus.WAITLISTED,
+];
 
 export async function POST(request: Request) {
   const rateLimitResponse = enforceRateLimit(request, {
@@ -71,11 +87,6 @@ export async function POST(request: Request) {
   const dateOfBirth = `${values.dateOfBirthYear}-${values.dateOfBirthMonth.padStart(2, "0")}-${values.dateOfBirthDay.padStart(2, "0")}`;
 
   try {
-    const reference = await createUniqueReference("RUG-APP", async (candidate) => {
-      const existing = await db.application.findUnique({ where: { reference: candidate } });
-      return Boolean(existing);
-    });
-
     const applicant = await db.user.upsert({
       where: { email: values.email.toLowerCase() },
       update: {
@@ -165,6 +176,34 @@ export async function POST(request: Request) {
       },
     });
 
+    const existingApplication = await db.application.findFirst({
+      where: {
+        userId: applicant.id,
+        status: { in: activeApplicationStatuses },
+        OR: [
+          { programId: program.id },
+          { firstChoice: values.firstChoice },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (existingApplication) {
+      return NextResponse.json({
+        success: true,
+        duplicate: true,
+        message:
+          "We already have this application. Use your reference to track the admissions decision.",
+        reference: existingApplication.reference,
+        status: formatStatus(existingApplication.status),
+      });
+    }
+
+    const reference = await createUniqueReference("RUG-APP", async (candidate) => {
+      const existing = await db.application.findUnique({ where: { reference: candidate } });
+      return Boolean(existing);
+    });
+
     const application = await db.application.create({
       data: {
         userId: applicant.id,
@@ -244,8 +283,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Your application interest has been saved and routed to admissions review.",
+      message:
+        "Your application has been submitted. We have also sent a confirmation email with your reference.",
       reference: application.reference,
+      status: formatStatus(application.status),
     });
   } catch (error) {
     console.error("Application submission failed", error);

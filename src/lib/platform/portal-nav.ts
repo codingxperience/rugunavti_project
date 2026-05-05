@@ -9,10 +9,10 @@ export const learnerNavItems: PortalNavItem[] = [
   { href: "/learn/dashboard", label: "Dashboard" },
   { href: "/learn/program", label: "Program" },
   { href: "/learn/my-courses", label: "Courses" },
-  { href: "/learn/continue", label: "Continue" },
   { href: "/learn/calendar", label: "Calendar" },
   { href: "/learn/assignments", label: "Assignments" },
   { href: "/learn/quizzes", label: "Quizzes" },
+  { href: "/learn/payments", label: "Payments" },
   { href: "/learn/certificates", label: "Certificates" },
   { href: "/learn/downloads", label: "Downloads" },
   { href: "/account/settings", label: "Settings" },
@@ -22,6 +22,22 @@ export const instructorNavItems: PortalNavItem[] = [
   { href: "/instructor/dashboard", label: "Dashboard" },
   { href: "/instructor/courses", label: "Courses" },
   { href: "/instructor/submissions", label: "Submissions" },
+  { href: "/account/settings", label: "Settings" },
+];
+
+export const registrarNavItems: PortalNavItem[] = [
+  { href: "/registrar", label: "Dashboard" },
+  { href: "/registrar/applications", label: "Applications" },
+  { href: "/registrar/learners", label: "Learners" },
+  { href: "/registrar/records", label: "Records" },
+  { href: "/account/settings", label: "Settings" },
+];
+
+export const financeNavItems: PortalNavItem[] = [
+  { href: "/finance", label: "Dashboard" },
+  { href: "/finance/invoices", label: "Invoices" },
+  { href: "/finance/payments", label: "Payments" },
+  { href: "/finance/holds", label: "Holds" },
   { href: "/account/settings", label: "Settings" },
 ];
 
@@ -40,7 +56,15 @@ export function getPortalNavForRole(role: PlatformRole | null | undefined) {
     return instructorNavItems;
   }
 
-  if (role === "registrar_admin" || role === "finance_admin" || role === "super_admin") {
+  if (role === "registrar_admin") {
+    return registrarNavItems;
+  }
+
+  if (role === "finance_admin") {
+    return financeNavItems;
+  }
+
+  if (role === "super_admin") {
     return adminNavItems;
   }
 
@@ -57,7 +81,25 @@ export function getPortalHeadingForRole(role: PlatformRole | null | undefined) {
     };
   }
 
-  if (role === "registrar_admin" || role === "finance_admin" || role === "super_admin") {
+  if (role === "registrar_admin") {
+    return {
+      heading: "Registrar workspace",
+      caption: "Applications, admissions decisions, enrollment records, and certificates.",
+      searchHref: "/registrar/applications",
+      searchPlaceholder: "Search applicants or references",
+    };
+  }
+
+  if (role === "finance_admin") {
+    return {
+      heading: "Finance workspace",
+      caption: "Invoices, payment references, account holds, and finance follow-up.",
+      searchHref: "/finance/invoices",
+      searchPlaceholder: "Search invoices or references",
+    };
+  }
+
+  if (role === "super_admin") {
     return {
       heading: "eLearning administration",
       caption: "Courses, users, announcements, settings, and audit visibility.",

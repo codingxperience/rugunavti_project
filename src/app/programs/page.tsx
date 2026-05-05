@@ -14,11 +14,11 @@ export default async function ProgramsPage({
       <PageHero
         eyebrow="Programmes and courses"
         title="Browse all Ruguna pathways by level, school, mode, duration, and skill area"
-        description="The programme directory is designed for serious academic discovery across schools, award levels, blended and online delivery, and practical career pathways."
+        description="Compare programmes by school, award level, delivery mode, duration, and career direction."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-3xl font-bold text-[var(--color-ink)]">{programs.length} programmes</p>
-            <p>Search the full academic catalogue and move directly into programme detail, admissions, or application actions.</p>
+            <p>Search the academic catalogue, review programme details, and move into admissions when ready.</p>
           </div>
         }
       />

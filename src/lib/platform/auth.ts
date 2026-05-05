@@ -31,7 +31,8 @@ export const protectedRouteRules: {
   { prefix: "/learn", roles: ["student", "super_admin"], label: "Learning dashboard" },
   { prefix: "/student", roles: ["student", "super_admin"], label: "Student dashboard" },
   { prefix: "/instructor", roles: ["instructor", "super_admin"], label: "Instructor dashboard" },
-  { prefix: "/admin", roles: ["registrar_admin", "super_admin"], label: "Admin console" },
+  { prefix: "/registrar", roles: ["registrar_admin", "super_admin"], label: "Registrar workspace" },
+  { prefix: "/admin", roles: ["super_admin"], label: "Admin console" },
   { prefix: "/finance", roles: ["finance_admin", "super_admin"], label: "Finance console" },
 ];
 

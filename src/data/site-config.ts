@@ -2,11 +2,11 @@ export const siteConfig = {
   name: "Ruguna College",
   shortName: "Ruguna College",
   motto: "One Who Prevails",
-  headline: "Build Practical Skills for the Jobs of Today and Tomorrow",
+  headline: "Skills That Move You Forward",
   subheadline:
-    "Certificate, diploma, bachelor's, and short courses designed for Uganda and the modern economy.",
+    "Certificate, diploma, bachelor's, and short courses for learners ready to work, build, and lead.",
   description:
-    "A modern Ugandan college platform that moves learners from interest to enrollment, certification, and employability.",
+    "Ruguna College offers practical academic pathways, short courses, and learner support from inquiry to completion.",
   location: "Uganda",
   phone: "+256 700 123 456",
   whatsapp: "+256 754 000 321",
@@ -55,10 +55,10 @@ export const academicMenuGroups: MenuGroup[] = [
   {
     title: "Program pathways",
     links: [
-      { href: "/programs", label: "Bachelor's pathways", detail: "Advanced leadership and progression routes." },
-      { href: "/programs", label: "Diploma pathways", detail: "Career-oriented technical depth and supervision skills." },
-      { href: "/programs", label: "Certificate pathways", detail: "Strong entry-level practical training." },
-      { href: "/short-courses", label: "Short courses", detail: "Fast, flexible upskilling for current needs." },
+      { href: "/programs", label: "Bachelor's pathways", detail: "Advanced study and professional progression." },
+      { href: "/programs", label: "Diploma pathways", detail: "Technical depth for career growth." },
+      { href: "/programs", label: "Certificate pathways", detail: "Practical entry-level training." },
+      { href: "/short-courses", label: "Short courses", detail: "Focused upskilling for current needs." },
     ],
   },
   {
@@ -85,9 +85,9 @@ export const admissionsMenuGroups: MenuGroup[] = [
   {
     title: "Admissions",
     links: [
-      { href: "/admissions", label: "Admission requirements", detail: "Requirements, documents, and FAQs." },
-      { href: "/apply", label: "Apply online", detail: "Start with the guided digital flow." },
-      { href: "/fees-funding", label: "Fees & funding", detail: "Transparent payment guidance and support." },
+      { href: "/admissions", label: "Admission requirements", detail: "Requirements, documents, and common questions." },
+      { href: "/apply", label: "Apply online", detail: "Start a new application." },
+      { href: "/fees-funding", label: "Fees & funding", detail: "Fee guidance and payment support." },
       { href: "/verification", label: "Verify documents", detail: "Confirm admission and certificate records." },
     ],
   },
@@ -104,20 +104,20 @@ export const admissionsMenuGroups: MenuGroup[] = [
 
 export const applyTracks = [
   {
-    label: "Certificate Application",
-    detail: "Entry-level practical training with direct employability focus.",
+    label: "Certificate",
+    detail: "Start job-ready.",
   },
   {
-    label: "Diploma Application",
-    detail: "Deeper technical and supervisory vocational pathways.",
+    label: "Diploma",
+    detail: "Build technical depth.",
   },
   {
-    label: "Bachelor's Application",
-    detail: "Advanced progression for leadership and specialization.",
+    label: "Bachelor's",
+    detail: "Advance. Lead. Specialize.",
   },
   {
-    label: "Short Course Interest",
-    detail: "Fast upskilling for digital, technical, and business needs.",
+    label: "Short Courses",
+    detail: "Upskill fast.",
   },
 ];
 
@@ -141,37 +141,37 @@ export const whyChooseRuguna = [
   {
     title: "Practical training",
     description:
-      "Workshop-led, studio-based, and clinic-informed learning that keeps theory close to real work.",
+      "Workshop, studio, clinic, and field-based learning linked to workplace practice.",
     icon: "hammer",
   },
   {
     title: "Market-relevant programs",
     description:
-      "Courses are shaped around today's digital, industrial, health, and entrepreneurship opportunities.",
+      "Programmes focus on digital, technical, health, business, and entrepreneurship needs.",
     icon: "briefcase",
   },
   {
     title: "Flexible learning modes",
     description:
-      "Choose day, evening, weekend, blended, and selected online formats that fit your schedule.",
+      "Day, evening, weekend, blended, and selected online options are available by programme.",
     icon: "calendar",
   },
   {
     title: "Digital student portal",
     description:
-      "Track applications, timetables, announcements, documents, and student services in one place.",
+      "Access applications, timetables, announcements, documents, and student services.",
     icon: "monitor",
   },
   {
     title: "Employability focus",
     description:
-      "Attachment readiness, portfolio building, and workplace expectations are woven into the student journey.",
+      "Career guidance, portfolios, attachment preparation, and workplace habits are part of the student journey.",
     icon: "rocket",
   },
   {
     title: "Supportive admissions",
     description:
-      "Applicants get guided steps, clear requirements, and phone-friendly workflows from first inquiry to offer.",
+      "Admissions support is clear, phone-friendly, and focused on the next step.",
     icon: "shield",
   },
 ];

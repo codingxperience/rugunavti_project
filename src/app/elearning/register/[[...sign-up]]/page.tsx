@@ -1,11 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { AuthShell } from "@/components/platform/auth-shell";
 import { ClerkAuthFlow } from "@/components/platform/clerk-auth-flow";
 import { Button } from "@/components/ui/button";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
-import { resolveSafeRedirectTarget } from "@/lib/platform/navigation";
+import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
+import { getCurrentSession } from "@/lib/platform/session";
 
 export const metadata: Metadata = {
   title: "Create a Ruguna eLearning account",
@@ -19,6 +21,11 @@ export default async function ElearningRegisterPage({
 }) {
   const { next } = await searchParams;
   const redirectUrl = next ? resolveSafeRedirectTarget(next, "/learn/dashboard") : null;
+  const session = await getCurrentSession();
+
+  if (session.isAuthenticated) {
+    redirect(resolveWorkspaceRoute(session, redirectUrl));
+  }
 
   return (
     <AuthShell

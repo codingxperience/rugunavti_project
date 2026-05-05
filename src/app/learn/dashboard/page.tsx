@@ -9,6 +9,7 @@ import {
   MessageSquareText,
 } from "lucide-react";
 
+import { ApplicationStatusNotice } from "@/components/platform/application-status-notice";
 import { MetricCard } from "@/components/platform/metric-card";
 import { ProgressBar } from "@/components/platform/progress-bar";
 import { StatusBadge } from "@/components/platform/status-badge";
@@ -60,6 +61,24 @@ export default async function LearnDashboardPage() {
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
       <section className="grid gap-6">
+        <ApplicationStatusNotice
+          applications={workspace.applications}
+          email={workspace.user.email}
+        />
+
+        {workspace.databaseUnavailable ? (
+          <Card className="border-amber-200/70 bg-amber-50/80">
+            <CardContent>
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+                Learning records are temporarily unavailable
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-amber-900/80">
+                {workspace.databaseMessage} Refresh after the database connection is restored.
+              </p>
+            </CardContent>
+          </Card>
+        ) : null}
+
         <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
           <MetricCard
             label="Courses"
@@ -110,11 +129,11 @@ export default async function LearnDashboardPage() {
               Dashboard
             </h1>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Course cards are generated from your live enrollments.
+              Your enrolled courses appear here.
             </p>
           </div>
           <Button asChild variant="secondary">
-            <Link href="/elearning/courses">Browse courses</Link>
+            <Link href="/learn/catalog">Browse courses</Link>
           </Button>
         </div>
 
@@ -183,7 +202,7 @@ export default async function LearnDashboardPage() {
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Button asChild>
-                  <Link href="/elearning/courses?level=Short%20Course">Start a short course</Link>
+                  <Link href="/learn/catalog?level=Short%20Course">Start a short course</Link>
                 </Button>
                 <Button asChild variant="secondary">
                   <Link href="/apply">Apply for a programme</Link>
@@ -286,3 +305,4 @@ function Shortcut({
     </Link>
   );
 }
+

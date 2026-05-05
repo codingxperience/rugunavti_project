@@ -59,7 +59,7 @@ export function AuthCompletionGuard({
   const { session } = useSession();
   const [phase, setPhase] = useState<"loading" | "checking" | "timeout" | "signed-out">("loading");
   const [attempt, setAttempt] = useState(0);
-  const [message, setMessage] = useState("Starting Ruguna eLearning.");
+  const [message, setMessage] = useState("Loading your Ruguna workspace.");
   const [diagnostics, setDiagnostics] = useState<SessionStatusResponse["diagnostics"] | null>(null);
   const [bridgeMessage, setBridgeMessage] = useState<string | null>(null);
   const isMountedRef = useRef(true);
@@ -113,7 +113,7 @@ export function AuthCompletionGuard({
 
     isCheckingRef.current = true;
     setPhase("checking");
-    setMessage("Opening your learning dashboard.");
+    setMessage("Loading your Ruguna workspace.");
 
     try {
       for (let currentAttempt = 1; currentAttempt <= MAX_ATTEMPTS; currentAttempt += 1) {
@@ -169,17 +169,7 @@ export function AuthCompletionGuard({
 
       const currentDiagnostics = diagnostics;
       setPhase("timeout");
-      setMessage(
-        currentDiagnostics?.hasBridgeCookie
-          ? "Your sign-in completed, but opening the dashboard took longer than expected."
-          : currentDiagnostics?.hasSessionTokenCookie
-            ? currentDiagnostics.serverUserId
-              ? "Your account is signed in, but the dashboard handoff is taking longer than expected."
-              : "Your account is signed in, but we could not finish opening the dashboard yet."
-            : currentDiagnostics?.hasClientUatCookie
-              ? "Your sign-in was received, but the secure session is still catching up."
-              : "Your sign-in completed, but the secure session could not be confirmed yet."
-      );
+      setMessage("We could not open the workspace automatically.");
 
       if (!currentDiagnostics?.hasBridgeCookie) {
         bridgeAttemptedRef.current = false;
@@ -190,7 +180,7 @@ export function AuthCompletionGuard({
       }
 
       setPhase("timeout");
-      setMessage("We could not finish sign in automatically. Try once more or return to sign in.");
+      setMessage("We could not open the workspace automatically.");
       bridgeAttemptedRef.current = false;
     } finally {
       isCheckingRef.current = false;
@@ -200,13 +190,13 @@ export function AuthCompletionGuard({
   useEffect(() => {
     if (!isLoaded) {
       setPhase("loading");
-      setMessage("Starting Ruguna eLearning.");
+      setMessage("Loading your Ruguna workspace.");
       return;
     }
 
     if (!isSignedIn) {
       setPhase("signed-out");
-      setMessage("Sign in to continue to your Ruguna classroom.");
+      setMessage("Sign in to continue.");
       return;
     }
 
@@ -258,17 +248,16 @@ export function AuthCompletionGuard({
           )}
         </span>
         <div className={compact ? "min-w-0 flex-1" : "mt-5"}>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-            Ruguna eLearning
-          </p>
           <h2 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
-            {phase === "timeout" ? "We could not finish sign in" : "Signing you in"}
+            {phase === "timeout" ? "Session check needed" : "Opening workspace"}
           </h2>
           <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{message}</p>
           {phase === "checking" && attempt > 2 ? (
-            <p className="mt-2 text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
-              This usually takes a moment
-            </p>
+            <div className="mx-auto mt-4 flex w-fit gap-1.5">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-ink)]" />
+              <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-ink)] [animation-delay:140ms]" />
+              <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--color-ink)] [animation-delay:280ms]" />
+            </div>
           ) : null}
         </div>
       </div>
@@ -310,11 +299,6 @@ export function AuthCompletionGuard({
         </>
       ) : null}
 
-      {phase !== "timeout" && !compact ? (
-        <p className="mt-6 text-xs uppercase tracking-[0.18em] text-[var(--color-muted)]">
-          Secure classroom access
-        </p>
-      ) : null}
     </div>
   );
 }

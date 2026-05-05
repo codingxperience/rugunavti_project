@@ -262,7 +262,7 @@ export function AuditActivityList({
               {details.length ? (
                 compact ? (
                   <p className="mt-2 truncate text-xs text-[var(--color-muted)]">
-                    {details.slice(0, 2).join(" · ")}
+                    {details.slice(0, 2).join(" - ")}
                   </p>
                 ) : (
                   <div className="mt-4 flex flex-wrap gap-2">

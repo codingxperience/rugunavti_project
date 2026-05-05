@@ -21,7 +21,7 @@ export function PortalSignOutButton({
   const [busy, setBusy] = useState(false);
 
   return (
-    <SignOutButton redirectUrl="/api/elearning/logout">
+    <SignOutButton redirectUrl="/api/elearning/logout?next=%2F">
       <Button
         type="button"
         variant="secondary"

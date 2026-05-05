@@ -17,7 +17,7 @@ export default function ElearningLogoutPage() {
     const run = async () => {
       try {
         if (isLoaded && isSignedIn) {
-          await signOut({ redirectUrl: "/api/elearning/logout" });
+          await signOut({ redirectUrl: "/api/elearning/logout?next=%2F" });
           return;
         }
 
@@ -27,11 +27,11 @@ export default function ElearningLogoutPage() {
         });
 
         if (!cancelled) {
-          router.replace("/elearning/login");
+          router.replace("/");
         }
       } catch {
         if (!cancelled) {
-          router.replace("/elearning/login");
+          router.replace("/");
         }
       }
     };
@@ -56,7 +56,7 @@ export default function ElearningLogoutPage() {
           Signing you out
         </h1>
         <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-          Closing your classroom session and returning you to secure sign in.
+          Closing your classroom session and returning you to Ruguna College.
         </p>
       </div>
     </main>

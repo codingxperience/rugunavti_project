@@ -20,7 +20,7 @@ export default function VerifyEmailPage() {
             <div className="mt-6 grid gap-3">
               {[
                 "Open the verification email sent after registration.",
-                "Select the confirmation link or enter the code if prompted by Clerk.",
+                "Select the confirmation link or enter the code if one is shown.",
                 "Return to sign in and continue into your learner workspace.",
                 "If the email is delayed, check spam or request a resend from the sign-up flow.",
               ].map((item, index) => (

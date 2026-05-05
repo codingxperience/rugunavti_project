@@ -458,7 +458,7 @@ export function StaffCourseBuilder({ course }: StaffCourseBuilderProps) {
               <Input name="passingScore" type="number" min={0} max={100} defaultValue={60} required />
               <Input name="maxAttempts" type="number" min={1} max={10} defaultValue={2} required />
             </div>
-            <Input name="prompt" required placeholder="True/false question prompt" />
+            <Input name="prompt" required placeholder="True/false question text" />
             <select name="correctAnswer" className="h-12 rounded-2xl border border-[var(--color-border)] bg-white px-4 text-sm">
               <option value="true">Correct answer: True</option>
               <option value="false">Correct answer: False</option>

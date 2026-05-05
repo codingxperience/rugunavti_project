@@ -10,7 +10,7 @@ import {
 
 import { ProgressBar } from "@/components/platform/progress-bar";
 import { StatusBadge } from "@/components/platform/status-badge";
-import { demoStudentCourses, getRecommendedLesson } from "@/data";
+import { getRecommendedLesson, learningPreviewCourses } from "@/data";
 
 const previewNav = [
   { label: "Dashboard", icon: LayoutDashboard, active: true },
@@ -20,8 +20,8 @@ const previewNav = [
 ];
 
 export function DashboardPreview() {
-  const primaryCourse = demoStudentCourses[0];
-  const secondaryCourse = demoStudentCourses[1];
+  const primaryCourse = learningPreviewCourses[0];
+  const secondaryCourse = learningPreviewCourses[1];
   const currentLesson = getRecommendedLesson(primaryCourse);
 
   return (

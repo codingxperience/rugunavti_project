@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 
 import { getDb } from "@/lib/db";
 import { canAccessRole, type PlatformRole, type PlatformSession } from "@/lib/platform/auth";
+import { isDatabaseConnectionError, logDataAccessError } from "@/lib/platform/database-errors";
 import {
   deriveDisplayNameFromEmail,
   isPlaceholderDisplayName,
@@ -71,10 +72,7 @@ async function getClerkIdentity(session: PlatformSession) {
     if (user) {
       return readClerkIdentity(user);
     }
-  } catch {
-    // The bridge flow can authenticate the browser before Clerk's Next helpers
-    // can resolve the user on this Vercel domain. Use the backend API below.
-  }
+  } catch {}
 
   if (session.clerkUserId && platformEnv.clerkSecretKey) {
     try {
@@ -100,8 +98,8 @@ export async function ensureRole(slug: PlatformRole) {
     applicant: "Applicant",
     student: "Student",
     instructor: "Instructor",
-    registrar_admin: "Registrar/Admin",
-    finance_admin: "Finance/Admin",
+    registrar_admin: "Registrar",
+    finance_admin: "Finance Officer",
     super_admin: "Super Admin",
   };
 
@@ -258,6 +256,28 @@ export async function ensureUserForSession(session?: PlatformSession) {
       userRoles: { include: { role: true } },
     },
   });
+}
+
+export async function getPortalUserForSession(session: PlatformSession) {
+  try {
+    return await ensureUserForSession(session);
+  } catch (error) {
+    logDataAccessError("Portal user lookup failed", error);
+
+    if (!isDatabaseConnectionError(error)) {
+      throw error;
+    }
+
+    return {
+      email: session.email ?? "signed-in@ruguna.local",
+      profile: {
+        firstName: session.name ?? "Ruguna",
+        lastName: null,
+        avatarUrl: session.avatarUrl ?? null,
+      },
+      userRoles: [],
+    };
+  }
 }
 
 export async function requireApiUser(roles: PlatformRole[]) {

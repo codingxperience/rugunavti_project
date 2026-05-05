@@ -23,7 +23,6 @@ function readSecret(value: string | undefined) {
     return undefined;
   }
 
-  // Prevent masked dashboard values such as "••••" from reaching request headers.
   if (!/^[\x20-\x7E]+$/.test(trimmed) || trimmed.includes("•")) {
     return undefined;
   }

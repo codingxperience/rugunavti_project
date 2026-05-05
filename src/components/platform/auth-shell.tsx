@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { WhatsAppFloat } from "@/components/site/whatsapp-float";
 import { cn } from "@/lib/utils";
 
 const shellLinks = [
   { href: "/elearning/login", label: "Sign in", key: "sign-in" },
-  { href: "/elearning/register", label: "Create account", key: "sign-up" },
+  { href: "/elearning/register", label: "Sign up", key: "sign-up" },
 ] as const;
 
 type AuthShellProps = {
@@ -83,12 +84,7 @@ export function AuthShell({
 
           {children}
 
-          <div className="mt-4 text-center text-sm text-[var(--color-muted)]">
-            Need help?{" "}
-            <Link href="/elearning/contact" className="font-semibold text-[var(--color-ink)]">
-              Contact support
-            </Link>
-          </div>
+          <WhatsAppFloat variant="support" />
         </div>
       </div>
     </section>

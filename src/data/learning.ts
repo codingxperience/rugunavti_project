@@ -1,17 +1,17 @@
-export type DemoResource = {
+export type LearningResource = {
   label: string;
   type: string;
   size: string;
 };
 
-export type DemoDiscussionPost = {
+export type LearningDiscussionPost = {
   author: string;
   role: "Instructor" | "Student";
   postedAt: string;
   message: string;
 };
 
-export type DemoAssessment = {
+export type LearningAssessment = {
   title: string;
   type: "Assignment" | "Quiz";
   status: string;
@@ -19,33 +19,33 @@ export type DemoAssessment = {
   detail: string;
 };
 
-export type DemoLessonStatus = "complete" | "current" | "upcoming";
+export type LearningLessonStatus = "complete" | "current" | "upcoming";
 
-export type DemoLesson = {
+export type LearningLesson = {
   id: string;
   title: string;
   type: string;
   duration: string;
-  status: DemoLessonStatus;
+  status: LearningLessonStatus;
   summary: string;
   objective: string;
   keyPoints: string[];
   instructorNote: string;
-  resources: DemoResource[];
-  assignment?: DemoAssessment;
-  quiz?: DemoAssessment;
+  resources: LearningResource[];
+  assignment?: LearningAssessment;
+  quiz?: LearningAssessment;
   practicalTask?: string;
-  discussion: DemoDiscussionPost[];
+  discussion: LearningDiscussionPost[];
 };
 
-export type DemoModule = {
+export type LearningModule = {
   id: string;
   title: string;
   progress: number;
-  lessons: DemoLesson[];
+  lessons: LearningLesson[];
 };
 
-export type DemoCourse = {
+export type LearningCourse = {
   slug: string;
   title: string;
   school: string;
@@ -56,10 +56,10 @@ export type DemoCourse = {
   nextDeadline: string;
   schedule: string[];
   certificateCode?: string;
-  modules: DemoModule[];
+  modules: LearningModule[];
 };
 
-export const demoStudentCourses: DemoCourse[] = [
+export const learningPreviewCourses: LearningCourse[] = [
   {
     slug: "diploma-software-engineering",
     title: "Diploma in Software Engineering",
@@ -264,7 +264,7 @@ export const demoStudentCourses: DemoCourse[] = [
                 role: "Student",
                 postedAt: "11 Apr, 20:02",
                 message:
-                  "I am using Supabase tables for the prototype. Is that acceptable if the schema and validation assumptions are documented clearly?",
+                  "I am using Supabase tables for the practice build. Is that acceptable if the schema and validation assumptions are documented clearly?",
               },
             ],
           },
@@ -416,16 +416,16 @@ export const studentDeadlines = [
 ];
 
 export const studentRecentGrades = [
-  { title: "UX Prototype Review", score: "82%", status: "Graded" },
+  { title: "UX Practice Review", score: "82%", status: "Graded" },
   { title: "Data Modelling Quiz", score: "74%", status: "Passed" },
   { title: "Prompt Quality Exercise", score: "91%", status: "Passed" },
 ];
 
-export function getDemoCourseBySlug(slug: string) {
-  return demoStudentCourses.find((course) => course.slug === slug);
+export function getLearningCourseBySlug(slug: string) {
+  return learningPreviewCourses.find((course) => course.slug === slug);
 }
 
-export function getCourseLessons(course: DemoCourse) {
+export function getCourseLessons(course: LearningCourse) {
   return course.modules.flatMap((module) =>
     module.lessons.map((lesson) => ({
       ...lesson,
@@ -435,7 +435,7 @@ export function getCourseLessons(course: DemoCourse) {
   );
 }
 
-export function getRecommendedLesson(course: DemoCourse) {
+export function getRecommendedLesson(course: LearningCourse) {
   return (
     getCourseLessons(course).find((lesson) => lesson.status === "current") ??
     getCourseLessons(course).find((lesson) => lesson.status === "upcoming") ??

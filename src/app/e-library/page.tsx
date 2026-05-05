@@ -10,12 +10,12 @@ export default function ELibraryPage() {
     <>
       <PageHero
         eyebrow="E-Library"
-        title="A future library hub for prospectuses, academic documents, and student-ready resources"
-        description="This placeholder gives the upper navigation a meaningful destination now and a clean handoff point for later content, downloads, and protected academic resources."
+        title="Library and downloads"
+        description="Find prospectuses, guides, notices, forms, and academic documents shared by Ruguna College."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Resource-ready</p>
-            <p>Prospectuses, notices, forms, guides, and future student-access reading materials.</p>
+            <p>Prospectuses, notices, forms, guides, and student reading materials.</p>
           </div>
         }
       />
@@ -31,7 +31,7 @@ export default function ELibraryPage() {
                 </h2>
               </div>
               <p className="mt-4 text-sm leading-7 text-[var(--color-muted)]">
-                This route can later host digital reading resources, prospectuses, schedules, notices, and programme documents managed through the admin CMS.
+                Access digital reading resources, prospectuses, schedules, notices, and programme documents.
               </p>
             </CardContent>
           </Card>
@@ -39,10 +39,10 @@ export default function ELibraryPage() {
             <CardContent>
               <div className="flex items-center gap-3">
                 <FileText className="h-5 w-5" />
-                <h2 className="font-heading text-2xl font-bold">Next phase integration</h2>
+                <h2 className="font-heading text-2xl font-bold">Protected resources</h2>
               </div>
               <p className="mt-4 text-sm leading-7 text-white/72">
-                The page is ready for searchable resources, role-based downloads, and more formal academic document handling later.
+                Some course files and academic records require student or staff access before download.
               </p>
             </CardContent>
           </Card>

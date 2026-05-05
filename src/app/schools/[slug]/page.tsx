@@ -31,11 +31,15 @@ export default async function SchoolDetailPage({
         description={school.highlight}
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
-            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Awards available</p>
-            <p>{school.awards.join(" · ")}</p>
+            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">
+              Awards available
+            </p>
+            <p>{school.awards.join(" - ")}</p>
             <div className="h-px bg-[var(--color-border)]" />
-            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Study modes</p>
-            <p>{school.studyModes.join(" · ")}</p>
+            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">
+              Study modes
+            </p>
+            <p>{school.studyModes.join(" - ")}</p>
           </div>
         }
       />
@@ -45,14 +49,16 @@ export default async function SchoolDetailPage({
           <Card>
             <CardContent>
               <h2 className="font-heading text-3xl font-bold">School overview</h2>
-              <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">{school.overview}</p>
+              <p className="mt-4 text-base leading-8 text-[var(--color-muted)]">
+                {school.overview}
+              </p>
 
               <div className="mt-10 grid gap-6 md:grid-cols-2">
                 <div>
                   <h3 className="font-heading text-xl font-bold">Flagship programs</h3>
                   <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
                     {school.flagshipPrograms.map((program) => (
-                      <li key={program}>• {program}</li>
+                      <li key={program}>- {program}</li>
                     ))}
                   </ul>
                 </div>
@@ -60,7 +66,7 @@ export default async function SchoolDetailPage({
                   <h3 className="font-heading text-xl font-bold">Career pathways</h3>
                   <ul className="mt-4 grid gap-3 text-sm leading-7 text-[var(--color-muted)]">
                     {school.careerPaths.map((path) => (
-                      <li key={path}>• {path}</li>
+                      <li key={path}>- {path}</li>
                     ))}
                   </ul>
                 </div>
@@ -73,7 +79,8 @@ export default async function SchoolDetailPage({
               <p className="text-xs uppercase tracking-[0.22em] text-white/56">Next step</p>
               <h3 className="font-heading mt-4 text-2xl font-bold">Ready to choose a path?</h3>
               <p className="mt-4 text-sm leading-7 text-white/72">
-                Review the programs below, compare duration and study mode, and move toward application.
+                Review the programs below, compare duration and study mode, and move toward
+                application.
               </p>
             </CardContent>
           </Card>
@@ -86,7 +93,7 @@ export default async function SchoolDetailPage({
             <Card key={program.slug}>
               <CardContent>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                  {program.level} · {program.studyMode}
+                  {program.level} - {program.studyMode}
                 </p>
                 <h3 className="font-heading mt-4 text-2xl font-bold">{program.title}</h3>
                 <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
@@ -100,7 +107,7 @@ export default async function SchoolDetailPage({
 
       <CtaBanner
         title={`Apply to ${school.shortName} pathways with guided admissions support`}
-        description="The scaffold is ready for school-specific landing content, staff contacts, industry partners, and intake notices."
+        description="Review the school, compare programmes, and contact admissions when you are ready."
         primaryLabel="Apply Now"
         primaryHref="/apply"
         secondaryLabel="View All Programs"

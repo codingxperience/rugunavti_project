@@ -26,12 +26,18 @@ export async function sendTransactionalEmail(input: SendEmailInput) {
     return { skipped: true };
   }
 
-  await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || "Ruguna Institute <noreply@ruguna.ac.ug>",
-    to: input.to,
-    subject: input.subject,
-    text: input.text,
-  });
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "Ruguna College <noreply@ruguna.ac.ug>",
+      to: input.to,
+      subject: input.subject,
+      text: input.text,
+    });
+  } catch (error) {
+    console.error("Transactional email failed", error);
+
+    return { skipped: false, error: true };
+  }
 
   return { skipped: false };
 }

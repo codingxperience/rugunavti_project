@@ -17,12 +17,12 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About Ruguna"
-        title="Practical, future-ready vocational education for Uganda and the wider region"
-        description="Ruguna College positions technical and professional education around employability, entrepreneurship, flexible access, and credible digital delivery."
+        title="Practical education for work, enterprise, and service"
+        description="Ruguna College prepares learners for employment, entrepreneurship, and further study through practical programmes and supported digital access."
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Mission</p>
-            <p>Equip learners with practical, future-ready skills for employment, entrepreneurship, and community transformation.</p>
+            <p>Equip learners with practical skills for employment, entrepreneurship, and community transformation.</p>
             <div className="h-px bg-[var(--color-border)]" />
             <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Vision</p>
             <p>Become a leading African institute for practical, technology-enabled vocational and professional education.</p>
@@ -33,9 +33,9 @@ export default function AboutPage() {
       <section className="section-padding pt-0">
         <div className="container-width grid gap-4 lg:grid-cols-3">
           {[
-            "Institutional delivery designed for credibility, practical skill-building, and learner trust.",
-            "Academic pathways that balance workshop and practical learning with structured digital support.",
-            "A mobile-aware digital platform that supports admissions, learning delivery, certificates, and student services.",
+            "Credible teaching, clear communication, and practical skill-building.",
+            "Academic pathways that balance workshop practice with guided digital support.",
+            "Mobile-friendly access for admissions, learning, records, and student services.",
           ].map((point) => (
             <Card key={point}>
               <CardContent>
@@ -57,7 +57,7 @@ export default function AboutPage() {
             {[
               "Hands-on learning linked to real work contexts",
               "Skills that support both employment and entrepreneurship",
-              "Digital literacy and platform readiness built into student support",
+              "Digital literacy included in student support",
               "Industry relevance across technical, health, service, and business pathways",
             ].map((item) => (
               <Card key={item}>
@@ -75,7 +75,7 @@ export default function AboutPage() {
           <SectionHeading
             eyebrow="Core values"
             title="The culture behind the Ruguna learning experience"
-            description="These values shape admissions service, teaching quality, learner support, and internal platform operations."
+            description="These values guide admissions, teaching, learner support, and daily service."
           />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {values.map((value) => (
@@ -90,8 +90,8 @@ export default function AboutPage() {
       </section>
 
       <CtaBanner
-        title="Explore schools, compare pathways, and understand the Ruguna model in detail"
-        description="Move from institutional overview into schools, programmes, admissions, or the eLearning platform."
+        title="Explore schools and compare study pathways"
+        description="Review programmes, admissions requirements, and eLearning options before you apply."
         primaryLabel="Explore Schools"
         primaryHref="/schools"
         secondaryLabel="View Programmes"

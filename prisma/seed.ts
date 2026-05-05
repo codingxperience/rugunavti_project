@@ -11,7 +11,7 @@ import {
   QuizQuestionType,
 } from "@prisma/client";
 
-import { demoStudentCourses } from "../src/data/learning";
+import { learningPreviewCourses } from "../src/data/learning";
 import { programs } from "../src/data/programs";
 import { schools } from "../src/data/schools";
 
@@ -21,8 +21,8 @@ const roles = [
   ["applicant", "Applicant with access to application workflows"],
   ["student", "Learner enrolled into one or more courses"],
   ["instructor", "Instructor with access to teaching and grading tools"],
-  ["registrar_admin", "Registrar and admissions administrator"],
-  ["finance_admin", "Finance administrator"],
+  ["registrar_admin", "Registrar"],
+  ["finance_admin", "Finance officer"],
   ["super_admin", "Full system administrator"],
 ] as const;
 
@@ -72,7 +72,7 @@ function getCoursePace(course: { award: string; modules: Array<{ lessons: unknow
     : CoursePace.FOURTEEN_WEEK;
 }
 
-function buildWeekPlan(course: (typeof demoStudentCourses)[number], weekNumber: number) {
+function buildWeekPlan(course: (typeof learningPreviewCourses)[number], weekNumber: number) {
   const lessons = course.modules.flatMap((module) => module.lessons);
   const lesson = lessons[(weekNumber - 1) % Math.max(lessons.length, 1)];
   const title = lesson ? lesson.title : `Applied ${course.title} practice`;
@@ -249,8 +249,8 @@ async function seedPrograms(schoolIds: Map<string, string>) {
   return programIds;
 }
 
-async function seedDemoCourses(programIds: Map<string, string>, schoolIds: Map<string, string>) {
-  for (const course of demoStudentCourses) {
+async function seedLearningCourses(programIds: Map<string, string>, schoolIds: Map<string, string>) {
+  for (const course of learningPreviewCourses) {
     const programId = programIds.get(course.slug);
     const matchingProgram = programs.find((program) => program.slug === course.slug);
     const schoolId = matchingProgram ? schoolIds.get(matchingProgram.schoolSlug) : undefined;
@@ -679,7 +679,7 @@ async function main() {
   await seedRoles();
   const schoolIds = await seedSchools();
   const programIds = await seedPrograms(schoolIds);
-  await seedDemoCourses(programIds, schoolIds);
+  await seedLearningCourses(programIds, schoolIds);
   await seedSettings();
 }
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ProgramLevel } from "@prisma/client";
+import { EnrollmentStatus, ProgramLevel } from "@prisma/client";
 import {
   Bell,
   BookOpenText,
@@ -158,6 +158,33 @@ export default async function LearnCoursePlayerPage({
             )}
             <Button asChild variant="secondary">
               <Link href="/elearning/courses">Back to catalog</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (workspace.enrollment.status === EnrollmentStatus.ON_HOLD) {
+    return (
+      <Card>
+        <CardContent>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+            Finance hold
+          </p>
+          <h1 className="font-heading mt-4 text-4xl font-bold text-[var(--color-ink)]">
+            Course access is paused
+          </h1>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
+            This course is temporarily paused until finance clears the account. Review your invoice,
+            submit a payment reference, or contact Ruguna finance for help.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/learn/payments">View payments</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/learn/dashboard">Back to dashboard</Link>
             </Button>
           </div>
         </CardContent>

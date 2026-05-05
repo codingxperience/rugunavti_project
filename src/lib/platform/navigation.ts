@@ -4,7 +4,7 @@ const roleDestinations: Record<PlatformRole, string> = {
   applicant: "/elearning",
   student: "/learn/dashboard",
   instructor: "/instructor/dashboard",
-  registrar_admin: "/admin/elearning",
+  registrar_admin: "/registrar",
   finance_admin: "/finance",
   super_admin: "/admin/elearning",
 };

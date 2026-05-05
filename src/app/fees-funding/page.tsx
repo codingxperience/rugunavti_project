@@ -8,12 +8,12 @@ export default function FeesFundingPage() {
     <>
       <PageHero
         eyebrow="Fees & funding"
-        title="Transparent fee ranges, installment-ready communication, and funding guidance"
-        description="This section is prepared for level-based tuition overview, downloadable schedules, and policy publishing by finance or registrar teams."
+        title="Fee guidance, payment planning, and funding support"
+        description="Review tuition ranges, payment notes, downloadable schedules, and admissions guidance before applying."
         aside={
           <div className="grid gap-3 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-3xl font-bold text-[var(--color-ink)]">4 levels</p>
-            <p>Clear pricing orientation helps applicants decide early and reduces uncertainty in the admissions flow.</p>
+            <p>Clear fee guidance helps applicants plan early and ask the right questions.</p>
           </div>
         }
       />
@@ -37,9 +37,9 @@ export default function FeesFundingPage() {
       <section className="section-padding">
         <div className="container-width grid gap-4 lg:grid-cols-3">
           {[
-            "Installment policy notices can be published per intake or award level.",
-            "Scholarship and sponsorship information can be presented as managed CMS entries.",
-            "Downloadable schedules and finance FAQs can be added without changing the page structure.",
+            "Installment guidance is shared by intake or award level.",
+            "Scholarship and sponsorship notes are published as they become available.",
+            "Downloadable schedules and finance FAQs support admissions decisions.",
           ].map((note) => (
             <Card key={note}>
               <CardContent>
@@ -52,7 +52,7 @@ export default function FeesFundingPage() {
 
       <CtaBanner
         title="Need fee clarification before applying?"
-        description="The platform is ready for finance-admin communication, downloadable schedules, and program-specific pricing detail."
+        description="Contact admissions for programme fees, payment timing, and document guidance."
         primaryLabel="Speak to Admissions"
         primaryHref="/contact"
         secondaryLabel="Explore Programs"

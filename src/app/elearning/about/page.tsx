@@ -3,7 +3,7 @@ import { elearningBenefits, elearningSteps } from "@/data";
 
 const deliveryPoints = [
   "Lessons are delivered in structured sequences with progress-aware navigation and clear next actions.",
-  "Video, text, downloads, practical instructions, quizzes, and assignments are combined based on the course design.",
+  "Video, text, downloads, practical instructions, quizzes, and assignments are combined by course.",
   "Working learners can study in smaller sessions and continue from where they stopped.",
   "Blended courses clearly separate online theory from in-person lab or practical attendance expectations.",
 ];
@@ -27,7 +27,7 @@ export default function ElearningAboutPage() {
                 A practical digital learning extension of the Ruguna institution
               </h1>
               <p className="mt-5 max-w-4xl text-base leading-8 text-[var(--color-muted)]">
-                Ruguna eLearning is designed for short courses, online certificate
+                Ruguna eLearning supports short courses, online certificate
                 pathways, blended support modules, and professional upskilling. It
                 serves school leavers, working adults, career switchers, and learners
                 who need structured study without losing flexibility.

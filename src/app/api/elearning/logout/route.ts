@@ -7,7 +7,7 @@ import { clearClerkBridgeSession } from "@/lib/platform/bridge-session";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const LOGIN_DESTINATION = "/elearning/login";
+const LOGOUT_DESTINATION = "/";
 
 async function clearPlatformSessions() {
   const cookieStore = await cookies();
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   await clearPlatformSessions();
 
   const url = new URL(request.url);
-  const destination = url.searchParams.get("next") || LOGIN_DESTINATION;
+  const destination = url.searchParams.get("next") || LOGOUT_DESTINATION;
 
   return NextResponse.redirect(new URL(destination, url.origin));
 }
@@ -29,6 +29,6 @@ export async function POST() {
 
   return NextResponse.json({
     success: true,
-    redirectTo: LOGIN_DESTINATION,
+    redirectTo: LOGOUT_DESTINATION,
   });
 }

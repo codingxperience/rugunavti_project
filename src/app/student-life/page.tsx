@@ -13,7 +13,7 @@ export default function StudentLifePage() {
         aside={
           <div className="grid gap-4 text-sm text-[var(--color-muted)]">
             <p className="font-heading text-3xl font-bold text-[var(--color-ink)]">Mobile-first</p>
-            <p>Designed for learners who need quick access to timetables, announcements, fees, and support from one portal.</p>
+            <p>Quick access to timetables, announcements, fees, and support from one student space.</p>
           </div>
         }
       />
@@ -46,7 +46,7 @@ export default function StudentLifePage() {
             <CardContent>
               <h2 className="font-heading text-3xl font-bold">Career and attachment support</h2>
               <p className="mt-4 text-sm leading-7 text-white/72">
-                The platform blueprint already supports internship tracking, downloadable documents, and helpdesk-style support journeys.
+                Students can access attachment guidance, downloadable documents, and support follow-up in one place.
               </p>
             </CardContent>
           </Card>
@@ -54,8 +54,8 @@ export default function StudentLifePage() {
       </section>
 
       <CtaBanner
-        title="Explore admissions, then step into a student experience built around momentum"
-        description="This page is ready for clubs, gallery content, student stories, and richer community features later."
+        title="Start with admissions, then move into student support"
+        description="Find the services, contacts, and next steps that help learners stay on track."
         primaryLabel="Apply Now"
         primaryHref="/apply"
         secondaryLabel="View Admissions"

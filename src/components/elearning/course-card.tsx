@@ -89,7 +89,7 @@ export function CourseCard({ course, compact = false }: CourseCardProps) {
             <Link
               href={
                 isSelfEnroll
-                  ? `/learn/course/${course.slug}`
+                  ? `/elearning/courses/${course.slug}`
                   : `/apply?program=${encodeURIComponent(course.title)}`
               }
             >

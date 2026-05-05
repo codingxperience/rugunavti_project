@@ -44,8 +44,8 @@ export default function HomePage() {
         <div className="container-width rounded-[32px] border border-[var(--color-border)] bg-white/85 p-6 shadow-[0_28px_90px_-64px_rgba(17,17,17,0.85)] sm:p-8">
           <SectionHeading
             eyebrow="Featured schools"
-            title="Strong schools built for high-demand practical pathways"
-            description="Start with the institute's headline schools and move into a program path that matches your ambition, schedule, and future work goals."
+            title="Schools with practical pathways"
+            description="Explore Ruguna schools and choose a programme that fits your goals, schedule, and career direction."
           />
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {featuredSchools.map((school) => (
@@ -79,8 +79,8 @@ export default function HomePage() {
         <div className="container-width grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
           <SectionHeading
             eyebrow="Why choose Ruguna"
-            title="A serious vocational platform with clarity, support, and practical value"
-            description="The design, content, and structure are intentionally built to reassure applicants and move them confidently toward enrollment."
+            title="Clear admissions, practical training, steady support"
+            description="Ruguna keeps the route from inquiry to study simple: choose a pathway, confirm requirements, apply, and prepare for class."
           />
           <div className="grid gap-4 sm:grid-cols-2">
             {whyChooseRuguna.map((item) => {
@@ -184,7 +184,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="Career outcomes"
             title="Study with purpose and build toward real opportunity"
-            description="Ruguna is positioned to support learners who want practical, work-ready, and business-ready outcomes."
+            description="Ruguna supports learners preparing for employment, self-employment, and further study."
           />
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {careerOutcomes.map((outcome) => (
@@ -193,7 +193,7 @@ export default function HomePage() {
                   <p className="text-xs uppercase tracking-[0.22em] text-white/56">Outcome pathway</p>
                   <h3 className="font-heading mt-4 text-2xl font-bold">{outcome}</h3>
                   <p className="mt-3 text-sm leading-7 text-white/68">
-                    Learn by doing, grow with structured support, and prepare for workplace or enterprise opportunities.
+                    Learn by doing, build confidence, and prepare for workplace or enterprise opportunities.
                   </p>
                 </CardContent>
               </Card>
@@ -206,8 +206,8 @@ export default function HomePage() {
         <div className="container-width">
           <SectionHeading
             eyebrow="Testimonials"
-            title="A structure ready for real student voices"
-            description="The homepage supports authentic graduate stories, program context, and outcome-focused credibility."
+            title="Student stories"
+            description="Learners and graduates can share how Ruguna training supported their next step."
           />
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {testimonials.map((story) => (
@@ -232,7 +232,7 @@ export default function HomePage() {
 
       <CtaBanner
         title="Ready to apply, compare programs, or download the prospectus?"
-        description="The next intake journey starts with clear admissions steps, transparent requirements, and a guided digital experience built for mobile-first applicants."
+        description="Review requirements, compare options, and start your application from any device."
         primaryLabel="Apply for the Next Intake"
         primaryHref="/apply"
         secondaryLabel="Explore Courses and Entry Requirements"

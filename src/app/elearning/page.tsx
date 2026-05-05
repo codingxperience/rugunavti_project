@@ -24,24 +24,33 @@ export default function ElearningLandingPage() {
           <div className="fade-up">
             <span className="eyebrow">Ruguna eLearning</span>
             <h1 className="font-heading mt-6 max-w-4xl text-5xl font-bold leading-[0.95] tracking-tight text-[var(--color-ink)] sm:text-6xl xl:text-7xl">
-              Flexible Skills Learning for Real Work and Real Opportunity
+              Flexible Skills Learning for Work and Opportunity
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--color-muted)] sm:text-lg">
-              Study practical Ruguna courses online with structured lessons, guided
-              learning, assessments, and completion pathways designed for modern
-              learners in Uganda and beyond.
+              Study Ruguna courses online with lessons, assessments, downloads, and support for learners in Uganda and beyond.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href="/elearning/login">
-                  Start learning
+                <Link href="/elearning/register">
+                  Sign up
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
-                <Link href="/elearning/courses">Browse courses</Link>
+                <Link href="/elearning/login">Sign in</Link>
               </Button>
             </div>
+            <p className="mt-4 text-sm leading-6 text-[var(--color-muted)]">
+              Already have an account?{" "}
+              <Link href="/elearning/login" className="font-semibold text-[var(--color-ink)] underline-offset-4 hover:underline">
+                Sign in
+              </Link>
+              . First time here?{" "}
+              <Link href="/elearning/register" className="font-semibold text-[var(--color-ink)] underline-offset-4 hover:underline">
+                Create your account
+              </Link>
+              .
+            </p>
 
           </div>
 
@@ -68,13 +77,10 @@ export default function ElearningLandingPage() {
                 Why learn with Ruguna online
               </span>
               <h2 className="font-heading mt-4 text-4xl font-bold">
-                Serious digital learning with vocational discipline
+                Structured learning with practical discipline
               </h2>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72">
-                Ruguna eLearning is built for practical progress, not passive watching.
-                Learners move through guided modules, assignments, quiz checks,
-                tutor updates, and completion milestones that make sense for
-                employability-focused study.
+                Move through modules, assignments, quizzes, tutor updates, and completion checks in one classroom.
               </p>
             </CardContent>
           </Card>
@@ -99,7 +105,7 @@ export default function ElearningLandingPage() {
             <div>
               <span className="eyebrow">Featured courses</span>
               <h2 className="font-heading mt-5 text-4xl font-bold text-[var(--color-ink)]">
-                Online and blended courses ready for real learners
+                Online and blended courses
               </h2>
             </div>
             <Button asChild variant="secondary">
@@ -120,7 +126,7 @@ export default function ElearningLandingPage() {
           <div>
             <span className="eyebrow">Learning categories</span>
             <h2 className="font-heading mt-5 text-4xl font-bold text-[var(--color-ink)]">
-              Schools and subject areas that make sense online
+              Schools and subject areas offered online
             </h2>
           </div>
 
@@ -235,8 +241,7 @@ export default function ElearningLandingPage() {
               </div>
               <h2 className="font-heading mt-5 text-3xl font-bold">Live support</h2>
               <p className="mt-4 text-sm leading-7 text-white/72">
-                Chat with Ruguna support on WhatsApp if you need help choosing a course,
-                understanding blended attendance, or getting started with online learning.
+                Chat with Ruguna support on WhatsApp for course guidance, blended attendance, or login help.
               </p>
               <div className="mt-6 grid gap-3">
                 <Button asChild>
@@ -267,20 +272,18 @@ export default function ElearningLandingPage() {
             <CardContent className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">
-                  Start learning
-                </span>
-                <h2 className="font-heading mt-5 text-4xl font-bold">
-                  Enter the Ruguna classroom with a real learner flow
-                </h2>
+                Ruguna eLearning access
+              </span>
+              <h2 className="font-heading mt-5 text-4xl font-bold">
+                  Sign up or sign in
+              </h2>
                 <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72">
-                  Create your account, verify your email, browse the course catalog,
-                  and move into a structured learning dashboard designed for serious
-                  online and blended study.
+                  New learners can create an account. Returning students, instructors, and staff can sign in to their workspace.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                  <Link href="/elearning/register">Create account</Link>
+                  <Link href="/elearning/register">Sign up</Link>
                 </Button>
                 <Button
                   asChild
@@ -288,7 +291,7 @@ export default function ElearningLandingPage() {
                   variant="secondary"
                   className="border-white/14 bg-white/8 text-white hover:bg-white/14 hover:text-white"
                 >
-                  <Link href="/elearning/login">Student login</Link>
+                  <Link href="/elearning/login">Sign in</Link>
                 </Button>
               </div>
             </CardContent>

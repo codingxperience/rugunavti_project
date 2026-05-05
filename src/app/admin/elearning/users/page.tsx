@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
 const roleOptions = [
   { value: "student", label: "Student" },
   { value: "instructor", label: "Instructor" },
-  { value: "registrar_admin", label: "Registrar/Admin" },
-  { value: "finance_admin", label: "Finance/Admin" },
+  { value: "registrar_admin", label: "Registrar" },
+  { value: "finance_admin", label: "Finance Officer" },
   { value: "super_admin", label: "Super Admin" },
 ];
 
@@ -59,7 +59,7 @@ export default async function AdminElearningUsersPage({
 }: {
   searchParams: Promise<{ status?: string }>;
 }) {
-  const session = await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/users");
+  const session = await requireRole(["super_admin"], "/admin/elearning/users");
   const [{ status }, users] = await Promise.all([
     searchParams,
     getAdminUsers(),

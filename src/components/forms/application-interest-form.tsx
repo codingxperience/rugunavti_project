@@ -15,7 +15,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { dialingCodeOptions, nationalityOptions, ugandaDialCode } from "@/data/country-options";
+import {
+  countryFlag,
+  dialingCodeOptions,
+  nationalityOptions,
+  ugandaDialCode,
+} from "@/data/country-options";
 import {
   type ApplicationDocumentInput,
   type ApplicationFormInput,
@@ -71,6 +76,8 @@ export function ApplicationInterestForm({
 }: ApplicationInterestFormProps) {
   const [serverMessage, setServerMessage] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
+  const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
+  const [duplicateApplication, setDuplicateApplication] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
@@ -115,6 +122,9 @@ export function ApplicationInterestForm({
       uploadedDocuments: [],
     },
   });
+  const whatsappCountryCode = form.watch("whatsappCountryCode");
+  const alternativePhoneCountryCode = form.watch("alternativePhoneCountryCode");
+  const nextOfKinPhoneCountryCode = form.watch("nextOfKinPhoneCountryCode");
 
   useEffect(() => {
     try {
@@ -231,6 +241,8 @@ export function ApplicationInterestForm({
   const onSubmit = form.handleSubmit(async (values) => {
     setServerMessage(null);
     setReference(null);
+    setApplicationStatus(null);
+    setDuplicateApplication(false);
     setSubmissionSuccess(false);
 
     let documents: ApplicationDocumentInput[];
@@ -251,10 +263,14 @@ export function ApplicationInterestForm({
       success: boolean;
       message: string;
       reference?: string;
+      status?: string;
+      duplicate?: boolean;
     };
 
     setServerMessage(payload.message);
     setReference(payload.reference ?? null);
+    setApplicationStatus(payload.status ?? null);
+    setDuplicateApplication(Boolean(payload.duplicate));
     setSubmissionSuccess(response.ok && payload.success);
 
     if (response.ok && payload.success) {
@@ -273,109 +289,63 @@ export function ApplicationInterestForm({
     }
   });
 
-  function startAnotherApplication() {
-    const nextDefaults: ApplicationFormRawInput = {
-      fullName: "",
-      email: "",
-      gender: "Female",
-      dateOfBirthDay: "",
-      dateOfBirthMonth: "",
-      dateOfBirthYear: "",
-      whatsapp: "",
-      whatsappCountryCode: ugandaDialCode,
-      alternativePhone: "",
-      alternativePhoneCountryCode: ugandaDialCode,
-      nationality: "Uganda",
-      hasDisability: "No",
-      nextOfKinName: "",
-      nextOfKinEmail: "",
-      nextOfKinRelationship: "",
-      nextOfKinPhone: "",
-      nextOfKinPhoneCountryCode: ugandaDialCode,
-      preferredLevel: defaultLevel ?? "Undecided / I need guidance",
-      preferredIntake: intakeChoices[0],
-      firstChoice: defaultProgram ?? programOptions[0] ?? "",
-      secondChoice: programOptions.find((option) => option !== defaultProgram) ?? "",
-      studyMode: defaultStudyMode ?? "Blended",
-      goals: "",
-      previousDegreeProgramme: "",
-      classOfDegree: "",
-      highestQualification: "UCE",
-      creditTransfer: "No",
-      referralSource: "",
-      confirmationAnswer: "",
-      documentUploadChoice: "later" as const,
-      uploadedDocuments: [],
-    };
-
-    window.localStorage.removeItem(applicationDraftKey);
-    form.reset(nextDefaults);
-    setServerMessage(null);
-    setReference(null);
-    setSubmissionSuccess(false);
-    setDraftRestored(false);
-    setSelectedFiles([]);
-    setUploadedDocuments([]);
-    setUploadMessage(null);
-    setDocumentUploadChoice("later");
-    setFileInputKey((value) => value + 1);
-  }
-
   if (submissionSuccess) {
+    const applicantEmail = form.getValues("email");
+    const statusHref =
+      reference && applicantEmail
+        ? `/apply/status?reference=${encodeURIComponent(reference)}&email=${encodeURIComponent(applicantEmail)}`
+        : "/apply/status";
+
     return (
-      <section className="rounded-[34px] border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-[#fff8bf] p-6 shadow-[0_28px_90px_-64px_rgba(17,17,17,0.85)] sm:p-8">
-        <div className="inline-flex rounded-full bg-emerald-100 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-emerald-900">
-          Submitted
+      <section className="rounded-[32px] border border-black/8 bg-white p-6 text-center shadow-[0_24px_80px_-64px_rgba(17,17,17,0.55)] sm:p-8">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl text-emerald-800">
+          ✓
         </div>
-        <h2 className="font-heading mt-5 text-3xl font-bold tracking-tight text-[var(--color-ink)]">
-          Application received
+        <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+          {duplicateApplication ? "Already submitted" : "Submitted"}
+        </p>
+        <h2 className="font-heading mt-2 text-3xl font-bold tracking-tight text-[var(--color-ink)]">
+          {duplicateApplication ? "We found your application" : "Application submitted"}
         </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-emerald-950">
-          {serverMessage ?? "Your Ruguna College application has been saved and sent to admissions review."}
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--color-muted)]">
+          {serverMessage ??
+            "Your Ruguna College application is now with admissions. Use the reference below to track updates."}
         </p>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
-          <div className="rounded-[24px] border border-emerald-200 bg-white p-4">
+        <div className="mx-auto mt-6 grid max-w-xl gap-3 rounded-[24px] border border-black/8 bg-[#fbfbf7] p-4 text-left sm:grid-cols-2">
+          <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
               Reference
             </p>
-            <p className="mt-2 font-heading text-xl font-bold text-[var(--color-ink)]">
+            <p className="mt-1 font-heading text-xl font-bold text-[var(--color-ink)]">
               {reference}
             </p>
           </div>
-          <div className="rounded-[24px] border border-emerald-200 bg-white p-4">
+          <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
-              Next step
+              Status
             </p>
-            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-ink)]">
-              Admissions will review your details and contact you by email, phone, or WhatsApp.
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-emerald-200 bg-white p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
-              Keep safe
-            </p>
-            <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-ink)]">
-              Save this reference for follow-up and document verification.
+            <p className="mt-1 font-heading text-xl font-bold text-[var(--color-ink)]">
+              {applicationStatus ?? "Submitted"}
             </p>
           </div>
         </div>
 
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <Button type="button" onClick={startAnotherApplication}>
-            Submit another application
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          <Button asChild>
+            <Link href={statusHref}>Track application</Link>
           </Button>
           <Link
-            href="/admissions"
+            href="/elearning/login"
             className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-5 text-sm font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)]"
           >
-            View admissions guidance
+            Sign in to eLearning
           </Link>
           <Link
-            href="/contact"
+            href="/elearning/courses?level=Short%20Course"
             className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-5 text-sm font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)]"
           >
-            Contact admissions
+            Browse short courses
           </Link>
         </div>
       </section>
@@ -463,6 +433,7 @@ export function ApplicationInterestForm({
           <Field label="WhatsApp number" required error={form.formState.errors.whatsapp?.message}>
             <PhoneInput
               countryProps={form.register("whatsappCountryCode")}
+              selectedCode={whatsappCountryCode}
               numberProps={form.register("whatsapp")}
               placeholder="Your WhatsApp number"
             />
@@ -470,6 +441,7 @@ export function ApplicationInterestForm({
           <Field label="Alternative phone number" error={form.formState.errors.alternativePhone?.message}>
             <PhoneInput
               countryProps={form.register("alternativePhoneCountryCode")}
+              selectedCode={alternativePhoneCountryCode}
               numberProps={form.register("alternativePhone")}
               placeholder="Alternative phone number"
             />
@@ -495,6 +467,7 @@ export function ApplicationInterestForm({
           <Field label="Next of kin telephone" required error={form.formState.errors.nextOfKinPhone?.message}>
             <PhoneInput
               countryProps={form.register("nextOfKinPhoneCountryCode")}
+              selectedCode={nextOfKinPhoneCountryCode}
               numberProps={form.register("nextOfKinPhone")}
               placeholder="Next of kin telephone"
             />
@@ -775,28 +748,47 @@ function RadioGroup({
 
 function PhoneInput({
   countryProps,
+  selectedCode,
   numberProps,
   placeholder,
 }: {
   countryProps: UseFormRegisterReturn;
+  selectedCode?: string;
   numberProps: UseFormRegisterReturn;
   placeholder: string;
 }) {
+  const selectedCountry =
+    dialingCodeOptions.find((country) => country.dialCode === selectedCode) ??
+    dialingCodeOptions.find((country) => country.dialCode === ugandaDialCode) ??
+    dialingCodeOptions[0];
+
   return (
-    <div className="grid grid-cols-[minmax(118px,0.38fr)_minmax(0,1fr)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white focus-within:border-[var(--color-ink)]/25 focus-within:ring-4 focus-within:ring-[var(--color-soft-accent)]">
-      <select
-        {...countryProps}
-        className="h-12 min-w-0 border-0 border-r border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 text-sm font-semibold text-[var(--color-ink)] outline-none"
-      >
-        {dialingCodeOptions.map((country) => (
-          <option
-            key={`${country.iso2}-${country.dialCode}`}
-            value={country.dialCode}
-          >
-            {country.name} {country.dialCode}
-          </option>
-        ))}
-      </select>
+    <div className="grid grid-cols-[minmax(106px,0.3fr)_minmax(0,1fr)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white focus-within:border-[var(--color-ink)]/25 focus-within:ring-4 focus-within:ring-[var(--color-soft-accent)]">
+      <div className="relative min-w-0 border-r border-[var(--color-border)] bg-[var(--color-surface-alt)]">
+        <div
+          className="pointer-events-none flex h-12 items-center justify-center gap-1.5 px-3 text-sm font-semibold text-[var(--color-ink)]"
+          aria-hidden="true"
+        >
+          <span className="text-base leading-none">{countryFlag(selectedCountry.iso2)}</span>
+          <span>{selectedCountry.dialCode}</span>
+        </div>
+        <select
+          {...countryProps}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0 outline-none"
+          aria-label="Country calling code"
+          title={`${selectedCountry.name} ${selectedCountry.dialCode}`}
+        >
+          {dialingCodeOptions.map((country) => (
+            <option
+              key={`${country.iso2}-${country.dialCode}`}
+              value={country.dialCode}
+              title={`${country.name} ${country.dialCode}`}
+            >
+              {countryFlag(country.iso2)} {country.dialCode} - {country.name}
+            </option>
+          ))}
+        </select>
+      </div>
       <input
         {...numberProps}
         className="h-12 min-w-0 border-0 bg-white px-4 text-sm text-[var(--color-ink)] outline-none"

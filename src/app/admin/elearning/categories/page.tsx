@@ -5,7 +5,7 @@ import { getAdminCategories } from "@/lib/platform/staff-records";
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningCategoriesPage() {
-  await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/categories");
+  await requireRole(["super_admin"], "/admin/elearning/categories");
   const categories = await getAdminCategories();
 
   return (

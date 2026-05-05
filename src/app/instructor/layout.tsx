@@ -4,13 +4,13 @@ import { PortalLayout } from "@/components/platform/portal-layout";
 import { resolveDisplayName } from "@/lib/platform/display-name";
 import { instructorNavItems } from "@/lib/platform/portal-nav";
 import { requireRole } from "@/lib/platform/session";
-import { ensureUserForSession } from "@/lib/platform/users";
+import { getPortalUserForSession } from "@/lib/platform/users";
 
 export const dynamic = "force-dynamic";
 
 export default async function InstructorLayout({ children }: { children: ReactNode }) {
   const session = await requireRole(["instructor", "super_admin"], "/instructor/dashboard");
-  const user = await ensureUserForSession(session);
+  const user = await getPortalUserForSession(session);
   const userName = resolveDisplayName({
     firstName: user.profile?.firstName,
     lastName: user.profile?.lastName,
@@ -22,7 +22,7 @@ export default async function InstructorLayout({ children }: { children: ReactNo
   return (
     <PortalLayout
       heading="Instructor workspace"
-      caption="Assigned courses, grading, publishing, and learner engagement."
+      caption="Courses, grading, publishing, and learner support."
       userName={userName}
       userAvatarUrl={user.profile?.avatarUrl ?? session.avatarUrl}
       navItems={instructorNavItems}

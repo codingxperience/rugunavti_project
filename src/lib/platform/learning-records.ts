@@ -1,4 +1,5 @@
 import {
+  ApplicationStatus,
   AssignmentStatus,
   ContentStatus,
   EnrollmentStatus,
@@ -8,6 +9,11 @@ import {
 
 import { getDb } from "@/lib/db";
 import type { PlatformSession } from "@/lib/platform/auth";
+import {
+  getDatabaseUnavailableMessage,
+  isDatabaseConnectionError,
+  logDataAccessError,
+} from "@/lib/platform/database-errors";
 import { ensureUserForSession } from "@/lib/platform/users";
 
 export type LearnerCourseRecord = {
@@ -35,6 +41,16 @@ export type LearnerCourseRecord = {
   certificates: number;
 };
 
+export type LearnerApplicationRecord = {
+  id: string;
+  reference: string;
+  status: string;
+  statusValue: ApplicationStatus;
+  program: string;
+  intake: string;
+  submittedAt: string | null;
+};
+
 function formatEnumLabel(value: string) {
   return value
     .toLowerCase()
@@ -47,7 +63,35 @@ function countCourseWeeks(pace: string | null | undefined) {
   return pace === "SEVEN_WEEK" ? 7 : pace === "FOURTEEN_WEEK" ? 14 : null;
 }
 
-export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
+function getUnavailableLearnerWorkspaceRecords(session?: PlatformSession, error?: unknown) {
+  const email = session?.email ?? "learner@ruguna.local";
+
+  return {
+    databaseUnavailable: true,
+    databaseMessage: getDatabaseUnavailableMessage(error),
+    user: {
+      id: session?.clerkUserId ?? "temporary-user",
+      email,
+      profile: {
+        firstName: session?.name ?? "Learner",
+        lastName: null,
+        avatarUrl: session?.avatarUrl ?? null,
+      },
+    },
+    records: [] as LearnerCourseRecord[],
+    applications: [] as LearnerApplicationRecord[],
+    recommendedCourses: [],
+    announcements: [],
+    snapshot: {
+      activeCourses: 0,
+      averageProgress: 0,
+      outstandingAssignments: 0,
+      availableCertificates: 0,
+    },
+  };
+}
+
+async function getLearnerWorkspaceRecordsFromDatabase(session?: PlatformSession) {
   const db = getDb();
   const user = await ensureUserForSession(session);
 
@@ -189,6 +233,16 @@ export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
     take: 5,
   });
 
+  const applications = await db.application.findMany({
+    where: { userId: user.id },
+    include: {
+      program: true,
+      intake: true,
+    },
+    orderBy: { updatedAt: "desc" },
+    take: 5,
+  });
+
   const activeCourses = records.filter((course) => course.status !== EnrollmentStatus.COMPLETED).length;
   const averageProgress = records.length
     ? Math.round(records.reduce((total, course) => total + course.progress, 0) / records.length)
@@ -200,8 +254,19 @@ export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
   const availableCertificates = records.reduce((total, course) => total + course.certificates, 0);
 
   return {
+    databaseUnavailable: false,
+    databaseMessage: null,
     user,
     records,
+    applications: applications.map((application) => ({
+      id: application.id,
+      reference: application.reference,
+      status: formatEnumLabel(application.status),
+      statusValue: application.status,
+      program: application.program.title,
+      intake: application.intake?.title ?? "Intake to be confirmed",
+      submittedAt: application.submittedAt?.toISOString() ?? null,
+    })),
     recommendedCourses,
     announcements,
     snapshot: {
@@ -211,6 +276,20 @@ export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
       availableCertificates,
     },
   };
+}
+
+export async function getLearnerWorkspaceRecords(session?: PlatformSession) {
+  try {
+    return await getLearnerWorkspaceRecordsFromDatabase(session);
+  } catch (error) {
+    logDataAccessError("Learner workspace records lookup failed", error);
+
+    if (isDatabaseConnectionError(error)) {
+      return getUnavailableLearnerWorkspaceRecords(session, error);
+    }
+
+    throw error;
+  }
 }
 
 export async function getAdminElearningRecords() {

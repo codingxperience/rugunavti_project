@@ -7,8 +7,8 @@ import { resolveSafeRedirectTarget } from "@/lib/platform/navigation";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Finishing sign in",
-  description: "Confirming your Ruguna eLearning session.",
+  title: "Signing in",
+  description: "Confirming secure Ruguna access.",
 };
 
 export default async function ElearningAuthCompletePage({
@@ -22,8 +22,8 @@ export default async function ElearningAuthCompletePage({
   return (
     <AuthShell
       activeKey="sign-in"
-      title="Finishing sign in"
-      description="Hold on while we secure your classroom and learner records."
+      title="Signing in"
+      description="Opening your Ruguna workspace."
     >
       <AuthCompletionGuard target={redirectTarget} />
     </AuthShell>

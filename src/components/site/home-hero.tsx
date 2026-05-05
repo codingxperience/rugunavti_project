@@ -55,22 +55,6 @@ export function HomeHero() {
           >
             <source src="/brand/home_hero_illustrator.mp4" type="video/mp4" />
           </video>
-
-          {/*
-          <div className="grid gap-3 sm:grid-cols-4">
-            {publicStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-4"
-              >
-                <p className="font-heading text-2xl font-bold text-[var(--color-ink)]">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm text-[var(--color-muted)]">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-          */}
         </div>
       </div>
     </section>

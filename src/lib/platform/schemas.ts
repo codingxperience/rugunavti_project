@@ -313,7 +313,7 @@ export const quizUpsertSchema = z.object({
     .array(
       z.object({
         id: z.string().min(2).optional(),
-        prompt: z.string().trim().min(3, "Add the question prompt."),
+        prompt: z.string().trim().min(3, "Add the question text."),
         questionType: z.enum(["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE", "SHORT_TEXT"]),
         options: z.record(z.string(), z.unknown()).optional(),
         correctAnswer: quizResponseSchema,

@@ -12,12 +12,15 @@ import {
   type PlatformRole,
 } from "@/lib/platform/auth";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
-import { resolveSafeRedirectTarget } from "@/lib/platform/navigation";
+import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
+import { getCurrentSession } from "@/lib/platform/session";
 
 const devRoles: { role: PlatformRole; title: string; destination: string }[] = [
   { role: "student", title: "Student", destination: "/learn/dashboard" },
   { role: "instructor", title: "Instructor", destination: "/instructor/dashboard" },
-  { role: "registrar_admin", title: "Admin", destination: "/admin/elearning" },
+  { role: "registrar_admin", title: "Registrar", destination: "/registrar" },
+  { role: "finance_admin", title: "Finance", destination: "/finance" },
+  { role: "super_admin", title: "Super admin", destination: "/admin/elearning" },
 ];
 
 export const metadata: Metadata = {
@@ -66,6 +69,11 @@ export default async function ElearningLoginPage({
 }) {
   const { next } = await searchParams;
   const redirectUrl = next ? resolveSafeRedirectTarget(next, "/learn/dashboard") : null;
+  const session = await getCurrentSession();
+
+  if (session.isAuthenticated) {
+    redirect(resolveWorkspaceRoute(session, redirectUrl));
+  }
 
   return (
     <AuthShell

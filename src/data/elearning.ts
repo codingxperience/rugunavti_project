@@ -4,9 +4,9 @@ import {
   testimonials,
 } from "./content";
 import {
-  demoStudentCourses,
   getCourseLessons,
   getRecommendedLesson,
+  learningPreviewCourses,
   studentAnnouncements,
   studentDeadlines,
   studentRecentGrades,
@@ -78,7 +78,7 @@ export const elearningCategories: ElearningCategory[] = [
     school: "School of Creative Arts, Media & Digital Production",
     description:
       "Creative production courses that combine guided lessons, project critique, and tool-based practice.",
-    onlineFocus: "Recorded demos, critique sessions, and downloadable project briefs.",
+    onlineFocus: "Recorded walkthroughs, critique sessions, and downloadable project briefs.",
   },
   {
     slug: "ict-support",
@@ -106,7 +106,7 @@ export const elearningCategories: ElearningCategory[] = [
   },
 ];
 
-const softwareEngineeringModules = demoStudentCourses[0].modules.map((module) => ({
+const softwareEngineeringModules = learningPreviewCourses[0].modules.map((module) => ({
   title: module.title,
   lessonCount: module.lessons.length,
   focus:
@@ -114,7 +114,7 @@ const softwareEngineeringModules = demoStudentCourses[0].modules.map((module) =>
     "Structured lesson delivery, practical tasks, and guided digital assessment.",
 }));
 
-const aiForWorkModules = demoStudentCourses[1].modules.map((module) => ({
+const aiForWorkModules = learningPreviewCourses[1].modules.map((module) => ({
   title: module.title,
   lessonCount: module.lessons.length,
   focus:
@@ -135,7 +135,7 @@ export const elearningCourses: ElearningCourse[] = [
     mode: "Blended",
     skillArea: "Software development",
     summary:
-      "A serious software pathway for learners building web applications, backend services, and delivery discipline.",
+      "A software pathway for learners building web applications, backend services, and delivery discipline.",
     overview:
       "This diploma blends structured online lessons with scheduled practical labs, mentor check-ins, and portfolio-focused assessments. It is suited to learners preparing for junior development, technical support, or product delivery roles.",
     audience:
@@ -155,7 +155,7 @@ export const elearningCourses: ElearningCourse[] = [
       "Module assignments, practical code reviews, guided quizzes, and capstone delivery.",
     certificate:
       "Eligible learners receive a Ruguna completion record and can progress toward verified diploma outcomes.",
-    tools: ["VS Code", "GitHub", "PostgreSQL", "Figma for planning", "Modern browser"],
+    tools: ["VS Code", "GitHub", "PostgreSQL", "Figma for planning", "Web browser"],
     instructor: "Grace Namara",
     startWindow: "May and September intakes",
     enrollmentStatus: "Application review",
@@ -266,7 +266,7 @@ export const elearningCourses: ElearningCourse[] = [
     summary:
       "A practical online short course for sales workflows, customer follow-up, and digital tools for growing small business.",
     overview:
-      "Designed for Uganda-first business realities, this course helps entrepreneurs and front-office teams structure customer communication, simple reporting, and online sales discipline.",
+      "Focused on Ugandan business realities, this course helps entrepreneurs and front-office teams structure customer communication, simple reporting, and online sales discipline.",
     audience:
       "Entrepreneurs, retail teams, office administrators, and learners running side businesses.",
     prerequisites: [
@@ -391,12 +391,12 @@ export const elearningCourses: ElearningCourse[] = [
 
 export const elearningBenefits = [
   {
-    title: "Built for low-bandwidth realities",
+    title: "Works on lower bandwidth",
     description:
       "Lessons remain readable, structured, and clear for learners who study mostly on phones or inconsistent connections.",
   },
   {
-    title: "Career-facing content, not passive watching",
+    title: "Practical course content",
     description:
       "Each course is structured around tasks, assessment, evidence of learning, and practical next actions.",
   },
@@ -436,7 +436,7 @@ export const elearningFaqs = [
   {
     question: "Can I study using my phone?",
     answer:
-      "Yes. The platform is designed to stay usable on phones for browsing, announcements, reading lessons, submitting some tasks, and receiving support updates.",
+      "Yes. Ruguna eLearning works on phones for browsing, announcements, reading lessons, selected submissions, and support updates.",
   },
   {
     question: "Are all Ruguna courses fully online?",
@@ -521,7 +521,7 @@ export const featuredElearningCourses = elearningCourses.filter((course) => cour
 
 export const popularElearningCourses = elearningCourses.filter((course) => course.popular);
 
-export const learnerAssignments = demoStudentCourses.flatMap((course) =>
+export const learnerAssignments = learningPreviewCourses.flatMap((course) =>
   getCourseLessons(course)
     .filter((lesson) => lesson.assignment)
     .map((lesson) => ({
@@ -533,7 +533,7 @@ export const learnerAssignments = demoStudentCourses.flatMap((course) =>
     }))
 );
 
-export const learnerQuizzes = demoStudentCourses.flatMap((course) =>
+export const learnerQuizzes = learningPreviewCourses.flatMap((course) =>
   getCourseLessons(course)
     .filter((lesson) => lesson.quiz)
     .map((lesson) => ({
@@ -545,7 +545,7 @@ export const learnerQuizzes = demoStudentCourses.flatMap((course) =>
     }))
 );
 
-export const learnerDownloads = demoStudentCourses.flatMap((course) =>
+export const learnerDownloads = learningPreviewCourses.flatMap((course) =>
   getCourseLessons(course).flatMap((lesson) =>
     lesson.resources.map((resource) => ({
       id: `${course.slug}-${lesson.id}-${resource.label}`,
@@ -557,7 +557,7 @@ export const learnerDownloads = demoStudentCourses.flatMap((course) =>
   )
 );
 
-export const learnerContinueList = demoStudentCourses
+export const learnerContinueList = learningPreviewCourses
   .filter((course) => course.progress < 100)
   .map((course) => {
     const nextLesson = getRecommendedLesson(course);
@@ -600,7 +600,7 @@ export const learnerHelpChannels = [
   },
 ];
 
-export const instructorBuilderCourses = demoStudentCourses.map((course) => ({
+export const instructorBuilderCourses = learningPreviewCourses.map((course) => ({
   id: course.slug,
   title: course.title,
   mode: course.delivery,
@@ -701,13 +701,13 @@ export const adminAuditLog = [
 ];
 
 export const learnerDashboardSnapshot = {
-  activeCourses: demoStudentCourses.filter((course) => course.progress < 100).length,
+  activeCourses: learningPreviewCourses.filter((course) => course.progress < 100).length,
   averageProgress: Math.round(
-    demoStudentCourses.reduce((total, course) => total + course.progress, 0) /
-      demoStudentCourses.length
+    learningPreviewCourses.reduce((total, course) => total + course.progress, 0) /
+      learningPreviewCourses.length
   ),
   outstandingAssignments: learnerAssignments.length,
-  availableCertificates: demoStudentCourses.filter((course) => course.certificateCode).length,
+  availableCertificates: learningPreviewCourses.filter((course) => course.certificateCode).length,
 };
 
 export {

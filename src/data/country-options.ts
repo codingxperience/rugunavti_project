@@ -257,3 +257,9 @@ export const nationalityOptions = countryOptions.map((country) => country.name);
 export const dialingCodeOptions = countryOptions.filter((country) => country.dialCode);
 export const ugandaDialCode =
   countryOptions.find((country) => country.iso2 === "UG")?.dialCode ?? "+256";
+
+export function countryFlag(iso2: string) {
+  return iso2
+    .toUpperCase()
+    .replace(/./g, (char) => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}

@@ -12,12 +12,15 @@ type AuditInput = {
   payload?: Prisma.InputJsonValue;
 };
 
-export async function writeAuditLog(input: AuditInput) {
+export async function writeAuditLog(
+  input: AuditInput,
+  tx?: Prisma.TransactionClient
+) {
   if (!platformEnv.useDatabase || !hasDatabase) {
     return;
   }
 
-  const db = getDb();
+  const db = tx ?? getDb();
 
   await db.auditLog.create({
     data: {

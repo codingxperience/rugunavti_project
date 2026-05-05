@@ -90,7 +90,7 @@ export const studentLifeHighlights = [
   "Attachment and internship support",
   "Student support desk and help tickets",
   "Digital portal for timetables and documents",
-  "Faithful mobile-first communication for busy learners",
+  "Mobile-first communication for busy learners",
   "Clubs, creative showcases, and entrepreneurship activities",
 ];
 
@@ -103,7 +103,7 @@ export const faqs = [
   {
     question: "Can I apply using my phone?",
     answer:
-      "Yes. The admissions flow is designed to work well on mobile, including document uploads from photos or scans.",
+      "Yes. The admissions form works well on mobile, including document uploads from photos or scans.",
   },
   {
     question: "How do I verify a certificate or admission letter?",
@@ -212,17 +212,17 @@ export const learningModes = [
   {
     title: "Online",
     detail:
-      "Structured lessons, downloadable resources, guided quizzes, and support designed for learners who study remotely.",
+      "Lessons, downloads, quizzes, and support for learners studying remotely.",
   },
   {
     title: "Blended",
     detail:
-      "Digital theory delivery combined with practical workshops, labs, attachment preparation, and live check-ins.",
+      "Online theory with practical workshops, labs, attachment preparation, and live check-ins.",
   },
   {
     title: "Practical",
     detail:
-      "Hands-on workshop and fieldwork experiences supported by digital instructions, attendance, submissions, and assessment records.",
+      "Workshop and fieldwork activities supported by instructions, attendance, submissions, and assessment records.",
   },
 ];
 
@@ -275,7 +275,7 @@ export const studentDashboardSummary = {
     "Quiz: Frontend State Management - 16 April",
   ],
   recentGrades: [
-    { title: "UX Prototype Review", score: "82%", status: "Graded" },
+    { title: "UX Practice Review", score: "82%", status: "Graded" },
     { title: "Data Modelling Quiz", score: "74%", status: "Passed" },
   ],
   certificates: [

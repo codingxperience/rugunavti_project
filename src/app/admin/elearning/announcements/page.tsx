@@ -7,7 +7,7 @@ import { getStaffAnnouncementRecords } from "@/lib/platform/staff-records";
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningAnnouncementsPage() {
-  const session = await requireRole(["registrar_admin", "super_admin"], "/admin/elearning/announcements");
+  const session = await requireRole(["super_admin"], "/admin/elearning/announcements");
   const records = await getStaffAnnouncementRecords(session);
 
   return (

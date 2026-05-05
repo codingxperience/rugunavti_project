@@ -6,7 +6,7 @@ import { requireRole } from "@/lib/platform/session";
 export const dynamic = "force-dynamic";
 
 export default async function AdminApplicationsPage() {
-  await requireRole(["registrar_admin", "super_admin"], "/admin/applications");
+  await requireRole(["super_admin"], "/admin/applications");
   const applications = await getAdminApplicationRecords();
 
   return (

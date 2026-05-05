@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import { AuthShell } from "@/components/platform/auth-shell";
 import { Button } from "@/components/ui/button";
 import { getRouteRule } from "@/lib/platform/auth";
 import { getDefaultWorkspaceRoute, resolveSafeRedirectTarget } from "@/lib/platform/navigation";
@@ -40,30 +39,25 @@ export default async function ElearningAccessDeniedPage({
     : "A protected Ruguna workspace role";
 
   return (
-    <AuthShell
-      activeKey="sign-in"
-      title="Workspace access required"
-      description="This account is signed in, but it is not assigned to that workspace yet."
-    >
-      <div className="rounded-[32px] border border-[var(--color-border)] bg-white p-7 shadow-[0_30px_80px_-56px_rgba(17,17,17,0.5)]">
+    <section className="flex min-h-dvh items-center justify-center bg-[#f6f5ef] px-4 py-10">
+      <div className="w-full max-w-[520px] rounded-[34px] border border-white/70 bg-white/70 p-6 shadow-[0_34px_90px_-68px_rgba(17,17,17,0.65)] backdrop-blur-2xl sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
           Ruguna eLearning
         </p>
-        <h1 className="font-heading mt-3 text-3xl font-bold text-[var(--color-ink)]">
-          You need another workspace role
+        <h1 className="font-heading mt-3 text-3xl font-bold leading-tight text-[var(--color-ink)]">
+          Access not assigned
         </h1>
         <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-          Your current account can open its assigned workspace, but it cannot open{" "}
-          <span className="font-semibold text-[var(--color-ink)]">{requestedTarget}</span> yet.
+          This account is signed in, but it does not have access to that workspace.
         </p>
 
-        <div className="mt-6 grid gap-3 rounded-[24px] border border-black/8 bg-[#f6f5ef] p-4 text-sm text-[var(--color-muted)]">
+        <div className="mt-6 grid gap-2 rounded-[24px] bg-white/78 p-4 text-sm text-[var(--color-muted)]">
           <p>
-            <span className="font-semibold text-[var(--color-ink)]">Current role:</span>{" "}
+            <span className="font-semibold text-[var(--color-ink)]">Your access:</span>{" "}
             {currentRoles}
           </p>
           <p>
-            <span className="font-semibold text-[var(--color-ink)]">Required role:</span>{" "}
+            <span className="font-semibold text-[var(--color-ink)]">Needed:</span>{" "}
             {requiredRoles}
           </p>
         </div>
@@ -76,7 +70,7 @@ export default async function ElearningAccessDeniedPage({
           ) : (
             <Button asChild>
               <Link href={`/elearning/login?next=${encodeURIComponent(requestedTarget)}`}>
-                Sign in again
+                Sign in
               </Link>
             </Button>
           )}
@@ -84,10 +78,10 @@ export default async function ElearningAccessDeniedPage({
             <Link href="/elearning/logout">Switch account</Link>
           </Button>
           <Button asChild variant="ghost">
-            <Link href="/elearning/contact">Contact support</Link>
+            <Link href="/elearning/contact">Get help</Link>
           </Button>
         </div>
       </div>
-    </AuthShell>
+    </section>
   );
 }

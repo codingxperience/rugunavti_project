@@ -33,11 +33,11 @@ export function SiteFooter() {
           <div className="max-w-xl">
             <p className="eyebrow border-white/10 bg-white/6 text-white/72">{siteConfig.name}</p>
             <h2 className="font-heading mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
-              Skills for work, life, and the next chapter of Uganda&apos;s economy.
+              Skills for work, enterprise, and opportunity beyond borders.
             </h2>
             <p className="mt-4 text-base leading-7 text-white/72">
-              A modern institute platform built to support discovery, enrollment, certification,
-              and career-readiness from one trusted digital home.
+              Ruguna College supports programme discovery, admissions, learning, records,
+              and career preparation from one trusted digital home.
             </p>
             <p className="mt-4 font-heading text-xl font-bold text-[var(--color-accent)]">
               {siteConfig.motto}

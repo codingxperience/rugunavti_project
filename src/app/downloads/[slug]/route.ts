@@ -7,7 +7,7 @@ const documents: Record<string, { filename: string; body: string }> = {
   },
   "short-course-guide-2026": {
     filename: "ruguna-short-course-guide-2026.txt",
-    body: `Ruguna College\nOne Who Prevails\nShort Course Guide 2026\n\nHighlighted short courses:\n- AI for Digital Work\n- Entrepreneurship Practice\n- Digital Selling\n- Solar and energy upskilling pathways\n\nDesigned for:\n- Working professionals\n- Entrepreneurs\n- School leavers needing fast upskilling\n- Regional applicants needing flexible study schedules`,
+    body: `Ruguna College\nOne Who Prevails\nShort Course Guide 2026\n\nHighlighted short courses:\n- AI for Digital Work\n- Entrepreneurship Practice\n- Digital Selling\n- Solar and energy upskilling pathways\n\nBest suited for:\n- Working professionals\n- Entrepreneurs\n- School leavers needing fast upskilling\n- Regional applicants needing flexible study schedules`,
   },
   "fees-and-payment-guide": {
     filename: "ruguna-fees-and-payment-guide.txt",

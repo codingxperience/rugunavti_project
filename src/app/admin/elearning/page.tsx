@@ -18,7 +18,7 @@ import { requireRole } from "@/lib/platform/session";
 export const dynamic = "force-dynamic";
 
 export default async function AdminElearningDashboardPage() {
-  await requireRole(["registrar_admin", "super_admin"], "/admin/elearning");
+  await requireRole(["super_admin"], "/admin/elearning");
   const records = await getAdminElearningRecords();
 
   return (
@@ -53,31 +53,30 @@ export default async function AdminElearningDashboardPage() {
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card>
           <CardContent>
-            <h1 className="font-heading text-3xl font-bold text-[var(--color-ink)]">
+          <h1 className="font-heading text-3xl font-bold text-[var(--color-ink)]">
               Operations overview
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-              Live course publishing, learner activity, staff roles, and announcements from the
-              Ruguna eLearning database.
+              Review courses, users, notices, and recent system activity.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {[
                 {
                   title: "Manage courses",
-                  text: "Create, assign, and publish eLearning courses.",
+                  text: "Create, assign, and publish courses.",
                   href: "/admin/elearning/courses",
                   icon: BookOpenText,
                 },
                 {
                   title: "Manage users",
-                  text: "Assign learner, instructor, and admin roles.",
+                  text: "Assign learner, instructor, and admin access.",
                   href: "/admin/elearning/users",
                   icon: Users2,
                 },
                 {
                   title: "Announcements",
-                  text: "Publish notices for learners and courses.",
+                  text: "Publish course and platform notices.",
                   href: "/admin/elearning/announcements",
                   icon: ScrollText,
                 },
