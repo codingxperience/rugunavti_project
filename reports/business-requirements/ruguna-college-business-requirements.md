@@ -4,8 +4,8 @@
 
 Prepared for: Ruguna College Executive Leadership, Admissions, Academic Leadership, eLearning Operations, Finance, and Administration  
 Prepared with: Ruguna Digital Platform Delivery Team  
-Document date: 05 May 2026  
-Version: 1.1  
+Document date: 06 May 2026  
+Version: 1.2  
 Primary contact: fokorio@byupathway.edu  
 Institution motto: One Who Prevails
 
@@ -80,9 +80,9 @@ Access must be enforced both at route level and server action/API level. User in
 | --- | --- |
 | Public institutional website | Home, about, schools, programmes, short courses, admissions, fees, student life, news/events, prospectus, verification, contact. |
 | Online application | Guided form, applicant identity, gender, date of birth, nationality, disability declaration, WhatsApp, alternative phone, next of kin, programme choice, intake, education background, referral source, documents, confirmation question, duplicate detection, success reference, status lookup, and confirmation email. |
-| eLearning landing | Public eLearning entry page, course browsing, categories, course detail, FAQ, contact, login, registration, verification support. |
+| eLearning landing | Public eLearning entry page, course browsing, categories, course detail, FAQ, contact, login, registration, verification support, and live-support access. |
 | Authentication | Clerk sign in, sign up, Google sign in, verification tasks, password reset, role-aware redirects, protected logout. |
-| Learner dashboard | Course cards, admissions status, short-course catalog access, progress, calendar, assignments, quizzes, payments, certificates, downloads, profile, support. |
+| Learner dashboard | Course cards, admissions status notice, short-course catalog access, progress, calendar, assignments, quizzes, payments, certificates, downloads, profile, support, and announcement notifications. |
 | Course workspace | Course home, announcements, syllabus, modules, grades, people, course materials, weekly learning structure, live session information, instructor contact details, and resources. |
 | Instructor portal | Assigned courses, content builder, modules, lessons, resources, assignments, quizzes, submissions, grading, live session scheduling, instructor contact details, and announcements. |
 | Registrar workspace | Applications, admissions decisions, document review, learner activation, programme records, and certificate records. |
@@ -198,6 +198,15 @@ Finance capabilities reserved for a later finance system phase:
 14. System records lesson progress, assessment attempts, submissions, grades, and completion status.
 15. Student becomes eligible for certificate or completion record when course rules and finance clearance rules are satisfied.
 
+### 7.3.1 Authenticated Website Navigation Flow
+
+1. A signed-in user who opens public Ruguna pages shall not be shown the normal applicant-first navigation as if they were anonymous.
+2. The public header shall switch to a compact Ruguna eLearning header with the Ruguna logo, dashboard return action, notification access, message/help access, and profile access.
+3. The user shall be able to return to the correct dashboard through a clear back-to-dashboard action.
+4. The user may still open public pages such as Apply, Courses, Fees, Admissions, and Verification without being asked to sign in again.
+5. Signing out shall clear the eLearning session and return the user to the original Ruguna College public homepage.
+6. Header notifications shall show current platform or course announcements where available and fall back to a clean empty state where none exist.
+
 ### 7.4 Instructor Content and Grading Flow
 
 1. Instructor signs in with assigned role.
@@ -258,6 +267,14 @@ Finance capabilities reserved for a later finance system phase:
 3. System returns a valid, revoked, expired, or not found result.
 4. Verification event can be logged for audit visibility.
 
+### 7.10 Support and Help Flow
+
+1. Public pages shall provide direct WhatsApp access for visitors.
+2. Authentication and eLearning access pages shall provide a compact live-support panel with links to application, admissions, eLearning access, fees, certificate verification, and WhatsApp support.
+3. The live-support panel shall stay visually light, height-limited, and usable on mobile screens.
+4. Help links shall route to implemented pages rather than placeholder actions.
+5. Student, instructor, registrar, finance, and admin dashboards shall keep support access inside the authenticated workspace.
+
 ## 8. Functional Requirements
 
 ### 8.1 Public Website Requirements
@@ -270,6 +287,8 @@ Finance capabilities reserved for a later finance system phase:
 | BR-PUB-004 | The system shall provide prospectus and downloadable document access. | Must |
 | BR-PUB-005 | The system shall include contact and WhatsApp support routes for admissions and learner help. | Must |
 | BR-PUB-006 | The system shall support certificate or document verification through a public verification route. | Must |
+| BR-PUB-007 | When a user is signed in and navigates public pages, the system shall replace the anonymous public navigation with a compact Ruguna eLearning header containing logo, dashboard return, notification, message/help, and profile access. | Must |
+| BR-PUB-008 | Public visitor pages shall retain the WhatsApp quick action, while authentication pages shall show the live-support panel instead of a generic floating WhatsApp-only button. | Must |
 
 ### 8.2 Application Requirements
 
@@ -295,6 +314,8 @@ Finance capabilities reserved for a later finance system phase:
 | BR-AUTH-004 | Server-side authorization shall be enforced for protected APIs and server actions. | Must |
 | BR-AUTH-005 | User profile records shall sync with Clerk identity and support first name, last name, avatar, contact preferences, and learning preferences. | Must |
 | BR-AUTH-006 | Logout shall terminate the local platform session and Clerk session cleanly. | Must |
+| BR-AUTH-007 | Logout shall return users to the original Ruguna College homepage unless an approved destination is explicitly provided. | Must |
+| BR-AUTH-008 | Authenticated users shall not be sent back to sign in when opening public course, application, admissions, fees, or verification pages. | Must |
 
 ### 8.4 Student eLearning Requirements
 
@@ -316,6 +337,8 @@ Finance capabilities reserved for a later finance system phase:
 | BR-STU-014 | Students shall view invoices, balances, clearance percentage, and payment history inside the learner area. | Must |
 | BR-STU-015 | Students shall submit payment references for MTN Mobile Money, Airtel Money, bank transfer, card, or virtual-card payments for finance verification. | Must |
 | BR-STU-016 | Students with finance holds shall see a clear payment action instead of inaccessible course content. | Must |
+| BR-STU-017 | Students with active applications shall see a clean admissions status notice that can be dismissed temporarily and reappears after the dismissal window or next relevant session. | Must |
+| BR-STU-018 | Students shall receive announcement notifications from platform, school, programme, or enrolled-course notices where available. | Must |
 
 ### 8.5 Course and Academic Delivery Requirements
 
@@ -455,6 +478,7 @@ The platform shall use explicit statuses for:
 | BR-SEC-008 | Audit logs shall record major admin, instructor, application, enrollment, certificate, and user actions. | Must |
 | BR-SEC-009 | Rate limiting shall protect sensitive routes such as applications, support, uploads, and verification where applicable. | Must |
 | BR-SEC-010 | The system shall avoid insecure direct object access by checking ownership or role authority before returning private records. | Must |
+| BR-SEC-011 | Database connection failures shall not expose stack traces to users and shall show concise recovery states while server logs remain controlled and non-repetitive. | Must |
 
 ## 11. Non-Functional Requirements
 
@@ -468,6 +492,7 @@ The platform shall use explicit statuses for:
 | Maintainability | Code shall be modular, typed, validated, and organized by public site, platform, eLearning, data, and API concerns. |
 | Observability | Analytics and audit logs shall support visibility into user activity and operational actions. |
 | Scalability | Data model shall support additional schools, programmes, courses, instructors, students, and intakes. |
+| Failure handling | Database or integration interruptions shall degrade into clear unavailable states instead of crashing finance, learner, or catalog pages. |
 
 ## 12. Integrations
 
@@ -545,6 +570,10 @@ The platform shall be considered business-ready when:
 - Clerk authentication works in production with live keys.
 - Role-based access correctly separates student, instructor, registrar, finance, and super admin dashboards.
 - Students can access enrolled courses and course workspace navigation.
+- Signed-in users browsing public pages see the compact Ruguna eLearning header, profile access, notifications, message/help access, and dashboard return.
+- Signing out returns the user to the original Ruguna College homepage.
+- Authentication pages show live support with real route links and do not show the generic homepage WhatsApp-only behavior.
+- Admission status notices are readable, dismissible, time-limited, and include a visible status tracking action.
 - Students can see whether each course is fully online, live-online supported, blended with practical sessions, or practical-heavy.
 - Students can view live session schedules, meeting links, instructor contacts, and office hours where configured.
 - Students can complete lesson progress, assignments, quizzes, downloads, support, and profile workflows.
@@ -559,6 +588,7 @@ The platform shall be considered business-ready when:
 - Production environment check passes.
 - Prisma schema validates and migrations deploy successfully.
 - TypeScript check and production build pass before deployment.
+- Database connection failures show controlled recovery states and do not expose raw Prisma errors to users.
 
 ## 16. Governance and Operating Model
 
@@ -626,6 +656,8 @@ Before launch, Ruguna College shall complete staff orientation for:
 | Finance scope | Invoice status, learner payment references, payment verification, 50% clearance rule, and access-hold workflows are tested; full accounting ERP functions are listed as later scope. |
 | Applications | Application submission, draft recovery, document upload, and admin review verified. |
 | eLearning | Student dashboard, course workspace, progress, quizzes, assignments, downloads, and certificates verified. |
+| Authenticated navigation | Signed-in public browsing, dashboard return, notification dropdown, message/help link, and logout-to-home verified. |
+| Support widget | Public WhatsApp action and authentication live-support panel verified on desktop and mobile. |
 | Monitoring | PostHog and audit log review enabled. |
 | Backup | Database backup and recovery plan confirmed with hosting provider. |
 
@@ -760,6 +792,7 @@ Before launch, Ruguna College shall complete staff orientation for:
 - /api/elearning/certificates/verify
 - /api/elearning/session-status
 - /api/elearning/session-bridge
+- /api/elearning/notifications
 - /api/elearning/logout
 
 ### 21.3 Staff APIs

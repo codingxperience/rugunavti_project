@@ -17,7 +17,8 @@
     "db:validate": "prisma validate",
     "storage:setup": "tsx scripts/setup-supabase-storage.ts",
     "prod:check": "tsx scripts/verify-production-env.ts",
-    "deploy:check": "npm run prod:check && npm run db:validate && npm run typecheck && npm run build"
+    "deploy:check": "npm run prod:check && npm run db:validate && npm run typecheck && npm run build",
+    "docs:business-requirements": "tsx scripts/build-business-requirements-page.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "6.39.1",
