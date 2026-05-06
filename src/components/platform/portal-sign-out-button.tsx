@@ -20,12 +20,29 @@ export function PortalSignOutButton({
 }: PortalSignOutButtonProps) {
   const [busy, setBusy] = useState(false);
 
+  function clearLocalSessionNotices() {
+    try {
+      for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+        const key = window.localStorage.key(index);
+
+        if (key?.startsWith("ruguna-application-notice:")) {
+          window.localStorage.removeItem(key);
+        }
+      }
+    } catch {
+      // Local browser cleanup must never block sign-out.
+    }
+  }
+
   return (
     <SignOutButton redirectUrl="/api/elearning/logout?next=%2F">
       <Button
         type="button"
         variant="secondary"
-        onClick={() => setBusy(true)}
+        onClick={() => {
+          clearLocalSessionNotices();
+          setBusy(true);
+        }}
         className={cn(
           compact
             ? "h-10 w-10 rounded-2xl border-white/12 bg-white/8 p-0 text-white hover:bg-white/12 hover:text-white"

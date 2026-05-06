@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { CtaBanner } from "@/components/site/cta-banner";
+import { HomeAnnouncementNotice } from "@/components/site/home-announcement-notice";
 import { HomeHero } from "@/components/site/home-hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export default function HomePage() {
 
   return (
     <>
+      <HomeAnnouncementNotice />
       <HomeHero />
 
       <section className="section-padding pt-8">
@@ -233,7 +235,7 @@ export default function HomePage() {
       <CtaBanner
         title="Ready to apply, compare programs, or download the prospectus?"
         description="Review requirements, compare options, and start your application from any device."
-        primaryLabel="Apply for the Next Intake"
+        primaryLabel="Apply to Ruguna College"
         primaryHref="/apply"
         secondaryLabel="Explore Courses and Entry Requirements"
         secondaryHref="/programs"

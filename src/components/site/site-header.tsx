@@ -4,13 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ArrowLeft,
   ArrowRight,
   Bell,
   ChevronDown,
   MessageSquare,
   PhoneCall,
-  Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -44,6 +42,7 @@ type HeaderNotification = {
   title: string;
   scope: string;
   date: string;
+  href?: string;
 };
 
 type HeaderNotificationsPayload = {
@@ -82,6 +81,8 @@ export function SiteHeader() {
   const logoSubtitle = isElearning ? "Online Learning" : siteConfig.motto;
   const primaryCtaHref = isElearning ? "/elearning/login" : "/apply";
   const primaryCtaLabel = isElearning ? "Sign In" : "Apply Now";
+  const isLearnerPublicSession =
+    isAuthed && (sessionRole === "student" || sessionRole === "applicant");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -132,7 +133,7 @@ export function SiteHeader() {
     };
   }, [pathname]);
 
-  if (isAuthed) {
+  if (isLearnerPublicSession) {
     return (
       <header className="sticky top-0 z-40 bg-white shadow-[0_2px_16px_-12px_rgba(17,17,17,0.45)]">
         <div className="hidden bg-[var(--color-ink)] text-white lg:block">
@@ -165,13 +166,6 @@ export function SiteHeader() {
 
         <div className="container-width flex items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-10">
           <div className="flex min-w-0 items-center gap-3">
-            <Link
-              href={dashboardHref}
-              aria-label="Back to dashboard"
-              className="hidden h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)] sm:flex"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
             <Link href="/elearning" className="flex min-w-0 items-center gap-3">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white">
                 <Image
@@ -194,14 +188,6 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/learn/catalog"
-              aria-label="Search courses"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-muted)] transition hover:-translate-y-0.5 hover:text-[var(--color-ink)]"
-            >
-              <Search className="h-4 w-4" />
-            </Link>
-
             <details className="group relative">
               <summary className="relative flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-muted)] transition hover:-translate-y-0.5 hover:text-[var(--color-ink)] marker:hidden">
                 <Bell className="h-4 w-4" />
@@ -220,7 +206,7 @@ export function SiteHeader() {
                     notifications.map((item) => (
                       <Link
                         key={item.id}
-                        href="/learn/announcements"
+                        href={item.href ?? "/learn/announcements"}
                         className="rounded-2xl bg-[#f6f5ef] px-3 py-2 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[var(--color-soft-accent)]"
                       >
                         {item.title}
@@ -241,18 +227,18 @@ export function SiteHeader() {
               </div>
             </details>
 
-            <Link
-              href="/learn/help"
+            <button
+              type="button"
               aria-label="Messages"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-muted)] transition hover:-translate-y-0.5 hover:text-[var(--color-ink)]"
+              className="flex h-10 w-10 cursor-default items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-muted)]"
             >
               <MessageSquare className="h-4 w-4" />
-            </Link>
+            </button>
 
-            <Link
-              href="/account/settings"
+            <button
+              type="button"
               aria-label="Profile"
-              className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-black/8 bg-[#f6f5ef] text-sm font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-white"
+              className="flex h-11 w-11 cursor-default items-center justify-center overflow-hidden rounded-full border border-black/8 bg-[#f6f5ef] text-sm font-bold text-[var(--color-ink)]"
             >
               {profileAvatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -260,7 +246,7 @@ export function SiteHeader() {
               ) : (
                 getInitials(profileName)
               )}
-            </Link>
+            </button>
           </div>
         </div>
       </header>
@@ -270,7 +256,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-[rgba(252,252,252,0.92)] backdrop-blur-xl">
       <div className="hidden border-b border-white/8 bg-[var(--color-ink)] text-white lg:block">
-        {isAuthed ? (
+        {isLearnerPublicSession ? (
           <div className="container-width grid grid-cols-[1fr_auto_1fr] items-center gap-5 px-5 py-2.5 text-[11px] sm:px-8 lg:px-10">
             <div className="flex items-center gap-3 text-white/72">
               <Link href="/" className="font-medium uppercase tracking-[0.1em] transition hover:text-[var(--color-accent)]">
@@ -422,12 +408,6 @@ export function SiteHeader() {
               </>
             ) : (
               <>
-                <div className="rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-right">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
-                    Intakes
-                  </p>
-                  <p className="text-sm font-semibold text-[var(--color-ink)]">May | Sep</p>
-                </div>
                 <Button asChild>
                   <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
                 </Button>

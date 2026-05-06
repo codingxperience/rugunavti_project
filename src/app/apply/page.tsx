@@ -35,12 +35,6 @@ export default async function ApplyPage({
         eyebrow="Apply online"
         title="Apply to Ruguna College in minutes"
         description="Choose your study path, share your details, and send your application for admissions review."
-        aside={
-          <div className="grid gap-4 text-sm text-[var(--color-muted)]">
-            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">Next intakes</p>
-            <p>{intakeMoments.join(", ")} intakes with programme-specific dates.</p>
-          </div>
-        }
       />
 
       <section className="section-padding pt-0">

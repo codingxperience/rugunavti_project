@@ -14,6 +14,18 @@ export default function ElearningLogoutPage() {
   useEffect(() => {
     let cancelled = false;
 
+    try {
+      for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+        const key = window.localStorage.key(index);
+
+        if (key?.startsWith("ruguna-application-notice:")) {
+          window.localStorage.removeItem(key);
+        }
+      }
+    } catch {
+      // A blocked localStorage cleanup should not prevent logout.
+    }
+
     const run = async () => {
       try {
         if (isLoaded && isSignedIn) {

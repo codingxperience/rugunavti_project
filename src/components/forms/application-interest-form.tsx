@@ -56,6 +56,7 @@ const acceptedApplicationFiles = [
 
 const maxApplicationFileBytes = 20 * 1024 * 1024;
 const applicationDraftKey = "ruguna-application-draft-v2";
+const applicationSubmittedKey = "ruguna-application-submitted-v1";
 const intakeChoices = ["May", "September"];
 const referralOptions = [
   "Online Search Engines (Google, Bing, Yahoo, etc.)",
@@ -79,6 +80,7 @@ export function ApplicationInterestForm({
   const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
   const [duplicateApplication, setDuplicateApplication] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -128,6 +130,34 @@ export function ApplicationInterestForm({
 
   useEffect(() => {
     try {
+      const savedSubmission = window.localStorage.getItem(applicationSubmittedKey);
+
+      if (savedSubmission) {
+        const parsed = JSON.parse(savedSubmission) as {
+          reference?: string;
+          email?: string;
+          status?: string;
+          message?: string;
+          duplicate?: boolean;
+        };
+
+        if (parsed.reference && parsed.email) {
+          setReference(parsed.reference);
+          setSubmittedEmail(parsed.email);
+          setApplicationStatus(parsed.status ?? "Submitted");
+          setServerMessage(
+            parsed.message ??
+              "Your application has already been submitted. Use the reference below to track admissions updates."
+          );
+          setDuplicateApplication(Boolean(parsed.duplicate));
+          setSubmissionSuccess(true);
+          setDraftReady(true);
+          return;
+        }
+
+        window.localStorage.removeItem(applicationSubmittedKey);
+      }
+
       const savedDraft = window.localStorage.getItem(applicationDraftKey);
 
       if (savedDraft) {
@@ -244,6 +274,7 @@ export function ApplicationInterestForm({
     setApplicationStatus(null);
     setDuplicateApplication(false);
     setSubmissionSuccess(false);
+    setSubmittedEmail(null);
 
     let documents: ApplicationDocumentInput[];
 
@@ -272,9 +303,21 @@ export function ApplicationInterestForm({
     setApplicationStatus(payload.status ?? null);
     setDuplicateApplication(Boolean(payload.duplicate));
     setSubmissionSuccess(response.ok && payload.success);
+    setSubmittedEmail(values.email);
 
     if (response.ok && payload.success) {
       window.localStorage.removeItem(applicationDraftKey);
+      window.localStorage.setItem(
+        applicationSubmittedKey,
+        JSON.stringify({
+          reference: payload.reference ?? null,
+          email: values.email,
+          status: payload.status ?? "Submitted",
+          message: payload.message,
+          duplicate: Boolean(payload.duplicate),
+          savedAt: new Date().toISOString(),
+        })
+      );
       setSelectedFiles([]);
       setUploadedDocuments([]);
       setUploadMessage(null);
@@ -290,7 +333,7 @@ export function ApplicationInterestForm({
   });
 
   if (submissionSuccess) {
-    const applicantEmail = form.getValues("email");
+    const applicantEmail = submittedEmail ?? form.getValues("email");
     const statusHref =
       reference && applicantEmail
         ? `/apply/status?reference=${encodeURIComponent(reference)}&email=${encodeURIComponent(applicantEmail)}`
@@ -298,8 +341,8 @@ export function ApplicationInterestForm({
 
     return (
       <section className="rounded-[32px] border border-black/8 bg-white p-6 text-center shadow-[0_24px_80px_-64px_rgba(17,17,17,0.55)] sm:p-8">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl text-emerald-800">
-          ✓
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
+          OK
         </div>
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-muted)]">
           {duplicateApplication ? "Already submitted" : "Submitted"}

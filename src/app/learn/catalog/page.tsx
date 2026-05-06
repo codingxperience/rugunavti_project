@@ -122,12 +122,12 @@ export default async function LearnerCatalogPage({
     <div className="grid gap-6">
       <Card>
         <CardContent>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
                 Course catalog
               </p>
-              <h1 className="font-heading mt-3 text-4xl font-bold text-[var(--color-ink)]">
+              <h1 className="font-heading mt-3 text-3xl font-bold text-[var(--color-ink)] sm:text-4xl">
                 Browse courses
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
@@ -139,7 +139,7 @@ export default async function LearnerCatalogPage({
             </Button>
           </div>
 
-          <form className="mt-6 grid gap-3 rounded-[28px] border border-black/8 bg-[#fbfbf7] p-4 md:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
+          <form className="mt-6 grid gap-3 rounded-[28px] border border-black/8 bg-[#fbfbf7] p-3 sm:p-4 md:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
             <label className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
               <input
@@ -226,8 +226,8 @@ export default async function LearnerCatalogPage({
                 </div>
 
                 <div className="grid gap-2 text-sm text-[var(--color-muted)]">
-                  <p>{lessonCount} lessons · {course.estimatedHours} hours</p>
-                  <p>{label(course.deliveryMode)} · {offering ? label(offering.pace) : "Self-paced"}</p>
+                  <p>{lessonCount} lessons - {course.estimatedHours} hours</p>
+                  <p>{label(course.deliveryMode)} - {offering ? label(offering.pace) : "Self-paced"}</p>
                 </div>
 
                 <div className="mt-auto flex flex-wrap gap-3">

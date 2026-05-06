@@ -1,4 +1,4 @@
-import { AnnouncementScope, ContentStatus } from "@prisma/client";
+import { AnnouncementScope, ApplicationStatus, ContentStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
@@ -8,6 +8,14 @@ import { getCurrentSession } from "@/lib/platform/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function formatStatus(status: ApplicationStatus) {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export async function GET() {
   const session = await getCurrentSession();
@@ -31,6 +39,27 @@ export async function GET() {
             courseId: true,
             programId: true,
             course: { select: { schoolId: true } },
+          },
+        },
+        applications: {
+          where: {
+            status: {
+              in: [
+                ApplicationStatus.SUBMITTED,
+                ApplicationStatus.IN_REVIEW,
+                ApplicationStatus.DOCUMENTS_REQUIRED,
+                ApplicationStatus.OFFERED,
+                ApplicationStatus.WAITLISTED,
+              ],
+            },
+          },
+          orderBy: { updatedAt: "desc" },
+          take: 2,
+          select: {
+            id: true,
+            reference: true,
+            status: true,
+            updatedAt: true,
           },
         },
       },
@@ -66,14 +95,31 @@ export async function GET() {
       }),
     ]);
 
+    const applicationNotifications =
+      user?.applications.map((item) => ({
+        id: `application-${item.id}`,
+        title: `Application ${item.reference}: ${formatStatus(item.status)}`,
+        scope: "APPLICATION",
+        date: item.updatedAt.toISOString(),
+        href: `/apply/status?reference=${encodeURIComponent(item.reference)}${
+          session.email ? `&email=${encodeURIComponent(session.email)}` : ""
+        }`,
+      })) ?? [];
+
     return NextResponse.json({
-      count,
-      latest: latest.map((item) => ({
+      count: count + applicationNotifications.length,
+      latest: [
+        ...applicationNotifications,
+        ...latest.map((item) => ({
         id: item.id,
         title: item.title,
         scope: item.scope,
         date: (item.publishedAt ?? item.createdAt).toISOString(),
-      })),
+        href: "/learn/announcements",
+        })),
+      ]
+        .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+        .slice(0, 3),
     });
   } catch (error) {
     logDataAccessError("Header notification lookup failed", error);

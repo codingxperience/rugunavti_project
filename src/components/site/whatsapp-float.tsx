@@ -64,7 +64,7 @@ export function WhatsAppFloat({ variant = "whatsapp" }: WhatsAppFloatProps) {
   }
 
   return (
-    <section className="fixed bottom-5 right-4 z-50 max-h-[min(560px,calc(100dvh-2rem))] w-[min(380px,calc(100vw-2rem))] overflow-hidden rounded-[24px] border border-black/8 bg-white shadow-[0_26px_80px_-46px_rgba(17,17,17,0.68)]">
+    <section className="fixed bottom-5 right-4 z-50 max-h-[min(460px,calc(100dvh-2rem))] w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-[24px] border border-black/8 bg-white shadow-[0_24px_70px_-48px_rgba(17,17,17,0.62)]">
       <div className="flex items-start justify-between gap-4 border-b border-black/6 bg-[#fbfaf4] p-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--color-muted)]">
@@ -87,7 +87,7 @@ export function WhatsAppFloat({ variant = "whatsapp" }: WhatsAppFloatProps) {
         </button>
       </div>
 
-      <div className="max-h-[340px] overflow-y-auto p-4">
+      <div className="max-h-[248px] overflow-y-auto p-4">
         <div className="grid gap-2">
           {supportTopics.map((topic) => (
             <Link
