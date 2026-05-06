@@ -134,15 +134,21 @@ function parseMarkdown(markdown: string) {
 }
 
 function getMeta(markdown: string) {
-  const valueFor = (label: string) => {
-    const match = new RegExp(`^${label}:\\s*(.+?)\\s*$`, "m").exec(markdown);
-    return match?.[1].replace(/\s{2,}$/g, "") ?? "";
+  const valueFor = (label: string, fallback = "") => {
+    const lineMatch = new RegExp(`^${label}:\\s*(.+?)\\s*$`, "m").exec(markdown);
+    if (lineMatch?.[1]) {
+      return lineMatch[1].replace(/\s{2,}$/g, "");
+    }
+
+    const tableMatch = new RegExp(`^\\|\\s*${label}\\s*\\|\\s*(.+?)\\s*\\|\\s*$`, "im").exec(markdown);
+    return tableMatch?.[1]?.trim() ?? fallback;
   };
 
   return {
     date: valueFor("Document date"),
     version: valueFor("Version"),
     contact: valueFor("Primary contact"),
+    audience: valueFor("Prepared for", "Leadership and operations"),
   };
 }
 
@@ -209,16 +215,16 @@ function renderPage(markdown: string) {
 <body>
 <div class="shell">
 <section class="cover">
-<div class="cover-top"><div class="brand"><img class="seal" src="assets/ruguna_logo_v2.jpeg" alt="Ruguna College seal" /><div><strong>Ruguna College</strong><span>One Who Prevails</span></div></div><span class="pill">Requirements document</span></div>
+<div class="cover-top"><div class="brand"><img class="seal" src="assets/ruguna_logo_v2.jpeg" alt="Ruguna College seal" /><div><strong>Ruguna College</strong><span>One Who Prevails</span></div></div><span class="pill">Operating scope</span></div>
 <h1>Admissions and eLearning Platform</h1>
 <p>Operating requirements for the Ruguna College website, admissions flow, authenticated eLearning, staff workspaces, payments, security, integrations, and launch readiness.</p>
-<div class="meta"><div><strong>Prepared for</strong>Ruguna College Leadership</div><div><strong>Date</strong>${escapeHtml(meta.date)}</div><div><strong>Version</strong>${escapeHtml(meta.version)}</div><div><strong>Contact</strong>${escapeHtml(meta.contact)}</div></div>
+<div class="meta"><div><strong>Audience</strong>${escapeHtml(meta.audience)}</div><div><strong>Date</strong>${escapeHtml(meta.date)}</div><div><strong>Version</strong>${escapeHtml(meta.version)}</div><div><strong>Contact</strong>${escapeHtml(meta.contact)}</div></div>
 </section>
 <div class="layout">
 <aside class="toc"><h2>Contents</h2>${toc.map((item) => `<a href="#${item.id}">${renderInline(item.text)}</a>`).join("")}</aside>
 <main class="content">${body}</main>
 </div>
-<p class="footer">Ruguna College Digital Platform Requirements. Generated from the maintained project requirements source.</p>
+<p class="footer">Ruguna College Digital Platform Requirements · Version ${escapeHtml(meta.version)} · ${escapeHtml(meta.date)}</p>
 </div>
 </body>
 </html>`;

@@ -1,13 +1,15 @@
 # Ruguna College Admissions and eLearning Platform
 
-## Requirements and Operating Scope
+## Document Control
 
-Prepared for: Ruguna College Executive Leadership, Admissions, Academic Leadership, eLearning Operations, Finance, and Administration  
-Prepared with: Ruguna Digital Platform Delivery Team  
-Document date: 06 May 2026  
-Version: 1.2  
-Primary contact: fokorio@byupathway.edu  
-Institution motto: One Who Prevails
+| Item | Detail |
+| --- | --- |
+| Prepared for | Ruguna College executive leadership, admissions, academic leadership, eLearning operations, finance, and administration |
+| Prepared by | Ruguna Digital Platform Delivery Team |
+| Document date | 06 May 2026 |
+| Version | 1.2 |
+| Primary contact | SanAlkeU@outlook.com |
+| Institution motto | One Who Prevails |
 
 ---
 
