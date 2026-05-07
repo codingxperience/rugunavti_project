@@ -69,6 +69,7 @@ export function SiteHeader() {
   const [profileAvatarUrl, setProfileAvatarUrl] = useState<string | null>(null);
   const [notificationCount, setNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState<HeaderNotification[]>([]);
+  const [sessionResolved, setSessionResolved] = useState(false);
   const isElearning = pathname.startsWith("/elearning");
   const isAuthed = Boolean(dashboardDestination);
   const dashboardHref =
@@ -126,12 +127,46 @@ export function SiteHeader() {
           setNotificationCount(0);
           setNotifications([]);
         }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setSessionResolved(true);
+        }
       });
 
     return () => {
       controller.abort();
     };
   }, [pathname]);
+
+  if (!sessionResolved) {
+    return (
+      <header className="sticky top-0 z-40 border-b border-black/5 bg-white/88 backdrop-blur-xl">
+        <div className="container-width flex items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-10">
+          <Link href={logoHref} className="flex min-w-0 items-center gap-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white">
+              <Image
+                src="/brand/ruguna-college-logo.jpeg"
+                alt={logoAlt}
+                width={42}
+                height={42}
+                className="h-10 w-10 object-contain"
+              />
+            </span>
+            <span className="min-w-0">
+              <span className="font-heading block truncate text-base font-bold text-[var(--color-ink)]">
+                {logoTitle}
+              </span>
+              <span className="block truncate text-xs text-[var(--color-muted)]">
+                {logoSubtitle}
+              </span>
+            </span>
+          </Link>
+          <span className="h-10 w-24 rounded-full bg-black/5" aria-hidden="true" />
+        </div>
+      </header>
+    );
+  }
 
   if (isLearnerPublicSession) {
     return (
@@ -402,12 +437,14 @@ export function SiteHeader() {
                             : "Dashboard"}
                   </Link>
                 </Button>
+                <IntakeCta />
                 <Button asChild>
                   <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
                 </Button>
               </>
             ) : (
               <>
+                <IntakeCta />
                 <Button asChild>
                   <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
                 </Button>
@@ -475,6 +512,7 @@ export function SiteHeader() {
                       <Link href={dashboardHref}>Dashboard</Link>
                     </Button>
                   ) : null}
+                  <IntakeCta className="w-full" />
                   <Button asChild>
                     <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
                   </Button>
@@ -488,6 +526,22 @@ export function SiteHeader() {
         </details>
       </div>
     </header>
+  );
+}
+
+function IntakeCta({ className = "" }: { className?: string }) {
+  return (
+    <span
+      aria-label="Intakes: May and September"
+      className={`inline-flex h-11 items-center justify-center rounded-full border border-[var(--color-border)] bg-white px-4 text-center text-[var(--color-ink)] shadow-sm ${className}`}
+    >
+      <span className="leading-none">
+        <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+          Intakes
+        </span>
+        <span className="mt-0.5 block text-xs font-bold">May | Sep</span>
+      </span>
+    </span>
   );
 }
 

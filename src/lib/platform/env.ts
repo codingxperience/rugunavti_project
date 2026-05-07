@@ -146,5 +146,25 @@ export function getProductionEnvWarnings(env: NodeJS.ProcessEnv = process.env) {
     warnings.push("DATABASE_URL should enforce sslmode=require for Supabase/Postgres.");
   }
 
+  if (env.RUGUNA_PAYMENT_MODE === "live") {
+    if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) {
+      warnings.push("STRIPE_WEBHOOK_SECRET is required when Stripe live checkout is enabled.");
+    }
+
+    if (env.FLUTTERWAVE_SECRET_KEY && !env.FLUTTERWAVE_WEBHOOK_SECRET_HASH) {
+      warnings.push("FLUTTERWAVE_WEBHOOK_SECRET_HASH is required when Flutterwave live checkout is enabled.");
+    }
+  }
+
+  if (env.RUGUNA_PAYMENT_MODE !== "live") {
+    if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) {
+      warnings.push("Stripe test checkout is configured, but STRIPE_WEBHOOK_SECRET is missing.");
+    }
+
+    if (env.FLUTTERWAVE_SECRET_KEY && !env.FLUTTERWAVE_WEBHOOK_SECRET_HASH) {
+      warnings.push("Flutterwave test checkout is configured, but FLUTTERWAVE_WEBHOOK_SECRET_HASH is missing.");
+    }
+  }
+
   return warnings;
 }

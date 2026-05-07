@@ -2,7 +2,6 @@
 
 import { SignIn, SignUp, useAuth } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 import { clerkAppearance } from "@/lib/platform/clerk-appearance";
 import { resolveSafeRedirectTarget } from "@/lib/platform/navigation";
@@ -15,7 +14,6 @@ type ClerkAuthFlowProps = {
 };
 
 export function ClerkAuthFlow({ mode, redirectTarget }: ClerkAuthFlowProps) {
-  const [mounted, setMounted] = useState(false);
   const { isLoaded, isSignedIn } = useAuth({ treatPendingAsSignedOut: false });
   const safeTarget = redirectTarget
     ? resolveSafeRedirectTarget(redirectTarget, "/learn/dashboard")
@@ -30,11 +28,7 @@ export function ClerkAuthFlow({ mode, redirectTarget }: ClerkAuthFlowProps) {
     ? `/elearning/register?next=${encodeURIComponent(safeTarget)}`
     : "/elearning/register";
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || !isLoaded) {
+  if (!isLoaded) {
     return (
       <div className="rounded-[28px] border border-[var(--color-border)] bg-white p-6 shadow-[0_28px_70px_-54px_rgba(17,17,17,0.45)]">
         <div className="flex items-center gap-3 text-sm text-[var(--color-muted)]">

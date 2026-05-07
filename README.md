@@ -21,7 +21,7 @@ Production-minded Next.js App Router platform for Ruguna Vocational Training Ins
 - Database-backed student dashboard, enrolled course records, course player entry points, certificates, and support desk
 - Instructor dashboard, secured content-management endpoints, and grading queue
 - Database-backed admin eLearning dashboard, admissions queue, and CMS/SEO control surface
-- Finance dashboard with invoice and payment-status table
+- Finance dashboard with invoice and payment-status table, learner payment references, Stripe test checkout, and Flutterwave test checkout
 - Prisma schema covering users, roles, schools, programmes, courses, learning delivery, applications, certificates, finance, support, CMS, and audit entities
 - Seed strategy for roles, all schools, programme catalog, intakes, eLearning courses, modules, lessons, and settings
 - Database-backed contact inquiries, application interest submissions, learner enrollments, progress tracking, submissions, quiz attempts, certificate issuance, support tickets, and audit logs
@@ -31,7 +31,7 @@ Production-minded Next.js App Router platform for Ruguna Vocational Training Ins
 
 1. Copy `.env.example` to `.env.local`.
 2. Copy `.env.example` to `.env` for Prisma CLI commands.
-3. Configure PostgreSQL/Supabase Postgres, Clerk, Supabase Storage, Resend, and PostHog values.
+3. Configure PostgreSQL/Supabase Postgres, Clerk, Supabase Storage, Resend, payments, and PostHog values.
 4. For local-only role access without Clerk, keep `RUGUNA_ALLOW_DEV_AUTH=true`.
 5. For production, set `RUGUNA_USE_DATABASE=true` and `RUGUNA_ALLOW_DEV_AUTH=false`.
 6. Add initial staff access with `RUGUNA_SUPER_ADMIN_EMAILS` and `RUGUNA_INSTRUCTOR_EMAILS`, then manage ongoing roles from `/admin/elearning/users`.
@@ -83,6 +83,9 @@ Full deployment steps are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - `POST /api/admin/elearning/courses`, `/modules`, `/lessons`, `/resources`, `/assignments`, `/quizzes`, and `/announcements` provide secured instructor/admin content operations.
 - `POST /api/instructor/submissions/grade` grades learner submissions and updates assessment averages.
 - `POST /api/webhooks/clerk` syncs Clerk user lifecycle events into local `User`, `Profile`, and `UserRole` records when `CLERK_WEBHOOK_SECRET` is configured.
+- `POST /api/webhooks/stripe` verifies Stripe Checkout events and updates payment/invoice status.
+- `POST /api/webhooks/flutterwave` verifies Flutterwave checkout events and updates payment/invoice status.
+- `/learn/payments` lets learners pay invoices through Stripe or Flutterwave test checkout, or submit a finance-verifiable payment reference.
 - `/admin/elearning/users` lets super admins assign student, instructor, finance, registrar/admin, and super admin roles, with Clerk public metadata sync and audit logging.
 - Supabase Storage helpers live in `src/lib/platform/storage.ts` and enforce file size and MIME restrictions before signed uploads or private signed downloads are created.
 - Audit logging lives in `src/lib/platform/audit.ts` and is used by backend workflows when database mode is enabled.

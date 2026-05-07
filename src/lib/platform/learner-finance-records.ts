@@ -5,6 +5,7 @@ import type { PlatformSession } from "@/lib/platform/auth";
 import {
   getDatabaseUnavailableMessage,
   isDatabaseConnectionError,
+  isDatabaseSchemaMismatchError,
   logDataAccessError,
 } from "@/lib/platform/database-errors";
 import { MINIMUM_LEARNING_CLEARANCE_PERCENT } from "@/lib/platform/finance-records";
@@ -55,10 +56,12 @@ export async function getLearnerFinanceRecords(session?: PlatformSession) {
   } catch (error) {
     logDataAccessError("Learner finance records lookup failed", error);
 
-    if (isDatabaseConnectionError(error)) {
+    if (isDatabaseConnectionError(error) || isDatabaseSchemaMismatchError(error)) {
       return {
         databaseUnavailable: true,
-        databaseMessage: getDatabaseUnavailableMessage(error),
+        databaseMessage: isDatabaseSchemaMismatchError(error)
+          ? "Payment records need the latest database migration. Please refresh after migrations are deployed."
+          : getDatabaseUnavailableMessage(error),
         user: null,
         records: [],
         snapshot: {
@@ -102,10 +105,14 @@ export async function getLearnerFinanceRecords(session?: PlatformSession) {
         amount: money(payment.amount, payment.currency),
         reference: payment.reference,
         method: payment.method,
+        provider: payment.provider,
+        providerStatus: payment.providerStatus,
+        failureReason: payment.failureReason,
         status: label(payment.status),
         statusValue: payment.status,
         createdAt: payment.createdAt.toISOString(),
         receivedAt: payment.receivedAt?.toISOString() ?? null,
+        verifiedAt: payment.verifiedAt?.toISOString() ?? null,
       })),
     };
   });

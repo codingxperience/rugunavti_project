@@ -813,21 +813,29 @@ model Invoice {
 }
 
 model Payment {
-  id         String        @id @default(cuid())
-  userId     String
-  invoiceId  String?
-  amount     Decimal       @db.Decimal(10, 2)
-  currency   String        @default("UGX")
-  reference  String        @unique
-  method     String
-  status     PaymentStatus @default(PENDING)
-  receivedAt DateTime?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  invoice    Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  id                String        @id @default(cuid())
+  userId            String
+  invoiceId         String?
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("UGX")
+  reference         String        @unique
+  method            String
+  provider          String?
+  providerReference String?
+  providerStatus    String?
+  checkoutUrl       String?
+  failureReason     String?
+  rawPayload        Json?
+  status            PaymentStatus @default(PENDING)
+  receivedAt        DateTime?
+  verifiedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoice           Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
 
   @@index([status, receivedAt])
+  @@index([provider, providerReference])
 }
 
 model SupportTicket {

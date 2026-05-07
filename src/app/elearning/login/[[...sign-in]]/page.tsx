@@ -22,6 +22,7 @@ const devRoles: { role: PlatformRole; title: string; destination: string }[] = [
   { role: "finance_admin", title: "Finance", destination: "/finance" },
   { role: "super_admin", title: "Super admin", destination: "/admin/elearning" },
 ];
+const localSessionMaxAgeSeconds = 60 * 30;
 
 export const metadata: Metadata = {
   title: "Sign in to Ruguna eLearning",
@@ -55,7 +56,7 @@ async function startDevSession(formData: FormData) {
       sameSite: "lax",
       secure: false,
       path: "/",
-      maxAge: 60 * 60 * 8,
+      maxAge: localSessionMaxAgeSeconds,
     }
   );
 

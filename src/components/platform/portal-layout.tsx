@@ -290,7 +290,7 @@ export function PortalLayout({
         </aside>
 
         <div className="flex min-h-dvh min-w-0 flex-col overflow-x-hidden lg:h-dvh lg:overflow-y-auto">
-          <header className="sticky top-0 z-20 bg-white/58 px-4 py-2 shadow-[0_1px_0_rgba(17,17,17,0.045)] backdrop-blur-2xl supports-[backdrop-filter]:bg-white/52 sm:px-5 lg:px-6">
+          <header className="sticky top-0 z-20 bg-white/56 px-4 py-1.5 shadow-[0_1px_0_rgba(17,17,17,0.04)] backdrop-blur-2xl supports-[backdrop-filter]:bg-white/48 sm:px-5 lg:px-6">
             <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-3">
                 <button
@@ -302,10 +302,10 @@ export function PortalLayout({
                   <Menu className="h-4 w-4 text-[var(--color-ink)]" />
                 </button>
                 <div>
-                  <p className="font-heading text-lg font-bold leading-tight text-[var(--color-ink)]">
+                  <p className="font-heading text-base font-bold leading-tight text-[var(--color-ink)]">
                     {heading}
                   </p>
-                  <p className="max-w-xl text-xs leading-5 text-[var(--color-muted)]">{caption}</p>
+                  <p className="max-w-xl text-[11px] leading-4 text-[var(--color-muted)]">{caption}</p>
                 </div>
               </div>
 
@@ -316,7 +316,7 @@ export function PortalLayout({
                     <Input
                       name="query"
                       placeholder={searchPlaceholder}
-                      className="h-10 bg-[#f6f5ef] pl-11"
+                      className="h-9 bg-[#f6f5ef] pl-11"
                     />
                   </form>
                 ) : null}

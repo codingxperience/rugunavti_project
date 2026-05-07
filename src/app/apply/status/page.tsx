@@ -175,7 +175,7 @@ export default async function ApplicationStatusPage({
                                 : "bg-white text-[var(--color-muted)]"
                           }`}
                         >
-                          {state === "done" ? "✓" : "•"}
+                          {state === "done" ? "OK" : ""}
                         </span>
                         <div>
                           <p className="font-semibold text-[var(--color-ink)]">{statusLabel(status)}</p>
@@ -203,18 +203,17 @@ export default async function ApplicationStatusPage({
         </Card>
 
         <aside className="grid gap-4 self-start lg:sticky lg:top-28">
-          <Card className="bg-[var(--color-ink)] text-white">
+          <Card className="bg-white">
             <CardContent>
-              <h2 className="font-heading text-2xl font-bold">What your reference does</h2>
-              <p className="mt-3 text-sm leading-7 text-white/72">
-                It identifies your application in admissions, email updates, document follow-up,
-                and registrar decisions.
+              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">Reference number</h2>
+              <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
+                Use it when checking admissions updates or contacting Ruguna.
               </p>
               <div className="mt-5 grid gap-3">
                 <Button asChild>
                   <Link href="/elearning/login">Sign in to eLearning</Link>
                 </Button>
-                <Button asChild variant="secondary" className="border-white/14 bg-white/8 text-white hover:bg-white/14 hover:text-white">
+                <Button asChild variant="secondary">
                   <Link href="/contact">Contact admissions</Link>
                 </Button>
               </div>

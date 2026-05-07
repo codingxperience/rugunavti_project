@@ -4,6 +4,7 @@ import { getDb } from "@/lib/db";
 import {
   getDatabaseUnavailableMessage,
   isDatabaseConnectionError,
+  isDatabaseSchemaMismatchError,
   logDataAccessError,
 } from "@/lib/platform/database-errors";
 
@@ -61,9 +62,13 @@ export type FinanceInvoiceRow = {
 };
 
 function emptyFinanceRecords(error?: unknown) {
+  const databaseMessage = isDatabaseSchemaMismatchError(error)
+    ? "Finance records need the latest payment migration. Run Prisma migrations, then refresh this page."
+    : getDatabaseUnavailableMessage(error);
+
   return {
     databaseUnavailable: true,
-    databaseMessage: getDatabaseUnavailableMessage(error),
+    databaseMessage,
     snapshot: {
       invoiceCount: 0,
       issuedTotal: money(0),
@@ -82,9 +87,14 @@ function emptyFinanceRecords(error?: unknown) {
       currency: string;
       reference: string;
       method: string;
+      provider: string | null;
+      providerReference: string | null;
+      providerStatus: string | null;
+      failureReason: string | null;
       status: string;
       statusValue: PaymentStatus;
       receivedAt: string | null;
+      verifiedAt: string | null;
       createdAt: string;
     }>,
   };
@@ -122,7 +132,7 @@ export async function getFinanceWorkspaceRecords() {
   } catch (error) {
     logDataAccessError("Finance workspace records lookup failed", error);
 
-    if (isDatabaseConnectionError(error)) {
+    if (isDatabaseConnectionError(error) || isDatabaseSchemaMismatchError(error)) {
       return emptyFinanceRecords(error);
     }
 
@@ -198,9 +208,14 @@ export async function getFinanceWorkspaceRecords() {
         currency: payment.currency,
         reference: payment.reference,
         method: payment.method,
+        provider: payment.provider,
+        providerReference: payment.providerReference,
+        providerStatus: payment.providerStatus,
+        failureReason: payment.failureReason,
         status: label(payment.status),
         statusValue: payment.status,
         receivedAt: iso(payment.receivedAt),
+        verifiedAt: iso(payment.verifiedAt),
         createdAt: payment.createdAt.toISOString(),
       };
     }),

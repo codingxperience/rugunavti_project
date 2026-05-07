@@ -3,32 +3,56 @@
 import Link from "next/link";
 import {
   ChevronDown,
-  ChevronRight,
   HelpCircle,
   MessageCircle,
   Phone,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { siteConfig } from "@/data";
 
 const supportTopics = [
-  { label: "Apply to Ruguna College", href: "/apply" },
-  { label: "Admissions guidance", href: "/admissions" },
-  { label: "eLearning access", href: "/elearning/login" },
-  { label: "Fees and payment guidance", href: "/fees-funding" },
-  { label: "Certificate verification", href: "/verification" },
+  "Apply to Ruguna College",
+  "Admissions guidance",
+  "eLearning access",
+  "Fees and payment guidance",
+  "Certificate verification",
 ];
 
 type WhatsAppFloatProps = {
-  variant?: "whatsapp" | "support";
+  variant?: "whatsapp" | "support" | "auto";
 };
 
-export function WhatsAppFloat({ variant = "whatsapp" }: WhatsAppFloatProps) {
+export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
   const [open, setOpen] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   const whatsappNumber = siteConfig.whatsapp.replace(/\D/g, "");
   const whatsappHref = `https://wa.me/${whatsappNumber}`;
-  const isSupportMode = variant === "support";
+  const isSupportMode = variant === "support" || (variant === "auto" && authenticated);
+
+  useEffect(() => {
+    if (variant !== "auto") {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    fetch("/api/elearning/session-status", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { authenticated?: boolean } | null) => {
+        setAuthenticated(Boolean(payload?.authenticated));
+      })
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          setAuthenticated(false);
+        }
+      });
+
+    return () => controller.abort();
+  }, [variant]);
 
   if (!open) {
     return (
@@ -90,14 +114,17 @@ export function WhatsAppFloat({ variant = "whatsapp" }: WhatsAppFloatProps) {
       <div className="max-h-[248px] overflow-y-auto p-4">
         <div className="grid gap-2">
           {supportTopics.map((topic) => (
-            <Link
-              key={topic.href}
-              href={topic.href}
-              className="flex items-center justify-between rounded-2xl border border-black/6 bg-white px-4 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:bg-[#fbfaf4]"
+            <button
+              key={topic}
+              type="button"
+              disabled
+              className="flex cursor-default items-center justify-between rounded-2xl border border-black/6 bg-white px-4 py-3 text-left text-sm font-semibold text-[var(--color-ink)]"
             >
-              {topic.label}
-              <ChevronRight className="h-4 w-4 text-[var(--color-muted)]" />
-            </Link>
+              {topic}
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-muted)]">
+                Support
+              </span>
+            </button>
           ))}
         </div>
 

@@ -23,6 +23,17 @@ export function isDatabaseConnectionError(error: unknown) {
   );
 }
 
+export function isDatabaseSchemaMismatchError(error: unknown) {
+  const value = error as PrismaLikeError;
+  const message = value?.message ?? "";
+
+  return (
+    value?.code === "P2022" ||
+    message.includes("The column") ||
+    message.includes("does not exist in the current database")
+  );
+}
+
 export function getDatabaseUnavailableMessage(error?: unknown) {
   const value = error as PrismaLikeError | undefined;
   const location = value?.meta?.database_location;
@@ -39,6 +50,11 @@ export function logDataAccessError(scope: string, error: unknown) {
       console.warn(`${scope}: database temporarily unreachable.`);
     }
 
+    return;
+  }
+
+  if (isDatabaseSchemaMismatchError(error)) {
+    console.warn(`${scope}: database migration is pending.`);
     return;
   }
 

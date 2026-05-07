@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 import { CtaBanner } from "@/components/site/cta-banner";
-import { HomeAnnouncementNotice } from "@/components/site/home-announcement-notice";
 import { HomeHero } from "@/components/site/home-hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,6 @@ export default function HomePage() {
 
   return (
     <>
-      <HomeAnnouncementNotice />
       <HomeHero />
 
       <section className="section-padding pt-8">

@@ -8,6 +8,7 @@ import { resolveEffectiveSessionRoles } from "@/lib/platform/role-bootstrap";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+const bridgeSessionMaxAgeSeconds = 60 * 30;
 
 function getBearerToken(value: string | null) {
   if (!value?.startsWith("Bearer ")) {
@@ -24,10 +25,13 @@ function getPrimaryEmail(user: Awaited<ReturnType<ReturnType<typeof createClerkC
 
 function normalizeTimestampToSeconds(value: number | null | undefined) {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return Math.floor(Date.now() / 1000) + 60 * 60 * 8;
+    return Math.floor(Date.now() / 1000) + bridgeSessionMaxAgeSeconds;
   }
 
-  return value > 1_000_000_000_000 ? Math.floor(value / 1000) : Math.floor(value);
+  const normalized = value > 1_000_000_000_000 ? Math.floor(value / 1000) : Math.floor(value);
+  const idleExpiry = Math.floor(Date.now() / 1000) + bridgeSessionMaxAgeSeconds;
+
+  return Math.min(normalized, idleExpiry);
 }
 
 function normalizeClerkOpaqueId(
@@ -343,10 +347,7 @@ export async function POST(request: Request) {
       user.username ||
       email ||
       "Ruguna User";
-    const exp =
-      typeof sessionExpiry === "number"
-        ? sessionExpiry
-        : Math.floor(Date.now() / 1000) + 60 * 60 * 8;
+    const exp = normalizeTimestampToSeconds(sessionExpiry);
 
     const stored = await setClerkBridgeSession({
       userId: authenticatedUserId,

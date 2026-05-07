@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { StatusBadge } from "@/components/platform/status-badge";
 import type { LearnerApplicationRecord } from "@/lib/platform/learning-records";
 
 const NOTICE_DISMISS_MS = 10 * 60 * 1000;
+const NOTICE_STORAGE_EVENT = "ruguna-application-notice-change";
 
 type ApplicationStatusNoticeProps = {
   applications: LearnerApplicationRecord[];
@@ -21,32 +22,55 @@ function applicationStatusTone(status: string): "neutral" | "success" | "warning
   return "neutral";
 }
 
+function getDismissedSnapshot(storageKey: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const dismissedUntil = Number(window.localStorage.getItem(storageKey) ?? 0);
+  return Number.isFinite(dismissedUntil) && dismissedUntil > Date.now();
+}
+
+function subscribeToDismissedNotice(storageKey: string, onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => undefined;
+  }
+
+  const handleChange = () => onStoreChange();
+  const dismissedUntil = Number(window.localStorage.getItem(storageKey) ?? 0);
+  const delay = dismissedUntil - Date.now();
+  const timeout =
+    Number.isFinite(dismissedUntil) && delay > 0
+      ? window.setTimeout(() => {
+          window.localStorage.removeItem(storageKey);
+          onStoreChange();
+        }, delay)
+      : null;
+
+  window.addEventListener("storage", handleChange);
+  window.addEventListener(NOTICE_STORAGE_EVENT, handleChange);
+
+  return () => {
+    window.removeEventListener("storage", handleChange);
+    window.removeEventListener(NOTICE_STORAGE_EVENT, handleChange);
+
+    if (timeout) {
+      window.clearTimeout(timeout);
+    }
+  };
+}
+
 export function ApplicationStatusNotice({
   applications,
   email,
 }: ApplicationStatusNoticeProps) {
-  const [dismissed, setDismissed] = useState(false);
   const visibleApplications = applications.slice(0, 2);
   const storageKey = `ruguna-application-notice:${email}:${visibleApplications.map((item) => item.reference).join(":")}`;
-
-  useEffect(() => {
-    const dismissedUntil = Number(window.localStorage.getItem(storageKey) ?? 0);
-    const stillDismissed = dismissedUntil > Date.now();
-
-    setDismissed(stillDismissed);
-
-    if (!stillDismissed || !Number.isFinite(dismissedUntil)) {
-      window.localStorage.removeItem(storageKey);
-      return undefined;
-    }
-
-    const timeout = window.setTimeout(() => {
-      window.localStorage.removeItem(storageKey);
-      setDismissed(false);
-    }, dismissedUntil - Date.now());
-
-    return () => window.clearTimeout(timeout);
-  }, [storageKey]);
+  const dismissed = useSyncExternalStore(
+    (onStoreChange) => subscribeToDismissedNotice(storageKey, onStoreChange),
+    () => getDismissedSnapshot(storageKey),
+    () => false
+  );
 
   if (!visibleApplications.length || dismissed) {
     return null;
@@ -75,7 +99,7 @@ export function ApplicationStatusNotice({
             aria-label="Dismiss application notice"
             onClick={() => {
               window.localStorage.setItem(storageKey, String(Date.now() + NOTICE_DISMISS_MS));
-              setDismissed(true);
+              window.dispatchEvent(new Event(NOTICE_STORAGE_EVENT));
             }}
             className="flex h-9 w-9 items-center justify-center rounded-full bg-white/75 text-[var(--color-muted)] shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-[var(--color-ink)]"
           >

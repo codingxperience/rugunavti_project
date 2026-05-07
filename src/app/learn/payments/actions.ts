@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getDb } from "@/lib/db";
+import { createPaymentCheckout } from "@/lib/platform/checkout-providers";
 import { writeAuditLog } from "@/lib/platform/audit";
 import { requireApiUser } from "@/lib/platform/users";
 
@@ -15,6 +16,74 @@ const paymentReferenceSchema = z.object({
   method: z.enum(["MTN Mobile Money", "Airtel Money", "Bank transfer", "Card or virtual card"]),
   reference: z.string().trim().min(3).max(80),
 });
+
+const checkoutSchema = z.object({
+  invoiceId: z.string().min(1),
+  amount: z.coerce.number().positive(),
+  provider: z.enum(["stripe", "flutterwave"]),
+});
+
+const checkoutFailureRedirects: Record<string, string> = {
+  "invalid-amount": "/learn/payments?status=invalid-checkout",
+  "amount-too-high": "/learn/payments?status=amount-too-high",
+  "stripe-not-configured": "/learn/payments?status=stripe-not-configured",
+  "flutterwave-not-configured": "/learn/payments?status=flutterwave-not-configured",
+  "stripe-checkout-failed": "/learn/payments?status=checkout-error",
+  "flutterwave-checkout-failed": "/learn/payments?status=checkout-error",
+};
+
+export async function startLearnerCheckoutAction(formData: FormData) {
+  const auth = await requireApiUser(["student", "super_admin"]);
+
+  if (!auth.ok) {
+    redirect("/elearning/login?next=/learn/payments");
+  }
+
+  const parsed = checkoutSchema.safeParse({
+    invoiceId: formData.get("invoiceId"),
+    amount: formData.get("amount"),
+    provider: formData.get("provider"),
+  });
+
+  if (!parsed.success) {
+    redirect("/learn/payments?status=invalid-checkout");
+  }
+
+  const db = getDb();
+  const invoice = await db.invoice.findUnique({
+    where: { id: parsed.data.invoiceId },
+    include: {
+      user: {
+        select: {
+          email: true,
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+              phone: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!invoice || invoice.userId !== auth.user.id) {
+    redirect("/learn/payments?status=invoice-not-found");
+  }
+
+  const result = await createPaymentCheckout({
+    invoice,
+    amount: parsed.data.amount,
+    provider: parsed.data.provider,
+  });
+
+  if (!result.ok) {
+    redirect(checkoutFailureRedirects[result.reason] ?? "/learn/payments?status=checkout-error");
+  }
+
+  redirect(result.checkoutUrl ?? "/learn/payments?status=checkout-error");
+}
 
 export async function submitLearnerPaymentReferenceAction(formData: FormData) {
   const auth = await requireApiUser(["student", "super_admin"]);
@@ -73,6 +142,8 @@ export async function submitLearnerPaymentReferenceAction(formData: FormData) {
         amount: parsed.data.amount,
         reference: parsed.data.reference,
         method: parsed.data.method,
+        provider: "MANUAL",
+        providerStatus: PaymentStatus.PENDING,
         status: PaymentStatus.PENDING,
       },
     });

@@ -27,6 +27,13 @@ function formatDateTime(value: string | null) {
   }).format(new Date(value));
 }
 
+function compactProvider(value: string | null) {
+  if (!value || value === "MANUAL") return "Finance reference";
+  if (value === "STRIPE") return "Stripe";
+  if (value === "FLUTTERWAVE") return "Flutterwave";
+  return value;
+}
+
 export default async function FinancePaymentsPage({
   searchParams,
 }: {
@@ -43,7 +50,7 @@ export default async function FinancePaymentsPage({
             Payments
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted)]">
-            Review learner-submitted and finance-recorded payment references.
+            Review provider checkouts, mobile money references, and finance-confirmed receipts.
           </p>
         </CardContent>
       </Card>
@@ -78,14 +85,23 @@ export default async function FinancePaymentsPage({
               <CardContent className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px] xl:items-center">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
-                    {payment.reference}
+                    {compactProvider(payment.provider)}
                   </p>
                   <h2 className="font-heading mt-2 text-2xl font-bold text-[var(--color-ink)]">
                     {payment.learner}
                   </h2>
                   <p className="mt-2 text-sm text-[var(--color-muted)]">
-                    {payment.invoiceNumber} | {payment.method} | {formatDateTime(payment.receivedAt ?? payment.createdAt)}
+                    {payment.invoiceNumber} | {payment.reference} | {formatDateTime(payment.receivedAt ?? payment.createdAt)}
                   </p>
+                  <div className="mt-3 grid gap-2 text-xs text-[var(--color-muted)] sm:grid-cols-2">
+                    <span>Method: {payment.method}</span>
+                    <span>Provider status: {payment.providerStatus ?? payment.status}</span>
+                    {payment.providerReference ? <span>Provider ref: {payment.providerReference}</span> : null}
+                    {payment.verifiedAt ? <span>Verified: {formatDateTime(payment.verifiedAt)}</span> : null}
+                    {payment.failureReason ? (
+                      <span className="text-red-700 sm:col-span-2">{payment.failureReason}</span>
+                    ) : null}
+                  </div>
                 </div>
                 <form action={updatePaymentStatusAction} className="grid gap-3 rounded-[22px] border border-black/6 bg-[#fbfbf7] p-4">
                   <input type="hidden" name="paymentId" value={payment.id} />

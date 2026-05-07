@@ -1,6 +1,6 @@
 # Ruguna eLearning Deployment Runbook
 
-This runbook prepares the Ruguna eLearning platform for a real Vercel deployment with Supabase Postgres, Supabase Storage, Clerk, and Resend.
+This runbook prepares the Ruguna eLearning platform for a real Vercel deployment with Supabase Postgres, Supabase Storage, Clerk, Resend, and payment checkout.
 
 ## 1. Rotate Exposed Secrets
 
@@ -34,6 +34,21 @@ SUPABASE_BUCKET_PUBLIC=ruguna-public
 SUPABASE_BUCKET_PRIVATE=ruguna-private
 RESEND_API_KEY=
 RESEND_FROM_EMAIL=
+RUGUNA_MTN_MOMO_NUMBER=
+RUGUNA_AIRTEL_MONEY_NUMBER=
+RUGUNA_BANK_NAME=
+RUGUNA_BANK_ACCOUNT_NAME=
+RUGUNA_BANK_ACCOUNT_NUMBER=
+RUGUNA_BANK_BRANCH=
+RUGUNA_PAYMENT_MODE=test
+RUGUNA_PAYMENT_CURRENCY=UGX
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_CHECKOUT_CURRENCY=UGX
+FLUTTERWAVE_SECRET_KEY=
+FLUTTERWAVE_PUBLIC_KEY=
+FLUTTERWAVE_WEBHOOK_SECRET_HASH=
+FLUTTERWAVE_CHECKOUT_CURRENCY=UGX
 NEXT_PUBLIC_POSTHOG_KEY=
 NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 RUGUNA_USE_DATABASE=true
@@ -58,7 +73,31 @@ npm.cmd run prod:check
 
 The command must pass before production deployment.
 
-## 3. Clerk Setup
+## 3. Payment Checkout Setup
+
+The platform supports three finance paths from the same invoice record:
+
+- Stripe Checkout for card and international-payment testing.
+- Flutterwave hosted checkout for Uganda-friendly mobile money and card testing.
+- Manual payment references for MTN, Airtel, bank transfer, or offline receipts that finance verifies.
+
+Configure Stripe:
+
+- Add `STRIPE_SECRET_KEY`.
+- Add webhook endpoint `https://YOUR_DOMAIN/api/webhooks/stripe`.
+- Subscribe to `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
+- Store the endpoint signing secret as `STRIPE_WEBHOOK_SECRET`.
+
+Configure Flutterwave:
+
+- Add `FLUTTERWAVE_SECRET_KEY`.
+- Add `FLUTTERWAVE_PUBLIC_KEY` for finance reference.
+- Add webhook endpoint `https://YOUR_DOMAIN/api/webhooks/flutterwave`.
+- Store the webhook secret hash as `FLUTTERWAVE_WEBHOOK_SECRET_HASH`.
+
+Keep `RUGUNA_PAYMENT_MODE=test` until Ruguna has completed provider onboarding, test payment runs, finance reconciliation checks, and leadership approval for live collections.
+
+## 4. Clerk Setup
 
 Configure Clerk with email/password and Google sign-in.
 
@@ -77,7 +116,7 @@ Create a Clerk webhook endpoint:
 
 The webhook syncs Clerk users into the platform database so role checks, learner records, instructor workflows, and audit logs use real local records.
 
-## 4. Supabase Database
+## 5. Supabase Database
 
 After env variables are configured:
 
@@ -89,7 +128,7 @@ npm.cmd run db:seed
 
 The seed creates Ruguna roles, online-first schools/categories, course structure, modules, lessons, resources, quiz/assignment records, FAQs, testimonials, and site settings.
 
-## 5. Supabase Storage
+## 6. Supabase Storage
 
 Create or update Ruguna Storage buckets:
 
@@ -106,7 +145,7 @@ The script configures:
 
 The application only creates signed upload/download URLs for configured Ruguna buckets and validates bucket names, paths, MIME types, and file size server-side.
 
-## 6. Resend Email
+## 7. Resend Email
 
 Configure:
 
@@ -121,7 +160,7 @@ Recommended production email events:
 - Certificate issued
 - Instructor/admin notifications for submissions and grading queues
 
-## 7. Vercel Deployment
+## 8. Vercel Deployment
 
 Local preflight:
 
@@ -144,7 +183,7 @@ For Vercel, set the build command to:
 npm.cmd run build
 ```
 
-## 8. Post-Deploy Smoke Test
+## 9. Post-Deploy Smoke Test
 
 Verify these routes after deployment:
 
@@ -154,8 +193,10 @@ Verify these routes after deployment:
 - `/elearning/courses`
 - `/learn/dashboard`
 - `/learn/my-courses`
+- `/learn/payments`
 - `/instructor/dashboard`
 - `/admin/elearning`
+- `/finance/payments`
 - `/api/elearning/certificates/verify?code=INVALID-CODE`
 
 Expected behavior:

@@ -4,6 +4,10 @@ import { Manrope, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { PostHogProvider } from "@/components/providers/posthog-provider";
+import {
+  ClerkSessionIdleGuard,
+  LocalSessionIdleGuard,
+} from "@/components/platform/session-idle-guard";
 import { RouteShell } from "@/components/site/route-shell";
 import { siteConfig } from "@/data";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
@@ -65,10 +69,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               "setup-mfa": "/elearning/tasks/setup-mfa",
             }}
           >
+            <ClerkSessionIdleGuard />
             {app}
           </ClerkProvider>
         ) : (
-          app
+          <>
+            <LocalSessionIdleGuard />
+            {app}
+          </>
         )}
       </body>
     </html>

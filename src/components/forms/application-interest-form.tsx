@@ -340,41 +340,38 @@ export function ApplicationInterestForm({
         : "/apply/status";
 
     return (
-      <section className="rounded-[32px] border border-black/8 bg-white p-6 text-center shadow-[0_24px_80px_-64px_rgba(17,17,17,0.55)] sm:p-8">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
-          OK
-        </div>
-        <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-[var(--color-muted)]">
+      <section className="rounded-[26px] border border-black/8 bg-white p-6 shadow-[0_22px_70px_-58px_rgba(17,17,17,0.52)] sm:p-7">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">
           {duplicateApplication ? "Already submitted" : "Submitted"}
         </p>
-        <h2 className="font-heading mt-2 text-3xl font-bold tracking-tight text-[var(--color-ink)]">
+        <h2 className="font-heading mt-2 text-2xl font-bold tracking-tight text-[var(--color-ink)]">
           {duplicateApplication ? "We found your application" : "Application submitted"}
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-[var(--color-muted)]">
+        <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-muted)]">
           {serverMessage ??
             "Your Ruguna College application is now with admissions. Use the reference below to track updates."}
         </p>
 
-        <div className="mx-auto mt-6 grid max-w-xl gap-3 rounded-[24px] border border-black/8 bg-[#fbfbf7] p-4 text-left sm:grid-cols-2">
+        <div className="mt-5 grid gap-3 rounded-[20px] bg-[#f6f5ef] p-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
               Reference
             </p>
-            <p className="mt-1 font-heading text-xl font-bold text-[var(--color-ink)]">
+            <p className="mt-1 font-heading text-lg font-bold text-[var(--color-ink)]">
               {reference}
             </p>
           </div>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-muted)]">
               Status
             </p>
-            <p className="mt-1 font-heading text-xl font-bold text-[var(--color-ink)]">
+            <p className="mt-1 font-heading text-lg font-bold text-[var(--color-ink)]">
               {applicationStatus ?? "Submitted"}
             </p>
           </div>
         </div>
 
-        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <Button asChild>
             <Link href={statusHref}>Track application</Link>
           </Button>

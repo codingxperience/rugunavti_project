@@ -40,18 +40,18 @@ export default async function ElearningAccessDeniedPage({
 
   return (
     <section className="flex min-h-dvh items-center justify-center bg-[#f6f5ef] px-4 py-10">
-      <div className="w-full max-w-[520px] rounded-[34px] border border-white/70 bg-white/70 p-6 shadow-[0_34px_90px_-68px_rgba(17,17,17,0.65)] backdrop-blur-2xl sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
+      <div className="w-full max-w-[460px] rounded-[26px] border border-black/8 bg-white p-6 shadow-[0_24px_70px_-58px_rgba(17,17,17,0.55)] sm:p-7">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-muted)]">
           Ruguna eLearning
         </p>
-        <h1 className="font-heading mt-3 text-3xl font-bold leading-tight text-[var(--color-ink)]">
-          Access not assigned
+        <h1 className="font-heading mt-2 text-2xl font-bold leading-tight text-[var(--color-ink)]">
+          Workspace not available
         </h1>
-        <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
-          This account is signed in, but it does not have access to that workspace.
+        <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+          This account is signed in, but it has not been assigned to that area.
         </p>
 
-        <div className="mt-6 grid gap-2 rounded-[24px] bg-white/78 p-4 text-sm text-[var(--color-muted)]">
+        <div className="mt-5 grid gap-2 rounded-[20px] bg-[#f6f5ef] p-4 text-sm text-[var(--color-muted)]">
           <p>
             <span className="font-semibold text-[var(--color-ink)]">Your access:</span>{" "}
             {currentRoles}
@@ -62,7 +62,7 @@ export default async function ElearningAccessDeniedPage({
           </p>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-5 flex flex-wrap gap-3">
           {session.isAuthenticated ? (
             <Button asChild>
               <Link href={currentWorkspace}>Open my workspace</Link>

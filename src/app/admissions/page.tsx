@@ -19,7 +19,7 @@ export default function AdmissionsPage() {
         }
       />
 
-      <section className="section-padding pt-0">
+      <section id="intakes" className="section-padding pt-0">
         <div className="container-width grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
             { href: "/apply", label: "Apply Online" },
