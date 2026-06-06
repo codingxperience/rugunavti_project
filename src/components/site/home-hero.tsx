@@ -44,17 +44,39 @@ export function HomeHero() {
 
         <div className="fade-up-delay relative flex min-h-[320px] items-center justify-center lg:min-h-[520px]">
           <div className="pointer-events-none absolute left-6 top-10 h-28 w-28 rounded-full bg-[var(--color-accent)] opacity-70 blur-3xl sm:h-40 sm:w-40" />
-          <video
-            aria-label="Animated Ruguna learner illustration"
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            className="relative z-10 w-full max-w-[620px] object-contain mix-blend-multiply"
-          >
-            <source src="/brand/home_hero_illustrator.mp4" type="video/mp4" />
-          </video>
+          <div className="relative w-full max-w-[620px]">
+            <span className="absolute left-3 top-3 z-20 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)]/70 px-3.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-white backdrop-blur-sm">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-[#ff5b5b]" />
+              Campus life
+            </span>
+            <video
+              aria-label="Animated Ruguna learner illustration"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="relative z-10 w-full object-contain mix-blend-multiply"
+            >
+              <source src="/brand/home_hero_illustrator.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute -left-2 bottom-6 z-20 flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 shadow-[0_30px_70px_-50px_rgba(17,17,17,0.7)] sm:-left-5">
+              <span className="font-heading text-2xl font-bold leading-none text-[var(--color-ink)]">13</span>
+              <span className="text-xs font-semibold leading-tight text-[var(--color-muted)]">
+                Specialist
+                <br />
+                schools
+              </span>
+            </div>
+            <div className="absolute -right-1 top-6 z-20 flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 shadow-[0_30px_70px_-50px_rgba(17,17,17,0.7)] sm:-right-3">
+              <span className="font-heading text-2xl font-bold leading-none text-[#eab308]">40+</span>
+              <span className="text-xs font-semibold leading-tight text-[var(--color-muted)]">
+                Career
+                <br />
+                pathways
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </section>

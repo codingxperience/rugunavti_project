@@ -8,11 +8,13 @@ export type School = {
   flagshipPrograms: string[];
   careerPaths: string[];
   studyModes: string[];
+  image?: string;
 };
 
 export const schools: School[] = [
   {
     slug: "digital-technology-ai-cyber-systems",
+    image: "/img/ict.jpg",
     name: "School of Digital Technology, AI & Cyber Systems",
     shortName: "Digital Technology",
     overview:
@@ -29,6 +31,7 @@ export const schools: School[] = [
   },
   {
     slug: "engineering-construction-smart-infrastructure",
+    image: "/img/construction.jpg",
     name: "School of Engineering, Construction & Smart Infrastructure",
     shortName: "Engineering & Construction",
     overview:
@@ -45,6 +48,7 @@ export const schools: School[] = [
   },
   {
     slug: "renewable-energy-climate-technology",
+    image: "/img/solar.jpg",
     name: "School of Renewable Energy & Climate Technology",
     shortName: "Renewable Energy",
     overview:
@@ -61,6 +65,7 @@ export const schools: School[] = [
   },
   {
     slug: "agribusiness-food-systems-agritech",
+    image: "/img/agriculture.jpg",
     name: "School of Agribusiness, Food Systems & AgriTech",
     shortName: "Agribusiness & AgriTech",
     overview:
@@ -77,6 +82,7 @@ export const schools: School[] = [
   },
   {
     slug: "health-public-health-allied-services",
+    image: "/img/lab.jpg",
     name: "School of Health, Public Health & Allied Services",
     shortName: "Health & Allied Services",
     overview:
@@ -93,6 +99,7 @@ export const schools: School[] = [
   },
   {
     slug: "business-entrepreneurship-digital-economy",
+    image: "/img/business.jpg",
     name: "School of Business, Entrepreneurship & Digital Economy",
     shortName: "Business & Entrepreneurship",
     overview:
@@ -109,6 +116,7 @@ export const schools: School[] = [
   },
   {
     slug: "creative-arts-media-digital-production",
+    image: "/img/design.jpg",
     name: "School of Creative Arts, Media & Digital Production",
     shortName: "Creative Arts & Media",
     overview:
@@ -125,6 +133,7 @@ export const schools: School[] = [
   },
   {
     slug: "hospitality-tourism-experience-management",
+    image: "/img/hospitality.jpg",
     name: "School of Hospitality, Tourism & Experience Management",
     shortName: "Hospitality & Tourism",
     overview:
@@ -141,6 +150,7 @@ export const schools: School[] = [
   },
   {
     slug: "automotive-mechanical-transport-technology",
+    image: "/img/mechanic.jpg",
     name: "School of Automotive, Mechanical & Transport Technology",
     shortName: "Automotive & Mechanical",
     overview:
@@ -157,6 +167,7 @@ export const schools: School[] = [
   },
   {
     slug: "logistics-supply-chain-procurement",
+    image: "/img/logistics.jpg",
     name: "School of Logistics, Supply Chain & Procurement",
     shortName: "Logistics & Supply Chain",
     overview:
@@ -173,6 +184,7 @@ export const schools: School[] = [
   },
   {
     slug: "security-safety-industrial-systems",
+    image: "/img/security.jpg",
     name: "School of Security, Safety & Industrial Systems",
     shortName: "Security & Safety",
     overview:
@@ -189,6 +201,7 @@ export const schools: School[] = [
   },
   {
     slug: "ict-support-digital-operations",
+    image: "/img/classroom.jpg",
     name: "School of ICT Support & Digital Operations",
     shortName: "ICT Support",
     overview:
@@ -205,6 +218,7 @@ export const schools: School[] = [
   },
   {
     slug: "education-training-tvet-instruction",
+    image: "/img/teaching.jpg",
     name: "School of Education, Training & TVET Instruction",
     shortName: "TVET Instruction",
     overview:
