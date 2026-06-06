@@ -1,4 +1,5 @@
 import { CtaBanner } from "@/components/site/cta-banner";
+import { MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { eventItems, newsItems } from "@/data";
@@ -21,6 +22,14 @@ export default function NewsEventsPage() {
             </p>
           </div>
         }
+      />
+
+      <MediaBand
+        image="/img/event.jpg"
+        alt="Ruguna College campus event"
+        eyebrow="From the campus"
+        title="Open days, showcases, and intake announcements"
+        description="Visit on an open day, follow programme showcases, and keep ahead of admissions deadlines across the academic year."
       />
 
       <section className="section-padding pt-0">

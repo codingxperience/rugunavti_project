@@ -1,7 +1,18 @@
 import { CtaBanner } from "@/components/site/cta-banner";
+import { Gallery, MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
+import { SectionHeading } from "@/components/site/section-heading";
 import { Card, CardContent } from "@/components/ui/card";
 import { portalHighlights, studentLifeHighlights } from "@/data";
+
+const galleryItems = [
+  { image: "/img/group.jpg", caption: "Community & student clubs" },
+  { image: "/img/design.jpg", caption: "Studios & creative work" },
+  { image: "/img/solar.jpg", caption: "Hands-on practical training" },
+  { image: "/img/lab.jpg", caption: "Labs & applied practicals" },
+  { image: "/img/event.jpg", caption: "Campus events & showcases" },
+  { image: "/img/graduation.jpg", caption: "Graduation & milestones" },
+];
 
 export default function StudentLifePage() {
   return (
@@ -29,6 +40,28 @@ export default function StudentLifePage() {
           ))}
         </div>
       </section>
+
+      <section className="section-padding pt-0">
+        <div className="container-width">
+          <SectionHeading
+            eyebrow="Life at Ruguna"
+            title="Learning that looks like the work"
+            description="From workshops and studios to clubs and graduation, students build portfolios, friendships, and professional habits employers recognise."
+          />
+          <div className="mt-8">
+            <Gallery items={galleryItems} />
+          </div>
+        </div>
+      </section>
+
+      <MediaBand
+        image="/img/students.jpg"
+        alt="Ruguna students together on campus"
+        align="center"
+        eyebrow="Belong"
+        title="A community that supports your next step"
+        description="Mentorship, peer learning, wellbeing support, and career guidance run alongside academic study, so no learner moves through Ruguna alone."
+      />
 
       <section className="section-padding">
         <div className="container-width grid gap-6 lg:grid-cols-2">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ContactForm } from "@/components/forms/contact-form";
+import { MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { siteConfig, supportCategories } from "@/data";
@@ -67,6 +68,15 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      <MediaBand
+        image="/img/advisor2.jpg"
+        alt="Ruguna admissions advisor in a consultation"
+        align="center"
+        eyebrow="Real people, quick answers"
+        title="Talk to an admissions advisor"
+        description="Whether you are comparing programmes, preparing documents, or clarifying fees, a Ruguna advisor can guide your next step — by phone, email, or WhatsApp."
+      />
     </>
   );
 }

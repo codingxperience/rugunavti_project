@@ -78,6 +78,50 @@ export default async function VerificationPage({
           </Card>
         </div>
       </section>
+
+      <section className="section-padding pt-0">
+        <div className="container-width">
+          <h2 className="font-heading text-3xl font-bold text-[var(--color-ink)]">How verification works</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                step: "01",
+                title: "Locate the reference",
+                detail: "Find the unique certificate number or document token printed on the official record.",
+              },
+              {
+                step: "02",
+                title: "Run the lookup",
+                detail: "Enter the code above to instantly confirm status, programme, award, and completion date.",
+              },
+              {
+                step: "03",
+                title: "Confirm with confidence",
+                detail: "Employers and institutions can trust a verified match — or contact us if a record needs review.",
+              },
+            ].map((item) => (
+              <Card key={item.step}>
+                <CardContent>
+                  <p className="font-heading text-3xl font-bold text-[#eab308]">{item.step}</p>
+                  <h3 className="font-heading mt-4 text-xl font-bold">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">{item.detail}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Card className="mt-6 bg-[var(--color-ink)] text-white">
+            <CardContent>
+              <h3 className="font-heading text-2xl font-bold">For employers &amp; institutions</h3>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-white/72">
+                Every Ruguna award carries a unique, checkable reference. If you are verifying a
+                candidate in bulk or cannot locate a record, contact admissions and our team will
+                confirm authenticity directly.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </>
   );
 }
