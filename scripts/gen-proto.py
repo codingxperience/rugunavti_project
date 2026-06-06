@@ -235,7 +235,19 @@ for route,fname in PAGES.items():
     print("wrote src/proto/%s.html.ts (%d chars)"%(route,len(main)))
 
 hdr="/* AUTO-GENERATED — prototype site.css + page styles, scoped under .rg so it cannot affect dashboards/auth/shadcn. Run scripts/gen-proto.py to regenerate. */\n"
-open("src/styles/prototype.css","w").write(hdr+"".join(css_parts)+"\n")
+CHROME_OVERRIDES="""
+/* ===== chrome fixes (appended last so they win) ===== */
+/* Center mega-menus under the whole nav so edge menus never cross the viewport */
+.rg .nav-links{position:relative;}
+.rg .nav-item{position:static;}
+.rg .nav-item.has-mega::after{left:0;right:0;}
+.rg .mega{max-width:min(1060px,calc(100vw - 28px));}
+.rg .mega::before{content:"";position:absolute;left:0;right:0;top:-18px;height:18px;}
+/* Illustration on each mega feature card */
+.rg .mega-feature{overflow:hidden;}
+.rg .mega-feature .mf-illus{width:100%;max-height:120px;object-fit:contain;object-position:center bottom;margin:8px 0 2px;filter:drop-shadow(0 14px 20px rgba(17,17,17,0.18));}
+"""
+open("src/styles/prototype.css","w").write(hdr+"".join(css_parts)+CHROME_OVERRIDES+"\n")
 # fix has-js reveal selectors mangled by scoping
 c=open("src/styles/prototype.css").read().replace(".rg html.has-js ",".rg ")
 open("src/styles/prototype.css","w").write(c)
