@@ -132,6 +132,26 @@ export function PrototypeRuntime() {
       cleanups.push(() => qBtn.removeEventListener("click", handler));
     });
 
+    // ---- programme level filter (Academics: .filter-chip[data-f] -> .prog[data-level]) ----
+    roots.forEach((root) => {
+      const chips = Array.from(root.querySelectorAll<HTMLElement>(".filter-chip[data-f]"));
+      if (!chips.length) return;
+      const progs = Array.from(root.querySelectorAll<HTMLElement>(".prog[data-level]"));
+      chips.forEach((chip) => {
+        const handler = () => {
+          chips.forEach((c) => c.classList.remove("active"));
+          chip.classList.add("active");
+          const f = chip.getAttribute("data-f");
+          progs.forEach((p) => {
+            const show = f === "all" || p.getAttribute("data-level") === f;
+            p.style.display = show ? "" : "none";
+          });
+        };
+        chip.addEventListener("click", handler);
+        cleanups.push(() => chip.removeEventListener("click", handler));
+      });
+    });
+
     // ---- tabs ----
     roots.forEach((root) => {
       root.querySelectorAll<HTMLElement>("[data-tabs]").forEach((group) => {
