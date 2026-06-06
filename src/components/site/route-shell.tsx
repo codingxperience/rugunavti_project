@@ -3,8 +3,7 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { SiteFooter } from "@/components/site/site-footer";
-import { SiteHeader } from "@/components/site/site-header";
+import { ProtoFooter, ProtoHeader } from "@/components/site/proto-chrome";
 import { WhatsAppFloat } from "@/components/site/whatsapp-float";
 
 const chromeLessPrefixes = [
@@ -29,7 +28,10 @@ const chromeLessPrefixes = [
 
 export function RouteShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isChromeLess = chromeLessPrefixes.some((prefix) => pathname.startsWith(prefix));
+  // Match on path boundaries so "/student-life" is NOT treated as the "/student" dashboard.
+  const isChromeLess = chromeLessPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
+  );
 
   if (isChromeLess) {
     return <>{children}</>;
@@ -37,10 +39,10 @@ export function RouteShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <SiteHeader />
+      <ProtoHeader />
       <main>{children}</main>
       <WhatsAppFloat />
-      <SiteFooter />
+      <ProtoFooter />
     </>
   );
 }

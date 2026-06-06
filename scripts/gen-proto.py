@@ -111,9 +111,11 @@ css_parts=[scope_css(site)]
 PAGES={  # route : prototype file
  "home":"index.html",
  "about":"About.html",
+ "academics":"Academics.html",
  "student-life":"Student Life.html",
  "news-events":"News & Events.html",
  "admissions":"Admissions.html",
+ "elearning":"Elearning.html",
 }
 # link rewrite map (order matters: longest/most-specific first)
 LINKS=[
@@ -147,6 +149,7 @@ def fix_links(h):
     return h
 def inline_icons(h):
     h=re.sub(r"IC_(\w+)", lambda m: svg(m.group(1)), h)
+    h=re.sub(r"I_(\w+)", lambda m: svg(m.group(1)), h)  # Academics' I_ icon tokens
     # fill empty data-* icon holders (all holder attributes used across the prototype)
     def fill(m):
         return m.group(1)+svg(m.group(3))+m.group(4)
@@ -155,6 +158,7 @@ def inline_icons(h):
     h=re.sub(r'>CK ', '>'+svg("CK",1.9)+' ', h)
     # PM = accordion plus token
     h=re.sub(r'(<\w+ class="pm"[^>]*>)PM(</\w+>)', lambda m: m.group(1)+svg("PM")+m.group(2), h)
+    h=h.replace(">PM<", ">"+svg("chev")+"<")  # Academics uses bare >PM< as a chevron
     return h
 def ts_escape(s):
     return s.replace("\\","\\\\").replace("`","\\`").replace("${","\\${")
@@ -170,6 +174,9 @@ for route,fname in PAGES.items():
         # home-only fills from index.html's inline script: proof ✓ checks and ★ stars
         star='<svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.2 6.8.8-5 4.6 1.3 6.7L12 17.8 5.9 20.3 7.2 13.6l-5-4.6 6.8-.8z"/></svg>'
         main=re.sub(r'(<div class="stars">)[^<]*(</div>)', lambda m: m.group(1)+star*5+m.group(2), main)
+    if route=="elearning":
+        # Use the real platform's sign-in/sign-up instead of "apply" for enrolment CTAs
+        main=main.replace("/apply", "/elearning/register")
     var=re.sub(r"[^a-zA-Z0-9]","_",route)+"Html"
     open("src/proto/%s.html.ts"%route,"w").write(
         "// AUTO-GENERATED from the Claude Design prototype (%s). Do not edit; run scripts/gen-proto.py.\n"%fname
