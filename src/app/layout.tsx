@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Manrope, Space_Grotesk } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { PostHogProvider } from "@/components/providers/posthog-provider";
@@ -14,15 +14,17 @@ import { hasClerk, platformEnv } from "@/lib/platform/env";
 
 import "./globals.css";
 
-const manrope = Manrope({
+// Display face — characterful, premium headings (replaces Space Grotesk)
+const displayFont = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  variable: "--font-display",
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+// Body face — clean, confident sans (replaces Manrope)
+const sansFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -56,7 +58,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${manrope.variable} ${spaceGrotesk.variable} site-shell min-h-screen antialiased`}
+        className={`${sansFont.variable} ${displayFont.variable} site-shell min-h-screen antialiased`}
         suppressHydrationWarning
       >
         {hasClerk ? (
