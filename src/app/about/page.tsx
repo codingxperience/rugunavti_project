@@ -1,15 +1,17 @@
 import { CtaBanner } from "@/components/site/cta-banner";
+import { ImageSplit, MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
 import { SectionHeading } from "@/components/site/section-heading";
 import { Card, CardContent } from "@/components/ui/card";
+import { publicStats } from "@/data";
 
 const values = [
-  "Integrity",
-  "Excellence",
-  "Innovation",
-  "Service",
-  "Discipline",
-  "Employability",
+  { name: "Integrity", detail: "Honest teaching, clear communication, and fair assessment." },
+  { name: "Excellence", detail: "High standards in workshops, studios, and classrooms." },
+  { name: "Innovation", detail: "Modern, technology-enabled and practical learning." },
+  { name: "Service", detail: "Support that puts the learner's next step first." },
+  { name: "Discipline", detail: "Professional habits that employers recognise." },
+  { name: "Employability", detail: "Every pathway points toward real opportunity." },
 ];
 
 export default function AboutPage() {
@@ -30,21 +32,45 @@ export default function AboutPage() {
         }
       />
 
-      <section className="section-padding pt-0">
-        <div className="container-width grid gap-4 lg:grid-cols-3">
+      <ImageSplit image="/img/study.jpg" alt="Ruguna students collaborating">
+        <SectionHeading
+          eyebrow="Who we are"
+          title="A vocational institute built around competence and care"
+          description="From the first term, learning looks like the work — workshops, studios, clinics, and the field — supported by clear digital access to admissions, records, and student services."
+        />
+        <div className="mt-6 grid gap-3">
           {[
             "Credible teaching, clear communication, and practical skill-building.",
             "Academic pathways that balance workshop practice with guided digital support.",
             "Mobile-friendly access for admissions, learning, records, and student services.",
           ].map((point) => (
             <Card key={point}>
-              <CardContent>
+              <CardContent className="p-5 sm:p-5">
                 <p className="text-sm leading-7 text-[var(--color-muted)]">{point}</p>
               </CardContent>
             </Card>
           ))}
         </div>
-      </section>
+      </ImageSplit>
+
+      <MediaBand
+        image="/img/campus.jpg"
+        alt="Ruguna College campus"
+        eyebrow="Ruguna at a glance"
+        title="One institute, many practical pathways"
+        description="A breadth of schools, study modes, and intakes designed so learners across Uganda and beyond can find a route that fits."
+      >
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          {publicStats.map((stat) => (
+            <div key={stat.label}>
+              <p className="font-heading text-3xl font-bold text-[var(--color-accent)] sm:text-4xl">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-sm text-white/72">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </MediaBand>
 
       <section className="section-padding">
         <div className="container-width grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)]">
@@ -70,7 +96,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="section-padding">
+      <section className="section-padding pt-0">
         <div className="container-width">
           <SectionHeading
             eyebrow="Core values"
@@ -79,9 +105,10 @@ export default function AboutPage() {
           />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {values.map((value) => (
-              <Card key={value} className="bg-[var(--color-ink)] text-white">
+              <Card key={value.name} className="bg-[var(--color-ink)] text-white">
                 <CardContent>
-                  <p className="font-heading text-2xl font-bold">{value}</p>
+                  <p className="font-heading text-2xl font-bold">{value.name}</p>
+                  <p className="mt-2 text-sm leading-7 text-white/68">{value.detail}</p>
                 </CardContent>
               </Card>
             ))}

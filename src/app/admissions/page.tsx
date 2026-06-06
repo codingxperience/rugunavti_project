@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { admissionRequirements, admissionsSteps, faqs, intakeMoments } from "@/data";
@@ -54,6 +55,21 @@ export default function AdmissionsPage() {
           ))}
         </div>
       </section>
+
+      <MediaBand
+        image="/img/laptop.jpg"
+        alt="Applicant completing the Ruguna application on a laptop"
+        eyebrow="Built for any device"
+        title="Apply from a phone, tablet, or laptop — anywhere"
+        description="Upload documents straight from your device camera and track your application from inquiry to confirmed enrolment, wherever you are."
+      >
+        <Link
+          href="/apply"
+          className="inline-flex items-center justify-center rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-[var(--color-ink)] transition hover:-translate-y-0.5"
+        >
+          Start your application
+        </Link>
+      </MediaBand>
 
       <section className="section-padding">
         <div className="container-width grid gap-6 lg:grid-cols-2">
