@@ -28,8 +28,8 @@ const footerGroups = [
 export function SiteFooter() {
   return (
     <footer className="section-padding pb-8">
-      <div className="container-width overflow-hidden rounded-[36px] border border-[var(--color-border)] bg-[var(--color-ink)] px-6 py-10 text-white sm:px-10 sm:py-14">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <div className="container-width relative overflow-hidden rounded-[36px] border border-[var(--color-border)] bg-[var(--color-ink)] px-6 py-10 text-white sm:px-10 sm:py-14">
+        <div className="relative z-10 grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
           <div className="max-w-xl">
             <p className="eyebrow border-white/10 bg-white/6 text-white/72">{siteConfig.name}</p>
             <h2 className="font-heading mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -72,7 +72,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-white/56 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative z-10 mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-white/56 sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; 2026 {siteConfig.name}. All rights reserved.</p>
           <div className="flex flex-wrap gap-4">
             <Link href="/verification">Certificate Verification</Link>
@@ -80,6 +80,13 @@ export function SiteFooter() {
             <Link href="/staff-portal">Staff Portal</Link>
           </div>
         </div>
+
+        <span
+          aria-hidden
+          className="footer-wordmark pointer-events-none absolute inset-x-0 -bottom-4 z-0 text-center text-[23vw] sm:-bottom-8 sm:text-[15rem]"
+        >
+          RUGUNA
+        </span>
       </div>
     </footer>
   );

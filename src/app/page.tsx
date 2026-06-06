@@ -1,13 +1,19 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   BriefcaseBusiness,
   CalendarClock,
+  CalendarDays,
+  Clock4,
   GraduationCap,
   Hammer,
+  Layers,
+  MapPin,
   MonitorSmartphone,
   Rocket,
   ShieldCheck,
+  Star,
 } from "lucide-react";
 
 import { CtaBanner } from "@/components/site/cta-banner";
@@ -32,6 +38,14 @@ const iconMap = {
   shield: ShieldCheck,
 } as const;
 
+const quickFacts = [
+  { icon: CalendarDays, value: "3 Intakes", label: "Every year" },
+  { icon: Layers, value: "5 Study modes", label: "Flexible options" },
+  { icon: Clock4, value: "Day · Evening", label: "& Weekend classes" },
+  { icon: MonitorSmartphone, value: "Blended & Online", label: "Learn remotely" },
+  { icon: MapPin, value: "Kampala", label: "Uganda campus" },
+] as const;
+
 export default function HomePage() {
   const featuredSchools = schools.slice(0, 4);
   const featuredPrograms = programs.filter((program) => program.featured).slice(0, 4);
@@ -39,6 +53,33 @@ export default function HomePage() {
   return (
     <>
       <HomeHero />
+
+      <section className="section-padding pt-4 pb-0">
+        <div className="container-width grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {quickFacts.map((fact) => {
+            const Icon = fact.icon;
+
+            return (
+              <div
+                key={fact.value}
+                className="flex items-center gap-4 rounded-[22px] border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-soft-accent)]/60 to-white px-5 py-5 transition hover:-translate-y-1 hover:border-[var(--color-accent)] hover:shadow-[0_24px_60px_-48px_rgba(17,17,17,0.6)]"
+              >
+                <span className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-[var(--color-soft-accent)] text-[var(--color-ink)]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="font-heading block text-base font-bold leading-tight text-[var(--color-ink)]">
+                    {fact.value}
+                  </span>
+                  <span className="mt-0.5 block text-xs font-semibold text-[var(--color-muted)]">
+                    {fact.label}
+                  </span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="section-padding pt-8">
         <div className="container-width rounded-[32px] border border-[var(--color-border)] bg-white/85 p-6 shadow-[0_28px_90px_-64px_rgba(17,17,17,0.85)] sm:p-8">
@@ -50,7 +91,18 @@ export default function HomePage() {
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {featuredSchools.map((school) => (
               <Link key={school.slug} href={`/schools/${school.slug}`}>
-                <Card className="h-full transition hover:-translate-y-1 hover:border-[var(--color-ink)]/10">
+                <Card className="group h-full overflow-hidden transition hover:-translate-y-1 hover:border-[var(--color-accent)]">
+                  {school.image ? (
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <Image
+                        src={school.image}
+                        alt={school.shortName}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+                        className="object-cover transition duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                  ) : null}
                   <CardContent className="flex h-full flex-col justify-between gap-6">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
@@ -211,17 +263,37 @@ export default function HomePage() {
           />
           <div className="mt-8 grid gap-4 lg:grid-cols-3">
             {testimonials.map((story) => (
-              <Card key={`${story.name}-${story.program}`}>
-                <CardContent>
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-soft-accent)] font-heading text-xl font-bold">
-                    {story.name.charAt(0)}
+              <Card key={`${story.name}-${story.program}`} className="flex h-full flex-col">
+                <CardContent className="flex h-full flex-col">
+                  <div className="flex gap-1 text-[var(--color-accent-deep,#eab308)]">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <Star
+                        key={index}
+                        className="h-4 w-4 fill-[#eab308] text-[#eab308]"
+                      />
+                    ))}
                   </div>
                   <p className="mt-5 text-base leading-8 text-[var(--color-ink)]">“{story.quote}”</p>
-                  <div className="mt-6 border-t border-[var(--color-border)] pt-4">
-                    <p className="font-heading text-lg font-bold">{story.name}</p>
-                    <p className="mt-1 text-sm text-[var(--color-muted)]">
-                      {story.program} · Class of {story.graduationYear}
-                    </p>
+                  <div className="mt-auto flex items-center gap-4 border-t border-[var(--color-border)] pt-5">
+                    {story.image ? (
+                      <Image
+                        src={story.image}
+                        alt={story.name}
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 flex-none rounded-full border-2 border-[var(--color-accent)] object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full bg-[var(--color-soft-accent)] font-heading text-xl font-bold">
+                        {story.name.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-heading text-lg font-bold">{story.name}</p>
+                      <p className="mt-1 text-sm text-[var(--color-muted)]">
+                        {story.program} · Class of {story.graduationYear}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
