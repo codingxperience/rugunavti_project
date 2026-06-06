@@ -49,7 +49,7 @@ const UTIL = [
 type MegaLink = { t: string; d?: string; href: string };
 type Mega = {
   cols: { h: string; links: MegaLink[] }[];
-  feature: { eb: string; title: string; body: string; cta: string; href: string };
+  feature: { eb: string; title: string; body: string; cta: string; href: string; img?: string };
 };
 
 const ACADEMICS: Mega = {
@@ -88,6 +88,7 @@ const ACADEMICS: Mega = {
     body: "Workshop, studio, clinic, and field learning mapped to real employer outcomes.",
     cta: "Browse programmes",
     href: "/academics#programmes",
+    img: "/brand/home_illustration.jpg",
   },
 };
 
@@ -127,6 +128,7 @@ const ADMISSIONS: Mega = {
     body: "Intakes in May and September. Apply from any device, anywhere in the world.",
     cta: "Begin application",
     href: "/apply",
+    img: "/brand/hero_illustration.jpg",
   },
 };
 
@@ -164,7 +166,8 @@ const NEWS: Mega = {
     title: "Stories, guidance, and campus life.",
     body: "Practical advice for applicants and fresh news from across the institute.",
     cta: "Open the blog",
-    href: "/news-events",
+    href: "/blog",
+    img: "/brand/elearning_home_illustration.png",
   },
 };
 
@@ -198,6 +201,10 @@ function MegaMenu({ m }: { m: Mega }) {
             <h3>{m.feature.title}</h3>
             <p>{m.feature.body}</p>
           </div>
+          {m.feature.img ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="mf-illus" src={m.feature.img} alt="" />
+          ) : null}
           <a className="btn btn-primary btn-sm" href={m.feature.href}>
             {m.feature.cta} <Svg d="arrow" />
           </a>
