@@ -1,4 +1,5 @@
 import { CtaBanner } from "@/components/site/cta-banner";
+import { MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { feeHighlights } from "@/data";
@@ -33,6 +34,14 @@ export default function FeesFundingPage() {
           ))}
         </div>
       </section>
+
+      <MediaBand
+        image="/img/business.jpg"
+        alt="Planning Ruguna College fees and funding"
+        eyebrow="Plan with confidence"
+        title="Clear costs, flexible payment, early planning"
+        description="Understand tuition ranges by award level, plan around intakes, and ask the right questions early — so finance never gets in the way of starting."
+      />
 
       <section className="section-padding">
         <div className="container-width grid gap-4 lg:grid-cols-3">

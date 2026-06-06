@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -28,7 +29,18 @@ export default function SchoolsPage() {
         <div className="container-width grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {schools.map((school) => (
             <Link key={school.slug} href={`/schools/${school.slug}`}>
-              <Card className="h-full transition hover:-translate-y-1 hover:border-[var(--color-ink)]/10">
+              <Card className="group h-full overflow-hidden transition hover:-translate-y-1 hover:border-[var(--color-accent)]">
+                {school.image ? (
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <Image
+                      src={school.image}
+                      alt={school.shortName}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                      className="object-cover transition duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                ) : null}
                 <CardContent className="flex h-full flex-col justify-between gap-6">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">

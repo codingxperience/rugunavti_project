@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { CtaBanner } from "@/components/site/cta-banner";
@@ -43,6 +44,21 @@ export default async function SchoolDetailPage({
           </div>
         }
       />
+
+      <section className="section-padding pt-0">
+        <div className="container-width">
+          <div className="relative aspect-[21/9] overflow-hidden rounded-[36px] border border-[var(--color-border)] shadow-[0_40px_90px_-60px_rgba(17,17,17,0.6)]">
+            <Image
+              src={school.image ?? "/img/campus.jpg"}
+              alt={school.name}
+              fill
+              priority
+              sizes="(max-width: 1280px) 100vw, 1200px"
+              className="object-cover"
+            />
+          </div>
+        </div>
+      </section>
 
       <section className="section-padding pt-0">
         <div className="container-width grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
