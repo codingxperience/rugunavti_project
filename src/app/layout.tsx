@@ -13,6 +13,7 @@ import { siteConfig } from "@/data";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
 
 import "./globals.css";
+import "../styles/prototype.css";
 
 // Display face — characterful, premium headings (replaces Space Grotesk)
 const displayFont = Bricolage_Grotesque({
