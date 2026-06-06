@@ -38,11 +38,11 @@ export function RouteShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <>
+    <div className="rg">
       <ProtoHeader />
       <main>{children}</main>
       <WhatsAppFloat />
       <ProtoFooter />
-    </>
+    </div>
   );
 }
