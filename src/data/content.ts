@@ -3,6 +3,7 @@ export type Testimonial = {
   quote: string;
   program: string;
   graduationYear: string;
+  image?: string;
 };
 
 export type NewsItem = {
@@ -27,6 +28,7 @@ export const testimonials: Testimonial[] = [
       "Ruguna made the learning practical from the first term. I graduated with confidence, a portfolio, and a clear path into work.",
     program: "Diploma in Software Engineering",
     graduationYear: "2025",
+    image: "/img/t-amina.jpg",
   },
   {
     name: "Brian T.",
@@ -34,6 +36,7 @@ export const testimonials: Testimonial[] = [
       "The workshop sessions felt connected to the real world. I did not just learn theory, I learned how to solve problems.",
     program: "Certificate in Solar PV Installation",
     graduationYear: "2024",
+    image: "/img/t-brian.jpg",
   },
   {
     name: "Catherine M.",
@@ -41,6 +44,7 @@ export const testimonials: Testimonial[] = [
       "Admissions was simple, mobile-friendly, and supportive. The institute helped me move from interest to enrollment quickly.",
     program: "Diploma in Public Health Practice",
     graduationYear: "2025",
+    image: "/img/t-catherine.jpg",
   },
 ];
 
