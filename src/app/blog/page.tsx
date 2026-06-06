@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 import { PrototypeRuntime } from "@/components/site/proto-runtime";
-import { prospectusHtml } from "@/proto/prospectus.html";
+import { blogHtml } from "@/proto/blog.html";
 
-export const metadata: Metadata = { title: "Prospectus" };
+export const metadata: Metadata = { title: "Blog & Insights" };
 
 export default function Page() {
   return (
     <>
-      <div className="rg" dangerouslySetInnerHTML={{ __html: prospectusHtml }} />
+      <div className="rg" dangerouslySetInnerHTML={{ __html: blogHtml }} />
       <PrototypeRuntime />
     </>
   );

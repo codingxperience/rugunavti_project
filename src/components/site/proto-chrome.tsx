@@ -39,7 +39,7 @@ const EMAIL = "admissions@ruguna.ac.ug";
 const UTIL = [
   { h: "/fees-funding", l: "Fees & Funding" },
   { h: "/prospectus", l: "Prospectus" },
-  { h: "/news-events", l: "Blog" },
+  { h: "/blog", l: "Blog" },
   { h: "/elearning", l: "E-Learning" },
   { h: "/verification", l: "Verification" },
   { h: "/student-portal", l: "Student Portal" },
@@ -272,7 +272,7 @@ export function ProtoHeader() {
   );
 
   return (
-    <div className="rg">
+    <>
       <header className="site-header" id="protoHeader">
         <div className="utility">
           <div className="wrap">
@@ -393,7 +393,7 @@ export function ProtoHeader() {
           </a>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -431,14 +431,13 @@ const FOOT_COLS: { h: string; links: [string, string][] }[] = [
 
 export function ProtoFooter() {
   return (
-    <div className="rg">
-      <footer className="site-footer">
-        <div className="wrap">
-          <div className="footer-top">
-            <div className="f-brand">
-              <div className="f-mark">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/brand/ruguna-college-logo.jpeg" alt="Ruguna College crest" />
+    <footer className="site-footer">
+      <div className="wrap">
+        <div className="footer-top">
+          <div className="f-brand">
+            <div className="f-mark">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/ruguna-college-logo.jpeg" alt="Ruguna College crest" />
               </div>
               <div className="nm">Ruguna College</div>
               <div className="mt">One Who Prevails</div>
@@ -471,6 +470,5 @@ export function ProtoFooter() {
           RUGUNA
         </div>
       </footer>
-    </div>
   );
 }

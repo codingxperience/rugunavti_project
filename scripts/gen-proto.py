@@ -106,6 +106,9 @@ site=open(os.path.join(PROTO,"assets/site.css")).read()
 site=re.sub(r"body::before\{[^}]*\}","",site)
 site=re.sub(r"\s*--font-display:[^;]*;","",site)
 site=re.sub(r"\s*--font-sans:[^;]*;","",site)
+# .rg must NOT be a scroll container: overflow-x:hidden -> overflow-y:auto would
+# clip the mega-menus, add a header scrollbar, and break the sticky header.
+site=site.replace("overflow-x:hidden;","")
 css_parts=[scope_css(site)]
 
 PAGES={  # route : prototype file
@@ -116,7 +119,45 @@ PAGES={  # route : prototype file
  "news-events":"News & Events.html",
  "admissions":"Admissions.html",
  "elearning":"Elearning.html",
+ "contact":"Contact.html",
+ "verification":"Verification.html",
+ "prospectus":"prospectus.html",
+ "blog":"Blog.html",
 }
+
+def parse_blog_posts():
+    t=open(os.path.join(PROTO,"assets/blog-data.js")).read()
+    pat=re.compile(r'slug:"([^"]+)",\s*title:"((?:[^"\\]|\\.)*)",\s*category:"([^"]+)",\s*date:"([^"]+)",\s*read:"([^"]+)",\s*img:"([^"]+)",\s*author:"([^"]+)",\s*excerpt:"((?:[^"\\]|\\.)*)"')
+    return [dict(slug=m[0],title=m[1],category=m[2],date=m[3],read=m[4],img=m[5],author=m[6],excerpt=m[7]) for m in pat.findall(t)]
+
+def parse_school_names():
+    t=open(os.path.join(PROTO,"assets/schools-data.js")).read()
+    return re.findall(r'slug:"[^"]+",\s*name:"([^"]+)"', t)
+
+def build_blog(main):
+    posts=parse_blog_posts(); arrow=svg("arrow")
+    f=posts[0]
+    featured=('<a class="feature-post reveal-scale" href="/news-events"><div class="fp-body">'
+        '<span class="tag">Featured · %s</span><h2>%s</h2><p class="muted">%s</p>'
+        '<div class="meta"><span>%s</span><span>·</span><span>%s</span><span>·</span><span>%s</span></div>'
+        '<span class="arrow-link" style="margin-top:18px">Read article %s</span></div></a>'
+        )%(f["category"],f["title"],f["excerpt"],f["author"],f["date"],f["read"],arrow)
+    cats=["All"]
+    for p in posts:
+        if p["category"] not in cats: cats.append(p["category"])
+    chips="".join('<button class="filter-chip%s" data-c="%s">%s</button>'%(" active" if i==0 else "",c,c) for i,c in enumerate(cats))
+    cards="".join(('<a class="post" href="/news-events" data-cat="%s"><div class="pbody"><h3>%s</h3>'
+        '<p>%s</p><div class="pmeta"><span>%s</span><span>·</span><span>%s</span></div></div></a>'
+        )%(p["category"],p["title"],p["excerpt"],p["date"],p["read"]) for p in posts)
+    main=main.replace('<div id="featured"></div>','<div id="featured">'+featured+'</div>')
+    main=main.replace('id="filters"></div>','id="filters">'+chips+'</div>')
+    main=main.replace('id="postGrid"></div>','id="postGrid">'+cards+'</div>')
+    return main
+
+def build_prospectus(main):
+    names=parse_school_names()
+    sl="".join('<div class="sl"><span class="num">%s%d</span><span>%s</span></div>'%("0" if i+1<10 else "",i+1,n) for i,n in enumerate(names))
+    return re.sub(r'(id="schoolList"[^>]*>)\s*(</div>)', lambda m: m.group(1)+sl+m.group(2), main)
 # link rewrite map (order matters: longest/most-specific first)
 LINKS=[
  ("school.html?slug=","/schools/"),
@@ -156,8 +197,9 @@ def inline_icons(h):
     h=re.sub(r'(<(span|div)[^>]*data-(?:tic|ico|aico|fico|eic|sico)="([\w-]+)"[^>]*>)(</(?:span|div)>)', fill, h)
     # CK = check token (.proof .p, .portal .pl)
     h=re.sub(r'>CK ', '>'+svg("CK",1.9)+' ', h)
-    # PM = accordion plus token
+    # PM = accordion plus token (literal text, or empty data-pm holder used by Contact)
     h=re.sub(r'(<\w+ class="pm"[^>]*>)PM(</\w+>)', lambda m: m.group(1)+svg("PM")+m.group(2), h)
+    h=re.sub(r'(<span class="pm"[^>]*data-pm[^>]*>)(</span>)', lambda m: m.group(1)+svg("PM")+m.group(2), h)
     h=h.replace(">PM<", ">"+svg("chev")+"<")  # Academics uses bare >PM< as a chevron
     return h
 def ts_escape(s):
@@ -168,7 +210,12 @@ for route,fname in PAGES.items():
     # page-specific styles -> scoped css
     for m in re.finditer(r"<style>(.*?)</style>", html, re.S):
         css_parts.append("\n/* ===== %s ===== */\n"%route + scope_css(m.group(1)))
-    main=re.search(r"<main[^>]*>(.*?)</main>", html, re.S).group(1)
+    mm=re.search(r"<main[^>]*>(.*?)</main>", html, re.S)
+    if mm:
+        main=mm.group(1)
+    else:  # documents like prospectus have no <main>; use <body> minus scripts
+        body=re.search(r"<body[^>]*>(.*?)</body>", html, re.S).group(1)
+        main=re.sub(r"<script.*?</script>", "", body, flags=re.S)
     main=inline_icons(fix_links(fix_assets(main)))
     if route=="home":
         # home-only fills from index.html's inline script: proof ✓ checks and ★ stars
@@ -177,6 +224,10 @@ for route,fname in PAGES.items():
     if route=="elearning":
         # Use the real platform's sign-in/sign-up instead of "apply" for enrolment CTAs
         main=main.replace("/apply", "/elearning/register")
+    if route=="blog":
+        main=build_blog(main)
+    if route=="prospectus":
+        main=build_prospectus(main)
     var=re.sub(r"[^a-zA-Z0-9]","_",route)+"Html"
     open("src/proto/%s.html.ts"%route,"w").write(
         "// AUTO-GENERATED from the Claude Design prototype (%s). Do not edit; run scripts/gen-proto.py.\n"%fname

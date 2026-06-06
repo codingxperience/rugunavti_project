@@ -132,23 +132,33 @@ export function PrototypeRuntime() {
       cleanups.push(() => qBtn.removeEventListener("click", handler));
     });
 
-    // ---- programme level filter (Academics: .filter-chip[data-f] -> .prog[data-level]) ----
+    // ---- chip filters (Academics .filter-chip[data-f]->.prog[data-level]; Blog [data-c]->.post[data-cat]) ----
     roots.forEach((root) => {
-      const chips = Array.from(root.querySelectorAll<HTMLElement>(".filter-chip[data-f]"));
-      if (!chips.length) return;
-      const progs = Array.from(root.querySelectorAll<HTMLElement>(".prog[data-level]"));
-      chips.forEach((chip) => {
-        const handler = () => {
-          chips.forEach((c) => c.classList.remove("active"));
-          chip.classList.add("active");
-          const f = chip.getAttribute("data-f");
-          progs.forEach((p) => {
-            const show = f === "all" || p.getAttribute("data-level") === f;
-            p.style.display = show ? "" : "none";
-          });
-        };
-        chip.addEventListener("click", handler);
-        cleanups.push(() => chip.removeEventListener("click", handler));
+      const chips = Array.from(root.querySelectorAll<HTMLElement>(".filter-chip"));
+      if (chips.length) {
+        const items = Array.from(
+          root.querySelectorAll<HTMLElement>(".prog[data-level], .post[data-cat]")
+        );
+        chips.forEach((chip) => {
+          const handler = () => {
+            chips.forEach((c) => c.classList.remove("active"));
+            chip.classList.add("active");
+            const val = chip.getAttribute("data-f") ?? chip.getAttribute("data-c") ?? "all";
+            items.forEach((it) => {
+              const v = it.getAttribute("data-level") ?? it.getAttribute("data-cat");
+              const show = val === "all" || val === "All" || v === val;
+              it.style.display = show ? "" : "none";
+            });
+          };
+          chip.addEventListener("click", handler);
+          cleanups.push(() => chip.removeEventListener("click", handler));
+        });
+      }
+      // prospectus: Download / Print PDF
+      root.querySelectorAll<HTMLElement>("#dlBtn").forEach((btn) => {
+        const h = () => window.print();
+        btn.addEventListener("click", h);
+        cleanups.push(() => btn.removeEventListener("click", h));
       });
     });
 
