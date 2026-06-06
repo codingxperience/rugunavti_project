@@ -1106,13 +1106,15 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
   .rg .nl-form input{flex:1;min-width:220px;height:54px;padding:0 20px;border-radius:999px;border:1px solid var(--border-2);background:#fff;font-family:inherit;font-size:0.95rem;}
 
 /* ===== chrome fixes (appended last so they win) ===== */
-/* Center mega-menus under the whole nav so edge menus never cross the viewport */
-.rg .nav-links{position:relative;}
+/* Mega-menus: take them out of the nav-item flow and let JS place + clamp them to
+   the viewport (position-fixed), so they can be wide but never cross the edge. */
+.rg .nav-links{position:static;}
 .rg .nav-item{position:static;}
-.rg .nav-item.has-mega::after{left:0;right:0;}
-.rg .mega{max-width:min(1060px,calc(100vw - 28px));}
+.rg .nav-item.has-mega::after{display:none;}
+.rg .mega{position:fixed;top:118px;left:16px;transform:translateY(10px);width:min(1180px,calc(100vw - 24px));max-width:none;}
+.rg .nav-item.has-mega:hover .mega{transform:translateY(0);}
 .rg .mega::before{content:"";position:absolute;left:0;right:0;top:-18px;height:18px;}
-/* Illustration on each mega feature card */
-.rg .mega-feature{overflow:hidden;}
-.rg .mega-feature .mf-illus{width:100%;max-height:120px;object-fit:contain;object-position:center bottom;margin:8px 0 2px;filter:drop-shadow(0 14px 20px rgba(17,17,17,0.18));}
+/* 3D object illustration on each mega feature card */
+.rg .mega-feature{overflow:hidden;align-items:center;text-align:left;}
+.rg .mega-feature .mf-illus{display:block;width:auto;height:132px;margin:10px auto 6px;object-fit:contain;filter:drop-shadow(0 16px 22px rgba(17,17,17,0.22));}
 

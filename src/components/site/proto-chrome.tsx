@@ -88,7 +88,7 @@ const ACADEMICS: Mega = {
     body: "Workshop, studio, clinic, and field learning mapped to real employer outcomes.",
     cta: "Browse programmes",
     href: "/academics#programmes",
-    img: "/brand/home_illustration.jpg",
+    img: "/brand/3d/grad.png",
   },
 };
 
@@ -128,7 +128,7 @@ const ADMISSIONS: Mega = {
     body: "Intakes in May and September. Apply from any device, anywhere in the world.",
     cta: "Begin application",
     href: "/apply",
-    img: "/brand/hero_illustration.jpg",
+    img: "/brand/3d/memo.png",
   },
 };
 
@@ -167,7 +167,7 @@ const NEWS: Mega = {
     body: "Practical advice for applicants and fresh news from across the institute.",
     cta: "Open the blog",
     href: "/blog",
-    img: "/brand/elearning_home_illustration.png",
+    img: "/brand/3d/news.png",
   },
 };
 
@@ -231,6 +231,26 @@ export function ProtoHeader() {
     const burger = document.getElementById("protoBurger");
     const close = document.getElementById("protoClose");
 
+    // Position each mega-menu below the header and clamp it inside the viewport,
+    // so it can be wide without ever crossing the edge.
+    const megaItems = Array.from(
+      document.querySelectorAll<HTMLElement>(".rg .nav-item.has-mega")
+    );
+    const placeAll = () => {
+      const headerBottom = header ? header.getBoundingClientRect().bottom : 118;
+      const vw = document.documentElement.clientWidth;
+      megaItems.forEach((item) => {
+        const mega = item.querySelector<HTMLElement>(".mega");
+        if (!mega) return;
+        const r = item.getBoundingClientRect();
+        const mw = mega.offsetWidth || Math.min(1180, vw - 24);
+        let left = r.left + r.width / 2 - mw / 2;
+        left = Math.max(12, Math.min(left, vw - mw - 12));
+        mega.style.left = `${Math.round(left)}px`;
+        mega.style.top = `${Math.round(headerBottom + 6)}px`;
+      });
+    };
+
     const onScroll = () => {
       if (header) header.classList.toggle("scrolled", window.scrollY > 20);
       if (bar) {
@@ -238,9 +258,15 @@ export function ProtoHeader() {
         const max = h.scrollHeight - h.clientHeight || 1;
         bar.style.transform = `scaleX(${Math.min((h.scrollTop || 0) / max, 1).toFixed(4)})`;
       }
+      placeAll();
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+    megaItems.forEach((item) =>
+      item.addEventListener("mouseenter", placeAll, { passive: true } as AddEventListenerOptions)
+    );
+    window.addEventListener("resize", placeAll, { passive: true });
+    placeAll();
 
     const open = () => {
       panel?.classList.add("open");
@@ -259,6 +285,8 @@ export function ProtoHeader() {
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", placeAll);
+      megaItems.forEach((item) => item.removeEventListener("mouseenter", placeAll));
       burger?.removeEventListener("click", open);
       close?.removeEventListener("click", shut);
       panel?.removeEventListener("click", onPanelClick);
