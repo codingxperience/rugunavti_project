@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
 import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
 import { getCurrentSession } from "@/lib/platform/session";
+import { hasActiveWorkspaceSession } from "@/lib/platform/session-security";
 
 export const metadata: Metadata = {
   title: "Create a Ruguna eLearning account",
@@ -22,9 +23,15 @@ export default async function ElearningRegisterPage({
   const { next } = await searchParams;
   const redirectUrl = next ? resolveSafeRedirectTarget(next, "/learn/dashboard") : null;
   const session = await getCurrentSession();
+  const hasWorkspaceSession = await hasActiveWorkspaceSession();
 
-  if (session.isAuthenticated) {
+  if (session.isAuthenticated && hasWorkspaceSession) {
     redirect(resolveWorkspaceRoute(session, redirectUrl));
+  }
+
+  if (session.isAuthenticated && !hasWorkspaceSession) {
+    const nextTarget = encodeURIComponent(redirectUrl ?? "/learn/dashboard");
+    redirect(`/elearning/session-expired?next=${nextTarget}`);
   }
 
   return (

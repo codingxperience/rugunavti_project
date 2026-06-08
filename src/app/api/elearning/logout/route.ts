@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { DEV_SESSION_COOKIE } from "@/lib/platform/auth";
 import { clearClerkBridgeSession } from "@/lib/platform/bridge-session";
+import { clearWorkspaceSessionCookie } from "@/lib/platform/session-security";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,6 +14,7 @@ async function clearPlatformSessions() {
   const cookieStore = await cookies();
   cookieStore.delete(DEV_SESSION_COOKIE);
   await clearClerkBridgeSession();
+  await clearWorkspaceSessionCookie();
 }
 
 export async function GET(request: Request) {

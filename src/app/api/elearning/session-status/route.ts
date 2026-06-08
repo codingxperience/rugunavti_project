@@ -8,12 +8,18 @@ import {
   resolveWorkspaceAccess,
 } from "@/lib/platform/navigation";
 import { getCurrentSession } from "@/lib/platform/session";
+import {
+  attachWorkspaceSessionCookie,
+  hasActiveWorkspaceSession,
+  workspaceIdleTimeoutSeconds,
+} from "@/lib/platform/session-security";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET(request: Request) {
   const cookieHeader = request.headers.get("cookie") ?? "";
+  const workspaceSessionActive = await hasActiveWorkspaceSession();
   const hasSessionTokenCookie = cookieHeader.includes("__session=");
   const hasClientUatCookie = cookieHeader.includes("__client_uat=");
   const hasBridgeCookie = cookieHeader.includes(`${CLERK_BRIDGE_SESSION_COOKIE}=`);
@@ -27,6 +33,8 @@ export async function GET(request: Request) {
     hasSessionTokenCookie,
     hasClientUatCookie,
     hasBridgeCookie,
+    workspaceSessionActive,
+    workspaceIdleTimeoutSeconds,
     serverUserId: null as string | null,
     serverSessionId: null as string | null,
     serverSessionStatus: null as string | null,
@@ -51,24 +59,27 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const session = await getCurrentSession();
+  const authenticated = session.isAuthenticated && workspaceSessionActive;
   const requestedTarget = resolveSafeRedirectTarget(
     searchParams.get("target"),
-    session.isAuthenticated ? getDefaultWorkspaceRoute(session.role) : "/learn/dashboard"
+    authenticated ? getDefaultWorkspaceRoute(session.role) : "/learn/dashboard"
   );
-  const access = session.isAuthenticated
+  const access = authenticated
     ? resolveWorkspaceAccess(session, requestedTarget)
     : null;
 
-  return NextResponse.json(
+  const response = NextResponse.json(
     {
-      authenticated: session.isAuthenticated,
+      authenticated,
       source: session.source,
-      role: session.role,
-      roles: session.roles,
-      email: session.email,
-      name: session.name,
-      avatarUrl: session.avatarUrl,
-      sessionStatus: session.sessionStatus,
+      role: authenticated ? session.role : null,
+      roles: authenticated ? session.roles : [],
+      email: authenticated ? session.email : null,
+      name: authenticated ? session.name : null,
+      avatarUrl: authenticated ? session.avatarUrl : null,
+      sessionStatus: authenticated ? session.sessionStatus : null,
+      workspaceSessionActive,
+      workspaceIdleTimeoutSeconds,
       requestedTarget,
       destination: access?.destination ?? null,
       access,
@@ -80,4 +91,10 @@ export async function GET(request: Request) {
       },
     }
   );
+
+  if (authenticated) {
+    attachWorkspaceSessionCookie(response);
+  }
+
+  return response;
 }

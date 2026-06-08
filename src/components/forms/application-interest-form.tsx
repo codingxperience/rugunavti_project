@@ -11,6 +11,7 @@ import type { UseFormRegisterReturn } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ import {
   type ApplicationFormRawInput,
   applicationFormSchema,
 } from "@/lib/platform/schemas";
+import { cn } from "@/lib/utils";
 
 type ApplicationInterestFormProps = {
   intakeOptions: string[];
@@ -80,7 +82,6 @@ export function ApplicationInterestForm({
   const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
   const [duplicateApplication, setDuplicateApplication] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -127,6 +128,7 @@ export function ApplicationInterestForm({
   const whatsappCountryCode = form.watch("whatsappCountryCode");
   const alternativePhoneCountryCode = form.watch("alternativePhoneCountryCode");
   const nextOfKinPhoneCountryCode = form.watch("nextOfKinPhoneCountryCode");
+  const isSubmitting = form.formState.isSubmitting;
 
   useEffect(() => {
     try {
@@ -135,15 +137,14 @@ export function ApplicationInterestForm({
       if (savedSubmission) {
         const parsed = JSON.parse(savedSubmission) as {
           reference?: string;
-          email?: string;
           status?: string;
           message?: string;
           duplicate?: boolean;
+          savedAt?: string;
         };
 
-        if (parsed.reference && parsed.email) {
+        if (parsed.reference) {
           setReference(parsed.reference);
-          setSubmittedEmail(parsed.email);
           setApplicationStatus(parsed.status ?? "Submitted");
           setServerMessage(
             parsed.message ??
@@ -152,6 +153,16 @@ export function ApplicationInterestForm({
           setDuplicateApplication(Boolean(parsed.duplicate));
           setSubmissionSuccess(true);
           setDraftReady(true);
+          window.localStorage.setItem(
+            applicationSubmittedKey,
+            JSON.stringify({
+              reference: parsed.reference,
+              status: parsed.status ?? "Submitted",
+              message: parsed.message,
+              duplicate: Boolean(parsed.duplicate),
+              savedAt: parsed.savedAt ?? new Date().toISOString(),
+            })
+          );
           return;
         }
 
@@ -274,7 +285,6 @@ export function ApplicationInterestForm({
     setApplicationStatus(null);
     setDuplicateApplication(false);
     setSubmissionSuccess(false);
-    setSubmittedEmail(null);
 
     let documents: ApplicationDocumentInput[];
 
@@ -303,7 +313,6 @@ export function ApplicationInterestForm({
     setApplicationStatus(payload.status ?? null);
     setDuplicateApplication(Boolean(payload.duplicate));
     setSubmissionSuccess(response.ok && payload.success);
-    setSubmittedEmail(values.email);
 
     if (response.ok && payload.success) {
       window.localStorage.removeItem(applicationDraftKey);
@@ -311,7 +320,6 @@ export function ApplicationInterestForm({
         applicationSubmittedKey,
         JSON.stringify({
           reference: payload.reference ?? null,
-          email: values.email,
           status: payload.status ?? "Submitted",
           message: payload.message,
           duplicate: Boolean(payload.duplicate),
@@ -333,11 +341,7 @@ export function ApplicationInterestForm({
   });
 
   if (submissionSuccess) {
-    const applicantEmail = submittedEmail ?? form.getValues("email");
-    const statusHref =
-      reference && applicantEmail
-        ? `/apply/status?reference=${encodeURIComponent(reference)}&email=${encodeURIComponent(applicantEmail)}`
-        : "/apply/status";
+    const statusHref = "/apply/status";
 
     return (
       <section className="rounded-[26px] border border-black/8 bg-white p-6 shadow-[0_22px_70px_-58px_rgba(17,17,17,0.52)] sm:p-7">
@@ -393,7 +397,7 @@ export function ApplicationInterestForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-6">
+    <form onSubmit={onSubmit} aria-busy={isSubmitting} className="grid gap-6">
       {draftRestored ? (
         <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-950">
           We restored your saved application draft on this device. Review the details, re-enter the
@@ -695,9 +699,45 @@ export function ApplicationInterestForm({
         </Field>
       </FormSection>
 
+      {isSubmitting ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-start gap-4 rounded-[26px] border border-[#d4b800]/65 bg-[#fff7c2] p-4 shadow-[0_22px_62px_-46px_rgba(17,17,17,0.64)]"
+        >
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-ink)] text-white">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </span>
+          <span>
+            <span className="flex items-center gap-2 font-heading text-xl font-bold text-[var(--color-ink)]">
+              <ShieldCheck className="h-5 w-5" />
+              Submitting application
+            </span>
+            <span className="mt-1 block text-sm leading-6 text-[var(--color-muted)]">
+              Saving applicant details, programme choice, and documents. Keep this page open.
+            </span>
+          </span>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Submitting..." : "Submit application"}
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className={cn(
+            "min-w-[210px]",
+            isSubmitting &&
+              "bg-[var(--color-ink)] text-white shadow-[0_20px_54px_-34px_rgba(17,17,17,0.82)] disabled:opacity-100"
+          )}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Submitting application
+            </>
+          ) : (
+            "Submit application"
+          )}
         </Button>
         {reference ? (
           <p className="text-sm font-semibold text-[var(--color-ink)]">

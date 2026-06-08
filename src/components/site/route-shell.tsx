@@ -18,6 +18,7 @@ const chromeLessPrefixes = [
   "/elearning/register",
   "/elearning/auth-complete",
   "/elearning/access-denied",
+  "/elearning/session-expired",
   "/elearning/tasks",
   "/elearning/verify-email",
   "/elearning/forgot-password",

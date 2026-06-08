@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint src prisma scripts --ext .ts,.tsx --cache --cache-location .eslintcache",
     "typecheck": "tsc --noEmit",

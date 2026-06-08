@@ -14,6 +14,11 @@ import {
 import { hasClerk, platformEnv } from "@/lib/platform/env";
 import { resolveSafeRedirectTarget, resolveWorkspaceRoute } from "@/lib/platform/navigation";
 import { getCurrentSession } from "@/lib/platform/session";
+import {
+  hasActiveWorkspaceSession,
+  setWorkspaceSessionCookie,
+  workspaceIdleTimeoutSeconds,
+} from "@/lib/platform/session-security";
 
 const devRoles: { role: PlatformRole; title: string; destination: string }[] = [
   { role: "student", title: "Student", destination: "/learn/dashboard" },
@@ -22,7 +27,7 @@ const devRoles: { role: PlatformRole; title: string; destination: string }[] = [
   { role: "finance_admin", title: "Finance", destination: "/finance" },
   { role: "super_admin", title: "Super admin", destination: "/admin/elearning" },
 ];
-const localSessionMaxAgeSeconds = 60 * 30;
+const localSessionMaxAgeSeconds = workspaceIdleTimeoutSeconds;
 
 export const metadata: Metadata = {
   title: "Sign in to Ruguna eLearning",
@@ -59,6 +64,7 @@ async function startDevSession(formData: FormData) {
       maxAge: localSessionMaxAgeSeconds,
     }
   );
+  await setWorkspaceSessionCookie();
 
   redirect(destination);
 }
@@ -66,25 +72,40 @@ async function startDevSession(formData: FormData) {
 export default async function ElearningLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; reauth?: string }>;
 }) {
-  const { next } = await searchParams;
+  const { next, reauth } = await searchParams;
   const redirectUrl = next ? resolveSafeRedirectTarget(next, "/learn/dashboard") : null;
+  const requiresFreshSignIn = reauth === "1";
   const session = await getCurrentSession();
+  const hasWorkspaceSession = await hasActiveWorkspaceSession();
 
-  if (session.isAuthenticated) {
+  if (session.isAuthenticated && hasWorkspaceSession) {
     redirect(resolveWorkspaceRoute(session, redirectUrl));
+  }
+
+  if (session.isAuthenticated && !hasWorkspaceSession) {
+    const nextTarget = encodeURIComponent(redirectUrl ?? "/learn/dashboard");
+    redirect(`/elearning/session-expired?next=${nextTarget}`);
   }
 
   return (
     <AuthShell
       activeKey="sign-in"
-      title="Sign in"
-      description="Continue to your Ruguna classroom."
+      title={requiresFreshSignIn ? "Sign in again" : "Sign in"}
+      description={
+        requiresFreshSignIn
+          ? "Your previous secure session was locked after inactivity."
+          : "Confirm your identity to continue to Ruguna."
+      }
     >
       <div className="grid gap-5">
         {hasClerk ? (
-          <ClerkAuthFlow mode="sign-in" redirectTarget={redirectUrl} />
+          <ClerkAuthFlow
+            mode="sign-in"
+            redirectTarget={redirectUrl}
+            requiresFreshSignIn={requiresFreshSignIn}
+          />
         ) : platformEnv.allowDevAuth ? (
           <div className="rounded-[26px] border border-[var(--color-border)] bg-[#fbfbf7] p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">

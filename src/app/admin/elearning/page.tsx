@@ -20,6 +20,8 @@ export const dynamic = "force-dynamic";
 export default async function AdminElearningDashboardPage() {
   await requireRole(["super_admin"], "/admin/elearning");
   const records = await getAdminElearningRecords();
+  const recentActivity = records.auditLogs.slice(0, 3);
+  const remainingActivityCount = Math.max(records.auditLogs.length - recentActivity.length, 0);
 
   return (
     <div className="grid gap-6">
@@ -133,21 +135,37 @@ export default async function AdminElearningDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden rounded-lg shadow-[0_18px_50px_-42px_rgba(17,17,17,0.5)]">
           <CardContent className="p-0">
-            <div className="flex items-center justify-between gap-4 border-b border-[var(--color-border)] bg-[var(--color-surface-alt)] px-6 py-5">
-              <h2 className="font-heading text-2xl font-bold text-[var(--color-ink)]">
+            <div className="bg-white px-5 pb-6 pt-5">
+              <h2 className="text-lg font-semibold leading-6 text-[#161719]">
                 Recent activity
               </h2>
+
+              <div className="mt-4 border-t border-[#e5e7eb]">
+                <AuditActivityList records={recentActivity} compact />
+              </div>
+
+              {remainingActivityCount > 0 ? (
+                <Link
+                  href="/admin/elearning/audit"
+                  className="mt-2 inline-flex text-sm font-medium leading-5 text-[#007c98] transition hover:text-[var(--color-ink)]"
+                >
+                  {remainingActivityCount} more in the past two weeks ...
+                </Link>
+              ) : (
+                <p className="mt-2 text-sm leading-5 text-[#74777a]">
+                  No more activity in the past two weeks.
+                </p>
+              )}
+
               <Link
                 href="/admin/elearning/audit"
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-xs font-bold text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:bg-[var(--color-soft-accent)]"
+                className="mt-8 flex h-11 w-full items-center justify-center rounded-[4px] border border-[#e1e4e8] bg-[#f2f3f4] px-4 text-base font-medium text-[#202936] transition hover:bg-white hover:text-[var(--color-ink)]"
               >
-                View <ArrowRight className="h-3.5 w-3.5" />
+                View audit trail
               </Link>
             </div>
-
-            <AuditActivityList records={records.auditLogs.slice(0, 5)} compact />
           </CardContent>
         </Card>
       </section>

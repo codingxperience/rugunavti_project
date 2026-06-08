@@ -5,10 +5,18 @@ import { normalizeRole } from "@/lib/platform/auth";
 import { setClerkBridgeSession } from "@/lib/platform/bridge-session";
 import { getAuthorizedPartyOrigins, hasClerk, platformEnv } from "@/lib/platform/env";
 import { resolveEffectiveSessionRoles } from "@/lib/platform/role-bootstrap";
+import {
+  attachWorkspaceSessionCookie,
+  workspaceIdleTimeoutSeconds,
+} from "@/lib/platform/session-security";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-const bridgeSessionMaxAgeSeconds = 60 * 30;
+const bridgeSessionMaxAgeSeconds = workspaceIdleTimeoutSeconds;
+
+function workspaceJson(payload: Record<string, unknown>, init?: ResponseInit) {
+  return attachWorkspaceSessionCookie(NextResponse.json(payload, init));
+}
 
 function getBearerToken(value: string | null) {
   if (!value?.startsWith("Bearer ")) {
@@ -251,7 +259,7 @@ export async function POST(request: Request) {
         );
       }
 
-      return NextResponse.json({
+      return workspaceJson({
         success: true,
         role: previewRoles.role,
         roles: previewRoles.roles,
@@ -364,7 +372,7 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({
+    return workspaceJson({
       success: true,
       role: effectiveRoles.role,
       roles: effectiveRoles.roles,

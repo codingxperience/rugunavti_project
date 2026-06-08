@@ -12,7 +12,6 @@ const NOTICE_STORAGE_EVENT = "ruguna-application-notice-change";
 
 type ApplicationStatusNoticeProps = {
   applications: LearnerApplicationRecord[];
-  email: string;
 };
 
 function applicationStatusTone(status: string): "neutral" | "success" | "warning" | "danger" {
@@ -62,10 +61,9 @@ function subscribeToDismissedNotice(storageKey: string, onStoreChange: () => voi
 
 export function ApplicationStatusNotice({
   applications,
-  email,
 }: ApplicationStatusNoticeProps) {
   const visibleApplications = applications.slice(0, 2);
-  const storageKey = `ruguna-application-notice:${email}:${visibleApplications.map((item) => item.reference).join(":")}`;
+  const storageKey = `ruguna-application-notice:${visibleApplications.map((item) => item.reference).join(":")}`;
   const dismissed = useSyncExternalStore(
     (onStoreChange) => subscribeToDismissedNotice(storageKey, onStoreChange),
     () => getDismissedSnapshot(storageKey),
@@ -130,7 +128,7 @@ export function ApplicationStatusNotice({
         </div>
 
         <Link
-          href={`/apply/status?reference=${encodeURIComponent(primaryApplication.reference)}&email=${encodeURIComponent(email)}`}
+          href="/apply/status"
           className="mt-4 inline-flex items-center justify-center rounded-full border border-[#d4b800] bg-[#fde047] px-4 py-2 text-sm font-bold text-[#111111] shadow-[0_18px_38px_-28px_rgba(17,17,17,0.45)] transition hover:-translate-y-0.5 hover:bg-[#f8d92d]"
         >
           Track application

@@ -4,17 +4,43 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 
-const idleTimeoutMs = 30 * 60 * 1000;
+const configuredIdleMinutes = Number(
+  process.env.NEXT_PUBLIC_RUGUNA_WORKSPACE_IDLE_MINUTES ?? 3
+);
+const idleTimeoutMs =
+  (Number.isFinite(configuredIdleMinutes) && configuredIdleMinutes > 0
+    ? Math.max(3, Math.min(Math.floor(configuredIdleMinutes), 60))
+    : 3) *
+  60 *
+  1000;
+const heartbeatIntervalMs = Math.min(5 * 60 * 1000, Math.max(60_000, idleTimeoutMs / 4));
 const lastActivityKey = "ruguna-session-last-activity";
+const lastHeartbeatKey = "ruguna-session-last-heartbeat";
 const skippedPrefixes = [
   "/elearning/login",
   "/elearning/register",
   "/elearning/logout",
   "/elearning/auth-complete",
+  "/elearning/session-expired",
+];
+const guardedPrefixes = [
+  "/learn",
+  "/student",
+  "/instructor",
+  "/admin",
+  "/registrar",
+  "/finance",
+  "/account",
 ];
 
 function shouldSkip(pathname: string) {
-  return skippedPrefixes.some((prefix) => pathname.startsWith(prefix));
+  if (skippedPrefixes.some((prefix) => pathname.startsWith(prefix))) {
+    return true;
+  }
+
+  return !guardedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 }
 
 function readLastActivity() {
@@ -24,6 +50,11 @@ function readLastActivity() {
 
 function writeLastActivity() {
   window.localStorage.setItem(lastActivityKey, String(Date.now()));
+}
+
+function clearSessionActivity() {
+  window.localStorage.removeItem(lastActivityKey);
+  window.localStorage.removeItem(lastHeartbeatKey);
 }
 
 async function clearPlatformSession() {
@@ -51,6 +82,12 @@ async function isAuthenticatedSession() {
   return Boolean(payload?.authenticated);
 }
 
+function recentlyActive() {
+  const lastActivity = readLastActivity();
+
+  return Boolean(lastActivity && Date.now() - lastActivity <= idleTimeoutMs);
+}
+
 export function ClerkSessionIdleGuard() {
   const pathname = usePathname();
   const { signOut } = useClerk();
@@ -66,7 +103,7 @@ export function ClerkSessionIdleGuard() {
       if (cancelled) return;
 
       try {
-        window.localStorage.removeItem(lastActivityKey);
+        clearSessionActivity();
         await signOut({ redirectUrl: "/api/elearning/logout?next=%2F" });
       } catch {
         await clearPlatformSession();
@@ -78,16 +115,30 @@ export function ClerkSessionIdleGuard() {
       const lastActivity = readLastActivity();
 
       if (lastActivity && Date.now() - lastActivity > idleTimeoutMs) {
-        if (await isAuthenticatedSession()) {
-          await expireSession();
-        } else {
-          window.localStorage.removeItem(lastActivityKey);
-        }
+        await expireSession();
         return;
       }
 
       if (!lastActivity) {
         writeLastActivity();
+      }
+    };
+
+    const refreshServerSession = async () => {
+      if (!recentlyActive()) {
+        return;
+      }
+
+      const lastHeartbeat = Number(window.localStorage.getItem(lastHeartbeatKey) ?? 0);
+
+      if (Number.isFinite(lastHeartbeat) && Date.now() - lastHeartbeat < heartbeatIntervalMs) {
+        return;
+      }
+
+      window.localStorage.setItem(lastHeartbeatKey, String(Date.now()));
+
+      if (!(await isAuthenticatedSession())) {
+        await expireSession();
       }
     };
 
@@ -97,13 +148,25 @@ export function ClerkSessionIdleGuard() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         void checkIdle();
+        void refreshServerSession();
+      }
+    };
+    const handleFocus = () => {
+      markActive();
+      void refreshServerSession();
+    };
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === lastActivityKey && event.newValue === null) {
+        void expireSession();
       }
     };
 
     void checkIdle();
+    void refreshServerSession();
 
     const interval = window.setInterval(() => {
       void checkIdle();
+      void refreshServerSession();
     }, 60_000);
     const events = ["click", "keydown", "mousemove", "scroll", "touchstart"] as const;
 
@@ -111,7 +174,8 @@ export function ClerkSessionIdleGuard() {
       window.addEventListener(event, markActive, { passive: true });
     }
 
-    window.addEventListener("focus", markActive);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("storage", handleStorage);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
@@ -122,7 +186,8 @@ export function ClerkSessionIdleGuard() {
         window.removeEventListener(event, markActive);
       }
 
-      window.removeEventListener("focus", markActive);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [pathname, signOut]);
@@ -143,7 +208,7 @@ export function LocalSessionIdleGuard() {
     const expireSession = async () => {
       if (cancelled) return;
 
-      window.localStorage.removeItem(lastActivityKey);
+      clearSessionActivity();
       await clearPlatformSession();
       window.location.assign("/");
     };
@@ -152,16 +217,30 @@ export function LocalSessionIdleGuard() {
       const lastActivity = readLastActivity();
 
       if (lastActivity && Date.now() - lastActivity > idleTimeoutMs) {
-        if (await isAuthenticatedSession()) {
-          await expireSession();
-        } else {
-          window.localStorage.removeItem(lastActivityKey);
-        }
+        await expireSession();
         return;
       }
 
       if (!lastActivity) {
         writeLastActivity();
+      }
+    };
+
+    const refreshServerSession = async () => {
+      if (!recentlyActive()) {
+        return;
+      }
+
+      const lastHeartbeat = Number(window.localStorage.getItem(lastHeartbeatKey) ?? 0);
+
+      if (Number.isFinite(lastHeartbeat) && Date.now() - lastHeartbeat < heartbeatIntervalMs) {
+        return;
+      }
+
+      window.localStorage.setItem(lastHeartbeatKey, String(Date.now()));
+
+      if (!(await isAuthenticatedSession())) {
+        await expireSession();
       }
     };
 
@@ -171,13 +250,25 @@ export function LocalSessionIdleGuard() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         void checkIdle();
+        void refreshServerSession();
+      }
+    };
+    const handleFocus = () => {
+      markActive();
+      void refreshServerSession();
+    };
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === lastActivityKey && event.newValue === null) {
+        void expireSession();
       }
     };
 
     void checkIdle();
+    void refreshServerSession();
 
     const interval = window.setInterval(() => {
       void checkIdle();
+      void refreshServerSession();
     }, 60_000);
     const events = ["click", "keydown", "mousemove", "scroll", "touchstart"] as const;
 
@@ -185,7 +276,8 @@ export function LocalSessionIdleGuard() {
       window.addEventListener(event, markActive, { passive: true });
     }
 
-    window.addEventListener("focus", markActive);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("storage", handleStorage);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
@@ -196,7 +288,8 @@ export function LocalSessionIdleGuard() {
         window.removeEventListener(event, markActive);
       }
 
-      window.removeEventListener("focus", markActive);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [pathname]);

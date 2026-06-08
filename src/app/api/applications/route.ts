@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
 import { writeAuditLog } from "@/lib/platform/audit";
+import {
+  getDatabaseUnavailableMessage,
+  isDatabaseConnectionError,
+  logDataAccessError,
+} from "@/lib/platform/database-errors";
 import { sendTransactionalEmail } from "@/lib/platform/email";
 import { hasDatabase, platformEnv } from "@/lib/platform/env";
 import { enforceRateLimit } from "@/lib/platform/rate-limit";
@@ -289,7 +294,17 @@ export async function POST(request: Request) {
       status: formatStatus(application.status),
     });
   } catch (error) {
-    console.error("Application submission failed", error);
+    logDataAccessError("Application submission failed", error);
+
+    if (isDatabaseConnectionError(error)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `${getDatabaseUnavailableMessage(error)} Your application was not saved. Please wait a moment and submit again.`,
+        },
+        { status: 503 }
+      );
+    }
 
     return NextResponse.json(
       {

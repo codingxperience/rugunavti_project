@@ -101,9 +101,7 @@ export async function GET() {
         title: `Application ${item.reference}: ${formatStatus(item.status)}`,
         scope: "APPLICATION",
         date: item.updatedAt.toISOString(),
-        href: `/apply/status?reference=${encodeURIComponent(item.reference)}${
-          session.email ? `&email=${encodeURIComponent(session.email)}` : ""
-        }`,
+        href: "/apply/status",
       })) ?? [];
 
     return NextResponse.json({

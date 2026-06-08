@@ -1,5 +1,6 @@
 import {
   BookOpenText,
+  Check,
   CheckCircle2,
   ClipboardList,
   Clock3,
@@ -182,6 +183,47 @@ function payloadDetails(payload: unknown) {
   return details.slice(0, 5);
 }
 
+function compactActivityTitle(item: AuditActivityRecord) {
+  const entity = entityLabel(item.entityType);
+  const action = actionLabel(item.action);
+  const record = readRecord(item.payload);
+  const reference = readText(record.reference);
+  const courseSlug = readText(record.courseSlug);
+  const weekNumber = readNumber(record.weekNumber);
+
+  if (reference) {
+    return reference;
+  }
+
+  if (weekNumber !== null && courseSlug) {
+    return `W${String(weekNumber).padStart(2, "0")} ${courseSlug}`;
+  }
+
+  if (courseSlug) {
+    return courseSlug;
+  }
+
+  return `${entity} ${action.toLowerCase()}`;
+}
+
+function compactActivityMeta(item: AuditActivityRecord) {
+  const record = readRecord(item.payload);
+  const courseSlug = readText(record.courseSlug);
+
+  return courseSlug ?? entityLabel(item.entityType).toUpperCase();
+}
+
+function compactActivityBody(item: AuditActivityRecord) {
+  const details = payloadDetails(item.payload);
+  const summary = activityLabel(item.summary);
+
+  if (!details.length) {
+    return summary;
+  }
+
+  return `${summary} ${details.slice(0, 2).join(" - ")}`;
+}
+
 export function AuditActivityList({
   records,
   compact = false,
@@ -192,6 +234,14 @@ export function AuditActivityList({
   showAuditId?: boolean;
 }) {
   if (!records.length) {
+    if (compact) {
+      return (
+        <div className="py-5 text-sm leading-6 text-[#74777a]">
+          Activity will appear here as staff and learners use the platform.
+        </div>
+      );
+    }
+
     return (
       <div className="p-6">
         <div className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] p-5">
@@ -205,6 +255,35 @@ export function AuditActivityList({
             Activity will appear here as staff and learners use the platform.
           </p>
         </div>
+      </div>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div className="grid px-0 py-2">
+        {records.map((item) => (
+          <article
+            key={item.id}
+            className="grid grid-cols-[18px_minmax(0,1fr)] gap-3 py-3"
+          >
+            <Check className="mt-1 h-4 w-4 text-[#13984b]" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium leading-5 text-[#007c98]">
+                {compactActivityTitle(item)}
+              </p>
+              <p className="mt-0.5 text-[11px] font-medium uppercase leading-4 text-[#777c82]">
+                {compactActivityMeta(item)}
+              </p>
+              <p className="text-[11px] font-bold leading-4 text-[#666b70]">
+                {actionLabel(item.action)}
+              </p>
+              <p className="mt-0.5 overflow-hidden text-[12px] leading-[1.35] text-[#74777a] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                &quot;{compactActivityBody(item)}&quot;
+              </p>
+            </div>
+          </article>
+        ))}
       </div>
     );
   }

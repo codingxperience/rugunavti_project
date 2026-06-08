@@ -22,6 +22,9 @@ export function PortalSignOutButton({
 
   function clearLocalSessionNotices() {
     try {
+      window.localStorage.removeItem("ruguna-session-last-activity");
+      window.localStorage.removeItem("ruguna-session-last-heartbeat");
+
       for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
         const key = window.localStorage.key(index);
 

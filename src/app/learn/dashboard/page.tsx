@@ -63,7 +63,6 @@ export default async function LearnDashboardPage() {
       <section className="grid gap-6">
         <ApplicationStatusNotice
           applications={workspace.applications}
-          email={workspace.user.email}
         />
 
         {workspace.databaseUnavailable ? (

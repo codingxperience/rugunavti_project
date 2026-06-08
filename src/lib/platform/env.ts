@@ -39,6 +39,12 @@ function parseEmailList(value: string | undefined) {
   );
 }
 
+function parsePositiveInteger(value: string | undefined) {
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : null;
+}
+
 export const platformEnv = {
   siteUrl: rawSiteUrl,
   siteOrigin: normalizedSiteOrigin,
@@ -46,11 +52,16 @@ export const platformEnv = {
   useDatabase: process.env.RUGUNA_USE_DATABASE === "true",
   allowDevAuth: process.env.RUGUNA_ALLOW_DEV_AUTH === "true",
   enableAnalytics: process.env.RUGUNA_ENABLE_ANALYTICS === "true",
+  workspaceIdleMinutes:
+    parsePositiveInteger(process.env.RUGUNA_WORKSPACE_IDLE_MINUTES) ??
+    parsePositiveInteger(process.env.NEXT_PUBLIC_RUGUNA_WORKSPACE_IDLE_MINUTES) ??
+    3,
   clerkPublishableKey: rawClerkPublishableKey,
   clerkSecretKey: readSecret(process.env.CLERK_SECRET_KEY),
   clerkUsesLiveKeys,
   clerkProxyUrl: clerkUsesLiveKeys ? rawClerkProxyUrl : undefined,
   clerkWebhookSecret: process.env.CLERK_WEBHOOK_SECRET,
+  cronSecret: process.env.CRON_SECRET,
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   supabasePublicBucket: process.env.SUPABASE_BUCKET_PUBLIC || "ruguna-public",
@@ -92,6 +103,7 @@ export const requiredProductionEnvKeys = [
   "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
   "CLERK_SECRET_KEY",
   "CLERK_WEBHOOK_SECRET",
+  "CRON_SECRET",
   "SUPABASE_URL",
   "SUPABASE_SERVICE_ROLE_KEY",
   "SUPABASE_BUCKET_PUBLIC",
@@ -113,6 +125,17 @@ export function getProductionEnvWarnings(env: NodeJS.ProcessEnv = process.env) {
 
   if (env.RUGUNA_USE_DATABASE !== "true") {
     warnings.push("RUGUNA_USE_DATABASE must be true in production.");
+  }
+
+  const serverIdleMinutes = parsePositiveInteger(env.RUGUNA_WORKSPACE_IDLE_MINUTES);
+  const clientIdleMinutes = parsePositiveInteger(env.NEXT_PUBLIC_RUGUNA_WORKSPACE_IDLE_MINUTES);
+
+  if ((serverIdleMinutes ?? clientIdleMinutes ?? 3) > 30) {
+    warnings.push("Ruguna workspace idle timeout should be 30 minutes or less for protected dashboards.");
+  }
+
+  if (serverIdleMinutes && clientIdleMinutes && serverIdleMinutes !== clientIdleMinutes) {
+    warnings.push("RUGUNA_WORKSPACE_IDLE_MINUTES and NEXT_PUBLIC_RUGUNA_WORKSPACE_IDLE_MINUTES should match.");
   }
 
   if (env.NEXT_PUBLIC_SITE_URL?.includes("localhost")) {

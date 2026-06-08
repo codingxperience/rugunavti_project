@@ -7,6 +7,7 @@ import { CLERK_BRIDGE_SESSION_COOKIE, decodeClerkBridgeSession } from "@/lib/pla
 import { logDataAccessError } from "@/lib/platform/database-errors";
 import { hasClerk, hasDatabase, platformEnv } from "@/lib/platform/env";
 import { resolveEffectiveSessionRoles } from "@/lib/platform/role-bootstrap";
+import { hasActiveWorkspaceSession } from "@/lib/platform/session-security";
 
 function isPlaceholderIdentity(value: string | null | undefined) {
   if (!value) {
@@ -240,6 +241,11 @@ export async function requireRole(roles: PlatformRole[], redirectTo?: string) {
   if (!session.isAuthenticated) {
     const next = encodeURIComponent(redirectTo ?? "/elearning/login");
     redirect(`/elearning/login?next=${next}`);
+  }
+
+  if (!(await hasActiveWorkspaceSession())) {
+    const next = encodeURIComponent(redirectTo ?? "/learn/dashboard");
+    redirect(`/elearning/session-expired?next=${next}`);
   }
 
   if (!canAccessRole(session, roles)) {

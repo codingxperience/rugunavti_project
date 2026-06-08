@@ -28,12 +28,8 @@ function formatApplicationStatus(status: ApplicationStatus) {
     .join(" ");
 }
 
-function applicationStatusUrl(reference: string, email: string) {
-  const url = new URL("/apply/status", platformEnv.siteUrl);
-  url.searchParams.set("reference", reference);
-  url.searchParams.set("email", email);
-
-  return url.toString();
+function applicationStatusUrl() {
+  return new URL("/apply/status", platformEnv.siteUrl).toString();
 }
 
 export async function updateApplicationStatusAction(formData: FormData) {
@@ -84,7 +80,7 @@ export async function updateApplicationStatusAction(formData: FormData) {
   await sendTransactionalEmail({
     to: application.user.email,
     subject: `Ruguna application update: ${application.reference}`,
-    text: `Dear applicant,\n\nYour Ruguna College application status has been updated.\n\nReference: ${application.reference}\nProgramme: ${application.program.title}\nCurrent status: ${formatApplicationStatus(application.status)}\n\nTrack your application here:\n${applicationStatusUrl(application.reference, application.user.email)}\n\nRuguna College\nOne Who Prevails`,
+    text: `Dear applicant,\n\nYour Ruguna College application status has been updated.\n\nReference: ${application.reference}\nProgramme: ${application.program.title}\nCurrent status: ${formatApplicationStatus(application.status)}\n\nTrack your application here:\n${applicationStatusUrl()}\n\nUse your reference and the email address that received this message.\n\nRuguna College\nOne Who Prevails`,
   });
 
   revalidatePath("/registrar");
@@ -211,7 +207,7 @@ export async function activateProgramEnrollmentAction(formData: FormData) {
   await sendTransactionalEmail({
     to: application.user.email,
     subject: `Ruguna admission offer: ${application.reference}`,
-    text: `Dear applicant,\n\nYour Ruguna College application has been marked as Offered and your learner record has been prepared.\n\nReference: ${application.reference}\nProgramme: ${application.program.title}\n\nTrack your application here:\n${applicationStatusUrl(application.reference, application.user.email)}\n\nYou can sign in to Ruguna eLearning to view your learner workspace when access is active.\n\nRuguna College\nOne Who Prevails`,
+    text: `Dear applicant,\n\nYour Ruguna College application has been marked as Offered and your learner record has been prepared.\n\nReference: ${application.reference}\nProgramme: ${application.program.title}\n\nTrack your application here:\n${applicationStatusUrl()}\n\nUse your reference and the email address that received this message.\n\nYou can sign in to Ruguna eLearning to view your learner workspace when access is active.\n\nRuguna College\nOne Who Prevails`,
   });
 
   revalidatePath("/registrar");

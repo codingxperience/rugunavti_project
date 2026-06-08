@@ -31,6 +31,8 @@ type SessionStatusResponse = {
     hasSessionTokenCookie: boolean;
     hasClientUatCookie: boolean;
     hasBridgeCookie: boolean;
+    workspaceSessionActive: boolean;
+    workspaceIdleTimeoutSeconds: number;
     serverUserId: string | null;
     serverSessionId: string | null;
     serverSessionStatus: string | null;
@@ -275,6 +277,8 @@ export function AuthCompletionGuard({
                 <p>Server __session cookie received: {diagnostics.hasSessionTokenCookie ? "yes" : "no"}</p>
                 <p>Server __client_uat cookie received: {diagnostics.hasClientUatCookie ? "yes" : "no"}</p>
                 <p>Ruguna bridge cookie received: {diagnostics.hasBridgeCookie ? "yes" : "no"}</p>
+                <p>Ruguna workspace session active: {diagnostics.workspaceSessionActive ? "yes" : "no"}</p>
+                <p>Workspace idle timeout: {diagnostics.workspaceIdleTimeoutSeconds} seconds</p>
                 <p>Server user detected: {diagnostics.serverUserId ? "yes" : "no"}</p>
                 <p>Server session status: {diagnostics.serverSessionStatus ?? "none"}</p>
                 <p>Server host: {diagnostics.host ?? "unknown"}</p>
