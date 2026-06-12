@@ -13,7 +13,7 @@ const navItems = [
 ];
 
 export default async function StudentLayout({ children }: { children: ReactNode }) {
-  const session = await requireRole(["student", "super_admin"], "/student");
+  const session = await requireRole(["student"], "/student");
 
   return (
     <PortalLayout

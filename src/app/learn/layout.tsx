@@ -9,7 +9,7 @@ import { getPortalUserForSession } from "@/lib/platform/users";
 export const dynamic = "force-dynamic";
 
 export default async function LearnLayout({ children }: { children: ReactNode }) {
-  const session = await requireRole(["student", "super_admin"], "/learn/dashboard");
+  const session = await requireRole(["student"], "/learn/dashboard");
   const user = await getPortalUserForSession(session);
   const userName = resolveDisplayName({
     firstName: user.profile?.firstName,

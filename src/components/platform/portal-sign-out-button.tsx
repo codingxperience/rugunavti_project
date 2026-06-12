@@ -1,6 +1,6 @@
 "use client";
 
-import { SignOutButton } from "@clerk/nextjs";
+import { useClerk } from "@clerk/nextjs";
 import { Loader2, LogOut } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
@@ -19,6 +19,7 @@ export function PortalSignOutButton({
   children,
 }: PortalSignOutButtonProps) {
   const [busy, setBusy] = useState(false);
+  const { signOut } = useClerk();
 
   function clearLocalSessionNotices() {
     try {
@@ -37,25 +38,38 @@ export function PortalSignOutButton({
     }
   }
 
+  async function handleSignOut() {
+    clearLocalSessionNotices();
+    setBusy(true);
+
+    await fetch("/api/elearning/logout", {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+    }).catch(() => null);
+
+    try {
+      await signOut({ redirectUrl: "/elearning/login" });
+    } catch {
+      window.location.assign("/elearning/login");
+    }
+  }
+
   return (
-    <SignOutButton redirectUrl="/api/elearning/logout?next=%2F">
-      <Button
-        type="button"
-        variant="secondary"
-        onClick={() => {
-          clearLocalSessionNotices();
-          setBusy(true);
-        }}
-        className={cn(
-          compact
-            ? "h-10 w-10 rounded-2xl border-white/12 bg-white/8 p-0 text-white hover:bg-white/12 hover:text-white"
-            : "border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white",
-          className
-        )}
-      >
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-        {compact ? <span className="sr-only">Sign out</span> : children ?? "Sign out"}
-      </Button>
-    </SignOutButton>
+    <Button
+      type="button"
+      variant="secondary"
+      onClick={() => void handleSignOut()}
+      disabled={busy}
+      className={cn(
+        compact
+          ? "h-10 w-10 rounded-2xl border-white/12 bg-white/8 p-0 text-white hover:bg-white/12 hover:text-white"
+          : "border-white/12 bg-white/8 text-white hover:bg-white/12 hover:text-white",
+        className
+      )}
+    >
+      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+      {compact ? <span className="sr-only">Sign out</span> : children ?? "Sign out"}
+    </Button>
   );
 }

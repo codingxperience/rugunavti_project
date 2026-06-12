@@ -41,7 +41,7 @@ const paymentStatusSchema = z.object({
 });
 
 export async function createInvoiceAction(formData: FormData) {
-  const auth = await requireApiUser(["finance_admin", "super_admin"]);
+  const auth = await requireApiUser(["finance_admin"]);
 
   if (!auth.ok) {
     redirect("/elearning/access-denied?next=/finance/invoices");
@@ -127,7 +127,7 @@ export async function createInvoiceAction(formData: FormData) {
 }
 
 export async function updateInvoiceStatusAction(formData: FormData) {
-  const auth = await requireApiUser(["finance_admin", "super_admin"]);
+  const auth = await requireApiUser(["finance_admin"]);
 
   if (!auth.ok) {
     redirect("/elearning/access-denied?next=/finance");
@@ -193,7 +193,7 @@ export async function updateInvoiceStatusAction(formData: FormData) {
 }
 
 export async function recordPaymentAction(formData: FormData) {
-  const auth = await requireApiUser(["finance_admin", "super_admin"]);
+  const auth = await requireApiUser(["finance_admin"]);
 
   if (!auth.ok) {
     redirect("/elearning/access-denied?next=/finance");
@@ -271,7 +271,7 @@ export async function recordPaymentAction(formData: FormData) {
 }
 
 export async function updatePaymentStatusAction(formData: FormData) {
-  const auth = await requireApiUser(["finance_admin", "super_admin"]);
+  const auth = await requireApiUser(["finance_admin"]);
 
   if (!auth.ok) {
     redirect("/elearning/access-denied?next=/finance/payments");

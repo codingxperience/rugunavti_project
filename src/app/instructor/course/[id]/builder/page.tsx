@@ -14,7 +14,7 @@ export default async function InstructorCourseBuilderPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await requireRole(["instructor", "super_admin"], `/instructor/course/${id}/builder`);
+  const session = await requireRole(["instructor"], `/instructor/course/${id}/builder`);
   const course = await getStaffCourseBuilderRecord(id, session);
 
   if (!course) {

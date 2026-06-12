@@ -122,7 +122,7 @@ export default async function LearnCalendarPage({
 }: {
   searchParams: Promise<{ view?: string }>;
 }) {
-  const session = await requireRole(["student", "super_admin"], "/learn/calendar");
+  const session = await requireRole(["student"], "/learn/calendar");
   const [{ view }, calendar] = await Promise.all([
     searchParams,
     getLearnerAcademicCalendar(session),

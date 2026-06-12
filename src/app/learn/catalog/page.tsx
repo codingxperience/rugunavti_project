@@ -44,7 +44,7 @@ export default async function LearnerCatalogPage({
   searchParams: Promise<{ query?: string; level?: string; mode?: string }>;
 }) {
   const [session, filters] = await Promise.all([
-    requireRole(["student", "super_admin"], "/learn/catalog"),
+    requireRole(["student"], "/learn/catalog"),
     searchParams,
   ]);
   const db = getDb();

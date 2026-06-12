@@ -64,6 +64,6 @@ export function resolveEffectiveSessionRoles(
 
   return {
     role: primaryRole,
-    roles: orderedRoles.length ? orderedRoles : [primaryRole],
+    roles: [primaryRole],
   };
 }

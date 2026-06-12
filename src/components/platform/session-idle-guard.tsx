@@ -104,10 +104,11 @@ export function ClerkSessionIdleGuard() {
 
       try {
         clearSessionActivity();
-        await signOut({ redirectUrl: "/api/elearning/logout?next=%2F" });
+        await clearPlatformSession();
+        await signOut({ redirectUrl: "/elearning/login?reauth=1" });
       } catch {
         await clearPlatformSession();
-        window.location.assign("/");
+        window.location.assign("/elearning/login?reauth=1");
       }
     };
 
@@ -210,7 +211,7 @@ export function LocalSessionIdleGuard() {
 
       clearSessionActivity();
       await clearPlatformSession();
-      window.location.assign("/");
+      window.location.assign("/elearning/login?reauth=1");
     };
 
     const checkIdle = async () => {

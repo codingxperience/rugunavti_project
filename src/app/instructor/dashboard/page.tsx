@@ -14,7 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function InstructorDashboardPage() {
-  const session = await requireRole(["instructor", "super_admin"], "/instructor/dashboard");
+  const session = await requireRole(["instructor"], "/instructor/dashboard");
   const [courseRecords, submissions, announcements] = await Promise.all([
     getStaffCourseManagementRecords(session),
     getStaffSubmissions(session),

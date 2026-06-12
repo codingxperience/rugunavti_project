@@ -34,7 +34,7 @@ export default async function LearnMyCoursesPage({
   searchParams: Promise<{ query?: string }>;
 }) {
   const { query } = await searchParams;
-  const session = await requireRole(["student", "super_admin"], "/learn/my-courses");
+  const session = await requireRole(["student"], "/learn/my-courses");
   const workspace = await getLearnerWorkspaceRecords(session);
   const normalizedQuery = query?.trim().toLowerCase();
 

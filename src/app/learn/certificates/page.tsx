@@ -15,7 +15,7 @@ function formatDate(value: Date) {
 }
 
 export default async function LearnCertificatesPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/certificates");
+  const session = await requireRole(["student"], "/learn/certificates");
   const certificates = await getLearnerCertificates(session);
 
   return (

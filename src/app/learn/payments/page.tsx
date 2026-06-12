@@ -103,7 +103,7 @@ export default async function LearnerPaymentsPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const [session, { status }] = await Promise.all([
-    requireRole(["student", "super_admin"], "/learn/payments"),
+    requireRole(["student"], "/learn/payments"),
     searchParams,
   ]);
   const finance = await getLearnerFinanceRecords(session);

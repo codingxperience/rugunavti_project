@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { DEV_SESSION_COOKIE } from "@/lib/platform/auth";
 import { clearClerkBridgeSession } from "@/lib/platform/bridge-session";
+import { platformEnv } from "@/lib/platform/env";
 import { clearWorkspaceSessionCookie } from "@/lib/platform/session-security";
 
 export const dynamic = "force-dynamic";
@@ -17,13 +18,31 @@ async function clearPlatformSessions() {
   await clearWorkspaceSessionCookie();
 }
 
+function resolveLogoutDestination(request: Request) {
+  const requestUrl = new URL(request.url);
+  const requestedDestination = requestUrl.searchParams.get("next") || LOGOUT_DESTINATION;
+  const destination =
+    requestedDestination.startsWith("/") && !requestedDestination.startsWith("//")
+      ? requestedDestination
+      : LOGOUT_DESTINATION;
+  const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const forwardedProtocol =
+    request.headers.get("x-forwarded-proto") ?? requestUrl.protocol.replace(":", "");
+  const forwardedOrigin = forwardedHost ? `${forwardedProtocol}://${forwardedHost}` : null;
+  const origin =
+    platformEnv.siteOrigin && !platformEnv.siteOrigin.includes("0.0.0.0")
+      ? platformEnv.siteOrigin
+      : forwardedOrigin && !forwardedOrigin.includes("0.0.0.0")
+        ? forwardedOrigin
+        : requestUrl.origin;
+
+  return new URL(destination, origin);
+}
+
 export async function GET(request: Request) {
   await clearPlatformSessions();
 
-  const url = new URL(request.url);
-  const destination = url.searchParams.get("next") || LOGOUT_DESTINATION;
-
-  return NextResponse.redirect(new URL(destination, url.origin));
+  return NextResponse.redirect(resolveLogoutDestination(request));
 }
 
 export async function POST() {

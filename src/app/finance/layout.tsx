@@ -9,7 +9,7 @@ import { getPortalUserForSession } from "@/lib/platform/users";
 export const dynamic = "force-dynamic";
 
 export default async function FinanceLayout({ children }: { children: ReactNode }) {
-  const session = await requireRole(["finance_admin", "super_admin"], "/finance");
+  const session = await requireRole(["finance_admin"], "/finance");
   const user = await getPortalUserForSession(session);
   const userName = resolveDisplayName({
     firstName: user.profile?.firstName,

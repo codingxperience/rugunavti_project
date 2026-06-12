@@ -31,7 +31,11 @@ export default function ElearningLogoutPage() {
     const run = async () => {
       try {
         if (isLoaded && isSignedIn) {
-          await signOut({ redirectUrl: "/api/elearning/logout?next=%2F" });
+          await fetch("/api/elearning/logout", {
+            method: "POST",
+            credentials: "include",
+          });
+          await signOut({ redirectUrl: "/elearning/login" });
           return;
         }
 
@@ -41,11 +45,11 @@ export default function ElearningLogoutPage() {
         });
 
         if (!cancelled) {
-          router.replace("/");
+          router.replace("/elearning/login");
         }
       } catch {
         if (!cancelled) {
-          router.replace("/");
+          router.replace("/elearning/login");
         }
       }
     };

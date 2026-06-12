@@ -17,7 +17,7 @@ function formatBytes(value: number) {
 }
 
 export default async function LearnDownloadsPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/downloads");
+  const session = await requireRole(["student"], "/learn/downloads");
   const resources = await getLearnerDownloads(session);
 
   return (

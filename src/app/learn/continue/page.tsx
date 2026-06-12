@@ -9,7 +9,7 @@ import { requireRole } from "@/lib/platform/session";
 export const dynamic = "force-dynamic";
 
 export default async function ContinueLearningPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/continue");
+  const session = await requireRole(["student"], "/learn/continue");
   const workspace = await getLearnerWorkspaceRecords(session);
   const courses = workspace.records.filter((course) => course.nextLesson);
 

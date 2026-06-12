@@ -9,7 +9,7 @@ import { getPortalUserForSession } from "@/lib/platform/users";
 export const dynamic = "force-dynamic";
 
 export default async function RegistrarLayout({ children }: { children: ReactNode }) {
-  const session = await requireRole(["registrar_admin", "super_admin"], "/registrar");
+  const session = await requireRole(["registrar_admin"], "/registrar");
   const user = await getPortalUserForSession(session);
   const userName = resolveDisplayName({
     firstName: user.profile?.firstName,

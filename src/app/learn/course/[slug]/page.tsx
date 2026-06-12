@@ -122,7 +122,7 @@ export default async function LearnCoursePlayerPage({
 }) {
   const { slug } = await params;
   const { lesson, view } = await searchParams;
-  const session = await requireRole(["student", "super_admin"], `/learn/course/${slug}`);
+  const session = await requireRole(["student"], `/learn/course/${slug}`);
   const workspace = await getLearnerCourseWorkspace(slug, session);
 
   if (!workspace) {

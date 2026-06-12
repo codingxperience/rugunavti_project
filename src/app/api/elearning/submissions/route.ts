@@ -7,7 +7,7 @@ import { assignmentSubmissionSchema } from "@/lib/platform/schemas";
 import { requireApiUser } from "@/lib/platform/users";
 
 export async function POST(request: Request) {
-  const auth = await requireApiUser(["student", "super_admin"]);
+  const auth = await requireApiUser(["student"]);
 
   if (!auth.ok) {
     return NextResponse.json(auth.response, { status: auth.status });

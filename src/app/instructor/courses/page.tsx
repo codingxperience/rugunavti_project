@@ -9,7 +9,7 @@ import { getStaffCourseManagementRecords } from "@/lib/platform/staff-records";
 export const dynamic = "force-dynamic";
 
 export default async function InstructorCoursesPage() {
-  const session = await requireRole(["instructor", "super_admin"], "/instructor/courses");
+  const session = await requireRole(["instructor"], "/instructor/courses");
   const records = await getStaffCourseManagementRecords(session);
 
   return (

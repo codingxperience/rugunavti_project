@@ -33,7 +33,7 @@ function applicationStatusUrl() {
 }
 
 export async function updateApplicationStatusAction(formData: FormData) {
-  const auth = await requireApiUser(["registrar_admin", "super_admin"]);
+  const auth = await requireApiUser(["registrar_admin"]);
 
   if (!auth.ok) {
     redirect("/elearning/access-denied?next=/registrar/applications");
@@ -90,7 +90,7 @@ export async function updateApplicationStatusAction(formData: FormData) {
 }
 
 export async function activateProgramEnrollmentAction(formData: FormData) {
-  const auth = await requireApiUser(["registrar_admin", "super_admin"]);
+  const auth = await requireApiUser(["registrar_admin"]);
 
   if (!auth.ok) {
     redirect("/elearning/access-denied?next=/registrar/applications");

@@ -49,7 +49,7 @@ export default async function PaymentCompletePage({
     status?: string;
   }>;
 }) {
-  await requireRole(["student", "super_admin"], "/learn/payments/complete");
+  await requireRole(["student"], "/learn/payments/complete");
   const params = await searchParams;
   const provider = params.provider;
 

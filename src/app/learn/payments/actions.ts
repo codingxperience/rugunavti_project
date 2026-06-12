@@ -33,7 +33,7 @@ const checkoutFailureRedirects: Record<string, string> = {
 };
 
 export async function startLearnerCheckoutAction(formData: FormData) {
-  const auth = await requireApiUser(["student", "super_admin"]);
+  const auth = await requireApiUser(["student"]);
 
   if (!auth.ok) {
     redirect("/elearning/login?next=/learn/payments");
@@ -86,7 +86,7 @@ export async function startLearnerCheckoutAction(formData: FormData) {
 }
 
 export async function submitLearnerPaymentReferenceAction(formData: FormData) {
-  const auth = await requireApiUser(["student", "super_admin"]);
+  const auth = await requireApiUser(["student"]);
 
   if (!auth.ok) {
     redirect("/elearning/login?next=/learn/payments");

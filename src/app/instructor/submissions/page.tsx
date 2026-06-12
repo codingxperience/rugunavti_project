@@ -16,7 +16,7 @@ function formatDate(value: string | null) {
 }
 
 export default async function InstructorSubmissionsPage() {
-  const session = await requireRole(["instructor", "super_admin"], "/instructor/submissions");
+  const session = await requireRole(["instructor"], "/instructor/submissions");
   const submissions = await getStaffSubmissions(session);
 
   return (

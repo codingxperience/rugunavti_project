@@ -9,7 +9,7 @@ import { requireRole } from "@/lib/platform/session";
 export const dynamic = "force-dynamic";
 
 export default async function LearnQuizzesPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/quizzes");
+  const session = await requireRole(["student"], "/learn/quizzes");
   const quizzes = await getLearnerQuizzes(session);
 
   return (

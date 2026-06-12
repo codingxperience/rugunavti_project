@@ -39,7 +39,7 @@ function formatEnumLabel(value: string) {
 }
 
 export default async function LearnProgramPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/program");
+  const session = await requireRole(["student"], "/learn/program");
   const [pathway, workspace] = await Promise.all([
     getLearnerProgramPathway(session),
     getLearnerWorkspaceRecords(session),

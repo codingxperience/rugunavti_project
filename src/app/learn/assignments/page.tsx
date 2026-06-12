@@ -18,7 +18,7 @@ function formatDate(value: Date | null) {
 }
 
 export default async function LearnAssignmentsPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/assignments");
+  const session = await requireRole(["student"], "/learn/assignments");
   const assignments = await getLearnerAssignments(session);
 
   return (

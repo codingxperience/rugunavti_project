@@ -28,12 +28,12 @@ export const protectedRouteRules: {
   roles: PlatformRole[];
   label: string;
 }[] = [
-  { prefix: "/learn", roles: ["student", "super_admin"], label: "Learning dashboard" },
-  { prefix: "/student", roles: ["student", "super_admin"], label: "Student dashboard" },
-  { prefix: "/instructor", roles: ["instructor", "super_admin"], label: "Instructor dashboard" },
-  { prefix: "/registrar", roles: ["registrar_admin", "super_admin"], label: "Registrar workspace" },
+  { prefix: "/learn", roles: ["student"], label: "Learning dashboard" },
+  { prefix: "/student", roles: ["student"], label: "Student dashboard" },
+  { prefix: "/instructor", roles: ["instructor"], label: "Instructor dashboard" },
+  { prefix: "/registrar", roles: ["registrar_admin"], label: "Registrar workspace" },
   { prefix: "/admin", roles: ["super_admin"], label: "Admin console" },
-  { prefix: "/finance", roles: ["finance_admin", "super_admin"], label: "Finance console" },
+  { prefix: "/finance", roles: ["finance_admin"], label: "Finance console" },
 ];
 
 export function normalizeRole(value: string | null | undefined): PlatformRole | null {

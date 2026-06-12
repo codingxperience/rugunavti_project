@@ -50,7 +50,7 @@ function courseHref(course: LearnerCourseRecord) {
 }
 
 export default async function LearnDashboardPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/dashboard");
+  const session = await requireRole(["student"], "/learn/dashboard");
   const workspace = await getLearnerWorkspaceRecords(session);
   const displayName = resolveDisplayName({
     firstName: workspace.user.profile?.firstName,

@@ -124,20 +124,38 @@ async function getPersistedUserSnapshot(input: {
 }
 
 export async function getCurrentSession() {
+  const cookieStore = await cookies();
+  const bridgeSession = decodeClerkBridgeSession(
+    cookieStore.get(CLERK_BRIDGE_SESSION_COOKIE)?.value
+  );
+
   if (hasClerk) {
     try {
       const clerk = await import("@clerk/nextjs/server");
       const authResult = await clerk.auth({ treatPendingAsSignedOut: false });
 
       if (authResult.userId) {
-        const rawRole =
-          typeof authResult.sessionClaims?.metadata === "object" &&
-          authResult.sessionClaims?.metadata &&
-          "role" in authResult.sessionClaims.metadata
-            ? String(authResult.sessionClaims.metadata.role)
-            : "student";
-
+        const matchingBridgeSession =
+          bridgeSession?.userId === authResult.userId ? bridgeSession : null;
         const claims = authResult.sessionClaims as Record<string, unknown> | null | undefined;
+        const claimMetadata =
+          typeof claims?.metadata === "object" && claims.metadata
+            ? (claims.metadata as Record<string, unknown>)
+            : null;
+        const publicMetadata =
+          typeof claims?.public_metadata === "object" && claims.public_metadata
+            ? (claims.public_metadata as Record<string, unknown>)
+            : typeof claims?.publicMetadata === "object" && claims.publicMetadata
+              ? (claims.publicMetadata as Record<string, unknown>)
+              : null;
+        const rawRole =
+          matchingBridgeSession?.role ??
+          (typeof claimMetadata?.role === "string"
+            ? claimMetadata.role
+            : typeof publicMetadata?.role === "string"
+              ? publicMetadata.role
+              : "student");
+
         const claimsEmail =
           typeof claims?.email === "string"
             ? claims.email
@@ -145,14 +163,15 @@ export async function getCurrentSession() {
               ? claims.email_address
               : null;
         const claimsFullName = typeof claims?.fullName === "string" ? claims.fullName : null;
+        const bridgeEmail = matchingBridgeSession?.email ?? null;
         const persistedUser = await getPersistedUserSnapshot({
           clerkId: authResult.userId,
-          email: claimsEmail,
+          email: claimsEmail ?? bridgeEmail,
         });
-        const email = claimsEmail ?? persistedUser.email;
+        const email = claimsEmail ?? bridgeEmail ?? persistedUser.email;
         const effectiveRoles = resolveEffectiveSessionRoles(rawRole, email, persistedUser.roleSlugs);
         const name = resolveReadableName(
-          persistedUser.profileName || claimsFullName,
+          persistedUser.profileName || claimsFullName || matchingBridgeSession?.name,
           email
         );
 
@@ -174,11 +193,6 @@ export async function getCurrentSession() {
       console.error("Clerk auth lookup failed; falling back to dev/guest mode.", error);
     }
   }
-
-  const cookieStore = await cookies();
-  const bridgeSession = decodeClerkBridgeSession(
-    cookieStore.get(CLERK_BRIDGE_SESSION_COOKIE)?.value
-  );
 
   if (bridgeSession) {
     const persistedUser = await getPersistedUserSnapshot({

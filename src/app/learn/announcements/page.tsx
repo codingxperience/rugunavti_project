@@ -12,7 +12,7 @@ function formatDate(value: Date) {
 }
 
 export default async function LearnAnnouncementsPage() {
-  const session = await requireRole(["student", "super_admin"], "/learn/announcements");
+  const session = await requireRole(["student"], "/learn/announcements");
   const workspace = await getLearnerWorkspaceRecords(session);
 
   return (
