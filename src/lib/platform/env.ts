@@ -1,7 +1,5 @@
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
-const isLocalSiteUrl =
-  normalizedSiteUrl.includes("localhost") || normalizedSiteUrl.includes("127.0.0.1");
 let normalizedSiteOrigin: string | null = null;
 
 try {
@@ -12,9 +10,10 @@ try {
 
 const rawClerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 const clerkUsesLiveKeys = rawClerkPublishableKey?.startsWith("pk_live_") ?? false;
-const rawClerkProxyUrl =
-  process.env.NEXT_PUBLIC_CLERK_PROXY_URL ||
-  (isLocalSiteUrl ? undefined : `${normalizedSiteUrl}/__clerk`);
+const clerkProxyEnabled = process.env.RUGUNA_ENABLE_CLERK_PROXY === "true";
+const rawClerkProxyUrl = clerkProxyEnabled
+  ? process.env.NEXT_PUBLIC_CLERK_PROXY_URL?.trim() || undefined
+  : undefined;
 
 function readSecret(value: string | undefined) {
   const trimmed = value?.trim();
@@ -158,10 +157,17 @@ export function getProductionEnvWarnings(env: NodeJS.ProcessEnv = process.env) {
     env.NEXT_PUBLIC_SITE_URL &&
     !env.NEXT_PUBLIC_SITE_URL.includes("localhost") &&
     env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith("pk_live_") &&
+    env.RUGUNA_ENABLE_CLERK_PROXY === "true" &&
     !env.NEXT_PUBLIC_CLERK_PROXY_URL
   ) {
     warnings.push(
-      "NEXT_PUBLIC_CLERK_PROXY_URL is not set; the app will derive it from NEXT_PUBLIC_SITE_URL, but Vercel and Clerk Dashboard should explicitly use the same /__clerk URL."
+      "RUGUNA_ENABLE_CLERK_PROXY is true, but NEXT_PUBLIC_CLERK_PROXY_URL is not set."
+    );
+  }
+
+  if (env.NEXT_PUBLIC_CLERK_PROXY_URL && env.RUGUNA_ENABLE_CLERK_PROXY !== "true") {
+    warnings.push(
+      "NEXT_PUBLIC_CLERK_PROXY_URL is set, but RUGUNA_ENABLE_CLERK_PROXY is not true; remove the proxy URL or enable the proxy intentionally."
     );
   }
 

@@ -19,3 +19,5 @@ dist
 *.tsbuildinfo
 .eslintcache
 reports/**/chrome-profile*/
+
+.vercel
