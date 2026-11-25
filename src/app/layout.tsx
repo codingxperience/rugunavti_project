@@ -10,14 +10,14 @@ import {
 import { RouteShell } from "@/components/site/route-shell";
 import { siteConfig } from "@/data";
 import { hasClerk, platformEnv } from "@/lib/platform/env";
-import { siteOrigin } from "@/lib/site-url";
+import { productionSiteUrl } from "@/lib/site-url";
 
 import "./globals.css";
 import "./fonts/fonts.css";
 import "../styles/prototype.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteOrigin),
+  metadataBase: new URL(productionSiteUrl),
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.shortName}`,
