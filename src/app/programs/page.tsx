@@ -1,6 +1,9 @@
 import { ProgramDirectory } from "@/components/site/program-directory";
 import { PageHero } from "@/components/site/page-hero";
 import { programs, schools } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/programs");
 
 export default async function ProgramsPage({
   searchParams,
@@ -23,7 +26,7 @@ export default async function ProgramsPage({
         }
       />
 
-      <section className="section-padding pt-0">
+      <section id="programmes" className="section-padding pt-0">
         <div className="container-width">
           <ProgramDirectory
             programs={programs}

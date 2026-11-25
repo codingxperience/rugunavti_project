@@ -1,6 +1,9 @@
 import { PageHero } from "@/components/site/page-hero";
 import { ProgramDirectory } from "@/components/site/program-directory";
 import { programs, schools } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/short-courses");
 
 export default function ShortCoursesPage() {
   const shortCourses = programs.filter((program) => program.level === "Short Course");

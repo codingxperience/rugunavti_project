@@ -7,6 +7,9 @@ import {
   elearningCourses,
   filterElearningCourses,
 } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/elearning/courses");
 
 export default async function ElearningCoursesPage({
   searchParams,
@@ -106,9 +109,9 @@ export default async function ElearningCoursesPage({
         </form>
 
         <div className="mt-8 flex items-center justify-between gap-4">
-          <p className="text-sm text-[var(--color-muted)]">
+          <h2 className="text-sm text-[var(--color-muted)]">
             {results.length} course{results.length === 1 ? "" : "s"} matched your filters
-          </p>
+          </h2>
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm text-[var(--color-muted)]">
             <Filter className="h-4 w-4 text-[var(--color-ink)]" />
             Search, compare, start, or apply

@@ -1,4 +1,4 @@
-// AUTO-GENERATED from the Claude Design prototype (Admissions.html). Do not edit; run scripts/gen-proto.py.
+// Adapted from the original design prototype.
 export const admissionsHtml = `
     <section class="hero-x">
       <span class="hx-bgword" data-parallax="0.06">APPLY</span>
@@ -25,11 +25,11 @@ export const admissionsHtml = `
     <section class="sec-tight"><div class="wrap">
       <div class="section-head"><div><p class="eyebrow reveal">How to apply</p><h2 class="display mt-s reveal">Five clear steps</h2></div></div>
       <div class="steps-grid">
-        <div class="stp reveal"><div class="sn">01</div><h4>Create account</h4><p>Register with your email and choose your intake.</p></div>
-        <div class="stp reveal d1"><div class="sn">02</div><h4>Choose programme</h4><p>Select your school, level, and study mode.</p></div>
-        <div class="stp reveal d2"><div class="sn">03</div><h4>Apply &amp; upload</h4><p>Fill the form and upload documents from your phone.</p></div>
-        <div class="stp reveal d3"><div class="sn">04</div><h4>Track review</h4><p>Follow your status and respond to any requests.</p></div>
-        <div class="stp reveal d4"><div class="sn">05</div><h4>Confirm &amp; enrol</h4><p>Receive your decision and confirm admission.</p></div>
+        <div class="stp reveal"><div class="sn">01</div><h3>Create account</h3><p>Register with your email and choose your intake.</p></div>
+        <div class="stp reveal d1"><div class="sn">02</div><h3>Choose programme</h3><p>Select your school, level, and study mode.</p></div>
+        <div class="stp reveal d2"><div class="sn">03</div><h3>Apply &amp; upload</h3><p>Fill the form and upload documents from your phone.</p></div>
+        <div class="stp reveal d3"><div class="sn">04</div><h3>Track review</h3><p>Follow your status and respond to any requests.</p></div>
+        <div class="stp reveal d4"><div class="sn">05</div><h3>Confirm &amp; enrol</h3><p>Receive your decision and confirm admission.</p></div>
       </div>
     </div></section>
 
@@ -77,10 +77,10 @@ export const admissionsHtml = `
       <div class="intl reveal-scale"><div class="intl-grid">
         <div><p class="eyebrow" style="color:var(--accent)">For international students</p><h2 class="display mt-s">Apply from <span class="hl">anywhere</span></h2><p class="lede mt-m">Whether you're across the region or across the world, our online and blended pathways, equivalency support, and dedicated advisors make studying with Ruguna straightforward.</p><a class="btn btn-primary btn-lg mt-m" href="/contact">Talk to an advisor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
         <div>
-          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15 0 18M12 3c-2.5 2.6-2.5 15 0 18"/></svg></span><div><h5>Study online or blended</h5><p>Selected programmes run fully online or as online theory with scheduled practicals.</p></div></div>
-          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h12"/></svg></span><div><h5>Qualification equivalency</h5><p>We help you map prior qualifications and confirm English requirements.</p></div></div>
-          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><div><h5>Three intakes a year</h5><p>Flexible entry points so you can begin when you're ready.</p></div></div>
-          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 7.7-8 9-4.6-1.3-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h5>A dedicated advisor</h5><p>One point of contact from application through to your first term.</p></div></div>
+          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15 0 18M12 3c-2.5 2.6-2.5 15 0 18"/></svg></span><div><h3>Study online or blended</h3><p>Selected programmes run fully online or as online theory with scheduled practicals.</p></div></div>
+          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h12"/></svg></span><div><h3>Qualification equivalency</h3><p>We help you map prior qualifications and confirm English requirements.</p></div></div>
+          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><div><h3>Three intakes a year</h3><p>Flexible entry points so you can begin when you're ready.</p></div></div>
+          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 7.7-8 9-4.6-1.3-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>A dedicated advisor</h3><p>One point of contact from application through to your first term.</p></div></div>
         </div>
       </div></div>
     </div></section>
@@ -122,7 +122,7 @@ export const admissionsHtml = `
         <p class="eyebrow center">Start now</p>
         <h2 class="display mt-s">Begin your <span class="hl">application</span></h2>
         <p class="lede mx-auto center mt-m" style="max-width:52ch">Create an account, choose your programme, and submit in minutes. You can save your progress and return any time.</p>
-        <div class="flex gap-s wrap-flex center" style="justify-content:center;margin-top:32px"><a class="btn btn-dark btn-lg" href="#">Create account &amp; apply <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-outline btn-lg" href="/programs">Browse programmes</a></div>
+        <div class="flex gap-s wrap-flex center" style="justify-content:center;margin-top:32px"><a class="btn btn-dark btn-lg" href="/apply">Start your application <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-outline btn-lg" href="/programs">Browse programmes</a></div>
       </div>
     </div></section>
   `;

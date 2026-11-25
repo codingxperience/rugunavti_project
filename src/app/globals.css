@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  --font-display: "Bricolage Grotesque Variable";
+  --font-sans: "Plus Jakarta Sans Variable";
   --background: #fcfcfc;
   --foreground: #111111;
   --color-ink: #111111;

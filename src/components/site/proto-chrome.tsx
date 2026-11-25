@@ -8,6 +8,8 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
+import { siteConfig } from "@/data/site-config";
+
 /* Icons (verbatim from the prototype site.js) */
 const I: Record<string, string> = {
   chev: '<path d="M6 9l6 6 6-6"/>',
@@ -33,9 +35,6 @@ function Svg({ d, w = 13 }: { d: string; w?: number }) {
   );
 }
 
-const PHONE = "+256 700 123 456";
-const EMAIL = "admissions@ruguna.ac.ug";
-
 const UTIL = [
   { h: "/fees-funding", l: "Fees & Funding" },
   { h: "/prospectus", l: "Prospectus" },
@@ -57,10 +56,10 @@ const ACADEMICS: Mega = {
     {
       h: "Award levels",
       links: [
-        { t: "Short Courses", d: "Focused upskilling, 6–12 weeks", href: "/academics#levels" },
-        { t: "Certificate", d: "Job-ready entry pathways", href: "/academics#levels" },
-        { t: "Diploma", d: "Technical & supervisory depth", href: "/academics#levels" },
-        { t: "Bachelor's", d: "Leadership & specialisation", href: "/academics#levels" },
+        { t: "Short Courses", d: "Focused upskilling, 6–12 weeks", href: "/academic-overview#levels" },
+        { t: "Certificate", d: "Job-ready entry pathways", href: "/academic-overview#levels" },
+        { t: "Diploma", d: "Technical & supervisory depth", href: "/academic-overview#levels" },
+        { t: "Bachelor's", d: "Leadership & specialisation", href: "/academic-overview#levels" },
       ],
     },
     {
@@ -75,9 +74,9 @@ const ACADEMICS: Mega = {
     {
       h: "Quick actions",
       links: [
-        { t: "Browse all programmes", href: "/academics#programmes" },
+        { t: "Browse all programmes", href: "/programs" },
         { t: "Explore all 13 schools", href: "/schools" },
-        { t: "Compare study modes", href: "/academics#modes" },
+        { t: "Compare study modes", href: "/academic-overview#modes" },
         { t: "Speak to admissions", href: "/contact" },
       ],
     },
@@ -87,7 +86,7 @@ const ACADEMICS: Mega = {
     title: "Thirteen schools. One standard of practice.",
     body: "Workshop, studio, clinic, and field learning mapped to real employer outcomes.",
     cta: "Browse programmes",
-    href: "/academics#programmes",
+    href: "/programs",
     img: "/brand/3d/grad.png",
   },
 };
@@ -108,14 +107,14 @@ const ADMISSIONS: Mega = {
       links: [
         { t: "Apply from abroad", href: "/admissions#international" },
         { t: "English & equivalency", href: "/admissions#international" },
-        { t: "Online & blended study", href: "/academics#modes" },
+        { t: "Online & blended study", href: "/academic-overview#modes" },
         { t: "Talk to an advisor", href: "/contact" },
       ],
     },
     {
       h: "Related",
       links: [
-        { t: "Programme directory", href: "/academics#programmes" },
+        { t: "Programme directory", href: "/programs" },
         { t: "Intake calendar", href: "/news-events#calendar" },
         { t: "Student life", href: "/student-life" },
         { t: "Contact admissions", href: "/contact" },
@@ -173,7 +172,7 @@ const NEWS: Mega = {
 
 const NAV: { label: string; href: string; mega?: Mega }[] = [
   { label: "About", href: "/about" },
-  { label: "Academics", href: "/academics", mega: ACADEMICS },
+  { label: "Academics", href: "/academic-overview", mega: ACADEMICS },
   { label: "Admissions", href: "/admissions", mega: ADMISSIONS },
   { label: "Student Life", href: "/student-life" },
   { label: "News & Events", href: "/news-events", mega: NEWS },
@@ -186,7 +185,7 @@ function MegaMenu({ m }: { m: Mega }) {
       <div className="mega-grid">
         {m.cols.map((c) => (
           <div className="mega-col" key={c.h}>
-            <h4>{c.h}</h4>
+            <p className="mega-label">{c.h}</p>
             {c.links.map((l) => (
               <a className="mega-link" href={l.href} key={l.t}>
                 <span className="ml-t">{l.t}</span>
@@ -198,7 +197,7 @@ function MegaMenu({ m }: { m: Mega }) {
         <div className="mega-feature">
           <div>
             <div className="mf-eb">{m.feature.eb}</div>
-            <h3>{m.feature.title}</h3>
+            <p className="mega-feature-title">{m.feature.title}</p>
             <p>{m.feature.body}</p>
           </div>
           {m.feature.img ? (
@@ -297,7 +296,7 @@ export function ProtoHeader() {
     <a className="brand" href="/">
       <span className="mark">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/ruguna_logo_v2.jpeg" alt="Ruguna College" />
+        <img src={siteConfig.logoPath} alt="" />
       </span>
       <span className="bt">
         <span className="nm">Ruguna College</span>
@@ -320,13 +319,13 @@ export function ProtoHeader() {
               ))}
             </div>
             <div className="u-right">
-              <a className="u-contact" href="/contact">
+              <a className="u-contact" href={`tel:${siteConfig.telephone}`}>
                 <Svg d="phone" />
-                <span>{PHONE}</span>
+                <span>{siteConfig.phone}</span>
               </a>
               <span className="sep" />
-              <a className="u-contact" href={`mailto:${EMAIL}`}>
-                {EMAIL}
+              <a className="u-contact" href={`mailto:${siteConfig.email}`}>
+                {siteConfig.email}
               </a>
             </div>
           </div>
@@ -406,12 +405,12 @@ export function ProtoHeader() {
           <a className="btn btn-primary btn-lg" href={ctaHref}>
             {ctaLabel} <Svg d="arrow" />
           </a>
-          <a className="btn btn-outline btn-lg" href={isElearning ? "/elearning/register" : "/academics"}>
+          <a className="btn btn-outline btn-lg" href={isElearning ? "/elearning/register" : "/programs"}>
             {isElearning ? "Sign Up" : "Explore Programmes"}
           </a>
         </div>
         <div className="mobile-quick">
-          <h5>Quick links</h5>
+          <p className="mobile-quick-label">Quick links</p>
           <div className="mq-grid">
             {UTIL.map((u) => (
               <a href={u.h} key={u.l}>
@@ -419,12 +418,12 @@ export function ProtoHeader() {
               </a>
             ))}
           </div>
-          <a className="mq-contact" href={`tel:${PHONE.replace(/\s/g, "")}`}>
+          <a className="mq-contact" href={`tel:${siteConfig.telephone}`}>
             <Svg d="phone" />
-            <span>{PHONE}</span>
+            <span>{siteConfig.phone}</span>
           </a>
-          <a className="mq-contact" href={`mailto:${EMAIL}`}>
-            {EMAIL}
+          <a className="mq-contact" href={`mailto:${siteConfig.email}`}>
+            {siteConfig.email}
           </a>
         </div>
       </div>
@@ -437,9 +436,9 @@ const FOOT_COLS: { h: string; links: [string, string][] }[] = [
     h: "Academics",
     links: [
       ["Schools", "/schools"],
-      ["Programmes", "/academics#programmes"],
+      ["Programmes", "/programs"],
       ["School pages", "/schools"],
-      ["Study modes", "/academics#modes"],
+      ["Study modes", "/academic-overview#modes"],
     ],
   },
   {
@@ -483,7 +482,7 @@ export function ProtoFooter() {
             </div>
             {FOOT_COLS.map((col) => (
               <div key={col.h}>
-                <h5>{col.h}</h5>
+                <h2>{col.h}</h2>
                 {col.links.map(([label, href]) => (
                   <a href={href} key={label}>
                     {label}
@@ -494,11 +493,11 @@ export function ProtoFooter() {
           </div>
           <div className="footer-bottom">
             <span>© 2026 Ruguna College. All rights reserved.</span>
-            <span style={{ display: "flex", gap: 18, flexWrap: "wrap" }}>
-              <a href="#">Privacy</a>
-              <a href="#">Terms</a>
-              <a href="#">Accessibility</a>
-            </span>
+            <nav className="footer-social" aria-label="Ruguna College social links">
+              <a href={siteConfig.social.facebook} target="_blank" rel="noreferrer">Facebook</a>
+              <a href={siteConfig.social.whatsappChannel} target="_blank" rel="noreferrer">WhatsApp updates</a>
+              <a href={siteConfig.social.whatsappAdmissions} target="_blank" rel="noreferrer">WhatsApp admissions group</a>
+            </nav>
           </div>
         </div>
         <div className="neg-word" aria-hidden>

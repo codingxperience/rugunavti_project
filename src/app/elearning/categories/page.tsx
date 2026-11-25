@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { adminElearningCategories, elearningCourses } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/elearning/categories");
 
 export default function ElearningCategoriesPage() {
   return (

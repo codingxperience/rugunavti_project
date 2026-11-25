@@ -5,6 +5,14 @@ import { CtaBanner } from "@/components/site/cta-banner";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProgramsBySchool, getSchoolBySlug, schools } from "@/data";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const school = getSchoolBySlug((await params).slug);
+  if (!school) notFound();
+
+  return pageMetadata(`/schools/${school.slug}`, school.name, school.overview);
+}
 
 export function generateStaticParams() {
   return schools.map((school) => ({ slug: school.slug }));

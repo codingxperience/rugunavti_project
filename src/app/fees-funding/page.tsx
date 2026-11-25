@@ -3,6 +3,9 @@ import { MediaBand } from "@/components/site/media";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { feeHighlights } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/fees-funding");
 
 export default function FeesFundingPage() {
   return (

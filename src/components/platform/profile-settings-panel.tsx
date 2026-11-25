@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { siteConfig } from "@/data/site-config";
 import { useRouter } from "next/navigation";
 import {
   Bell,
@@ -305,11 +306,11 @@ export function ProfileSettingsPanel({ profile }: ProfileSettingsPanelProps) {
               cta: "Open support desk",
             },
             {
-              title: "WhatsApp support",
-              text: "Use WhatsApp for quick access follow-up and class reminders.",
-              href: "https://wa.me/256700123456?text=Hello%20Ruguna%20eLearning%20support",
+              title: "Call Ruguna College",
+              text: siteConfig.phone,
+              href: `tel:${siteConfig.telephone}`,
               icon: Smartphone,
-              cta: "Message Ruguna",
+              cta: "Call the college",
             },
             {
               title: "Contact records desk",

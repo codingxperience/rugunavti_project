@@ -1,4 +1,7 @@
-const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { configuredSiteUrl, productionSiteUrl } from "@/lib/site-url";
+
+const defaultSiteUrl = process.env.NODE_ENV === "production" ? productionSiteUrl : "http://localhost:3000";
+const rawSiteUrl = configuredSiteUrl || defaultSiteUrl;
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
 let normalizedSiteOrigin: string | null = null;
 

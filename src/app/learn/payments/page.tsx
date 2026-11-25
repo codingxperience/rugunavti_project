@@ -415,9 +415,7 @@ export default async function LearnerPaymentsPage({
             </div>
             <div className="mt-5 grid gap-2">
               <Button asChild>
-                <Link href={`https://wa.me/${siteConfig.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noreferrer">
-                  WhatsApp finance
-                </Link>
+                <a href={`tel:${siteConfig.telephone}`}>Call Ruguna College</a>
               </Button>
               <Button asChild variant="secondary">
                 <Link href="/learn/help">Open support</Link>

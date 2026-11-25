@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
-
 import { PrototypeRuntime } from "@/components/site/proto-runtime";
 import { aboutHtml } from "@/proto/about.html";
+import { publicPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata = publicPageMetadata("/about");
 
 export default function AboutPage() {
   return (

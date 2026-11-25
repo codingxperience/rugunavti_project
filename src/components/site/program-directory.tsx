@@ -147,9 +147,9 @@ export function ProgramDirectory({
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-muted)]">
                     {program.level} · {schoolNameMap[program.schoolSlug]} · {program.studyMode}
                   </p>
-                  <h3 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
+                  <h2 className="font-heading mt-3 text-2xl font-bold text-[var(--color-ink)]">
                     {program.title}
-                  </h3>
+                  </h2>
                   <p className="mt-3 text-sm leading-7 text-[var(--color-muted)]">
                     {program.overview}
                   </p>

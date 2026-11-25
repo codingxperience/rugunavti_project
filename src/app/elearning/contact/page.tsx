@@ -4,6 +4,9 @@ import { ContactForm } from "@/components/forms/contact-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { siteConfig, supportCategories } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/elearning/contact");
 
 export default function ElearningContactPage() {
   return (
@@ -32,15 +35,22 @@ export default function ElearningContactPage() {
               <div className="mt-5 grid gap-4 text-sm leading-7 text-white/74">
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">Phone</p>
-                  <p className="mt-2">{siteConfig.phone}</p>
+                  <p className="mt-2"><a href={`tel:${siteConfig.telephone}`}>{siteConfig.phone}</a></p>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">Email</p>
-                  <p className="mt-2">{siteConfig.email}</p>
+                  <p className="mt-2"><a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a></p>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.22em] text-white/56">WhatsApp</p>
-                  <p className="mt-2">{siteConfig.whatsapp}</p>
+                  <a
+                    href={siteConfig.social.whatsappAdmissions}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-block underline underline-offset-4"
+                  >
+                    Admissions WhatsApp group
+                  </a>
                 </div>
               </div>
             </CardContent>

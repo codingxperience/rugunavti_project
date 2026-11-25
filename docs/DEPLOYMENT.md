@@ -18,7 +18,7 @@ Before production:
 Set these in Vercel for Production and Preview, and keep local values in `.env.local`.
 
 ```env
-NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_SITE_URL=https://ruguna.ac.ug
 DATABASE_URL=
 DIRECT_URL=
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
@@ -60,7 +60,7 @@ Production requirements:
 
 - `RUGUNA_ALLOW_DEV_AUTH=false`
 - `RUGUNA_USE_DATABASE=true`
-- `NEXT_PUBLIC_SITE_URL` must be the deployed domain, not localhost.
+- Set `NEXT_PUBLIC_SITE_URL=https://ruguna.ac.ug` on the production host before building. For local auth callbacks, set `NEXT_PUBLIC_SITE_URL=http://localhost:3000` in `.env.local`.
 - Supabase Postgres URLs should include `sslmode=require`.
 - `DATABASE_URL` should use the pooled Supabase connection for the app.
 - `DIRECT_URL` should use the direct/session connection for Prisma migrations.

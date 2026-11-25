@@ -1,5 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { elearningBenefits, elearningSteps } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/elearning/about");
 
 const deliveryPoints = [
   "Lessons are delivered in structured sequences with progress-aware navigation and clear next actions.",

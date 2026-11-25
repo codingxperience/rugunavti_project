@@ -1,5 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { elearningFaqs } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/elearning/faq");
 
 export default function ElearningFaqPage() {
   return (

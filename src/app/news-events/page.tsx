@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
-
 import { PrototypeRuntime } from "@/components/site/proto-runtime";
 import { news_eventsHtml } from "@/proto/news-events.html";
+import { publicPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = { title: "News & Events" };
+export const metadata = publicPageMetadata("/news-events");
 
 export default function NewsEventsPage() {
   return (

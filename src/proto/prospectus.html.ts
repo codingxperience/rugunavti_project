@@ -1,4 +1,6 @@
-// AUTO-GENERATED from the Claude Design prototype (prospectus.html). Do not edit; run scripts/gen-proto.py.
+// Prospectus adapted from the original design prototype.
+import { siteConfig } from "@/data/site-config";
+
 export const prospectusHtml = `
   <div class="pbar"><div class="wrap">
     <div class="pb-l"><span class="dot"></span>Ruguna College · Prospectus 2026</div>
@@ -22,7 +24,7 @@ export const prospectusHtml = `
 
     <!-- WELCOME -->
     <section class="page">
-      <div class="phead"><span class="pt">Welcome to Ruguna</span><span class="pn">01 · Introduction</span></div>
+      <div class="phead"><h2 class="pt">Welcome to Ruguna</h2><span class="pn">01 · Introduction</span></div>
       <p class="lead">Ruguna College exists to turn ambition into capability. We pair practical, workshop-led training with the discipline, character, and support that carry learners from their first inquiry to a working career — whether that means employment, self-employment, or further study.</p>
       <div class="twocol" style="margin-top:24px">
         <div><h3>Our mission</h3><p class="muted">To deliver practical, employable education for the real economy — training learners with the hands-on competence, professional habits, and confidence that employers and communities need.</p></div>
@@ -39,7 +41,7 @@ export const prospectusHtml = `
 
     <!-- LEVELS -->
     <section class="page">
-      <div class="phead"><span class="pt">Award levels</span><span class="pn">02 · Pathways</span></div>
+      <div class="phead"><h2 class="pt">Award levels</h2><span class="pn">02 · Pathways</span></div>
       <p class="lead">Choose the level that fits your starting point and goals. Every pathway is practical and built toward real outcomes.</p>
       <table class="lvl-table">
         <thead><tr><th>Level</th><th>Duration</th><th>Best for</th></tr></thead>
@@ -56,14 +58,14 @@ export const prospectusHtml = `
 
     <!-- SCHOOLS -->
     <section class="page">
-      <div class="phead"><span class="pt">Thirteen specialist schools</span><span class="pn">03 · Academics</span></div>
+      <div class="phead"><h2 class="pt">Thirteen specialist schools</h2><span class="pn">03 · Academics</span></div>
       <p class="lead">Each school is built around practice, with programmes mapped to real employer outcomes.</p>
       <div class="school-list" id="schoolList"><div class="sl"><span class="num">01</span><span>Digital Technology, AI & Cyber Systems</span></div><div class="sl"><span class="num">02</span><span>Engineering, Construction & Smart Infrastructure</span></div><div class="sl"><span class="num">03</span><span>Renewable Energy & Climate Technology</span></div><div class="sl"><span class="num">04</span><span>Agribusiness, Food Systems & AgriTech</span></div><div class="sl"><span class="num">05</span><span>Health, Public Health & Allied Services</span></div><div class="sl"><span class="num">06</span><span>Business, Entrepreneurship & Digital Economy</span></div><div class="sl"><span class="num">07</span><span>Creative Arts, Media & Digital Production</span></div><div class="sl"><span class="num">08</span><span>Hospitality, Tourism & Experience Management</span></div><div class="sl"><span class="num">09</span><span>Automotive, Mechanical & Transport Technology</span></div><div class="sl"><span class="num">10</span><span>Logistics, Supply Chain & Procurement</span></div><div class="sl"><span class="num">11</span><span>Security, Safety & Industrial Systems</span></div><div class="sl"><span class="num">12</span><span>ICT Support & Digital Operations</span></div><div class="sl"><span class="num">13</span><span>Education, Training & TVET Instruction</span></div></div>
     </section>
 
     <!-- FEES -->
     <section class="page">
-      <div class="phead"><span class="pt">Fees &amp; funding</span><span class="pn">04 · Investment</span></div>
+      <div class="phead"><h2 class="pt">Fees &amp; funding</h2><span class="pn">04 · Investment</span></div>
       <p class="lead">Indicative ranges below. Instalment guidance and finance support are available to eligible learners. International tuition is quoted on application.</p>
       <table class="fee-table">
         <thead><tr><th>Level</th><th>Indicative fees</th><th>Notes</th></tr></thead>
@@ -80,19 +82,18 @@ export const prospectusHtml = `
 
     <!-- HOW TO APPLY -->
     <section class="page">
-      <div class="phead"><span class="pt">How to apply</span><span class="pn">05 · Admissions</span></div>
+      <div class="phead"><h2 class="pt">How to apply</h2><span class="pn">05 · Admissions</span></div>
       <p class="lead">From interest to enrolment in five clear steps — from any device, anywhere in the world.</p>
       <div class="steps-list">
-        <div class="stp2"><span class="n">1</span><div><h4>Create an account</h4><p>Register with your email and choose your intake.</p></div></div>
-        <div class="stp2"><span class="n">2</span><div><h4>Choose a programme</h4><p>Select your school, level, and study mode.</p></div></div>
-        <div class="stp2"><span class="n">3</span><div><h4>Apply &amp; upload</h4><p>Fill the form and upload documents from your phone.</p></div></div>
-        <div class="stp2"><span class="n">4</span><div><h4>Track the review</h4><p>Follow your status and respond to any requests.</p></div></div>
-        <div class="stp2"><span class="n">5</span><div><h4>Confirm &amp; enrol</h4><p>Receive your decision and confirm your admission.</p></div></div>
+        <div class="stp2"><span class="n">1</span><div><h3>Create an account</h3><p>Register with your email and choose your intake.</p></div></div>
+        <div class="stp2"><span class="n">2</span><div><h3>Choose a programme</h3><p>Select your school, level, and study mode.</p></div></div>
+        <div class="stp2"><span class="n">3</span><div><h3>Apply &amp; upload</h3><p>Fill the form and upload documents from your phone.</p></div></div>
+        <div class="stp2"><span class="n">4</span><div><h3>Track the review</h3><p>Follow your status and respond to any requests.</p></div></div>
+        <div class="stp2"><span class="n">5</span><div><h3>Confirm &amp; enrol</h3><p>Receive your decision and confirm your admission.</p></div></div>
       </div>
       <div class="contact-band">
-        <div><div class="cbk">Call</div><div class="cbv">+256 700 123 456</div></div>
-        <div><div class="cbk">Email</div><div class="cbv">admissions@ruguna.ac.ug</div></div>
-        <div><div class="cbk">Visit</div><div class="cbv">Ruguna Campus, Kampala</div></div>
+        <div><div class="cbk">Call</div><div class="cbv"><a href="tel:${siteConfig.telephone}">${siteConfig.phone}</a></div></div>
+        <div><div class="cbk">Email</div><div class="cbv"><a href="mailto:${siteConfig.email}">${siteConfig.email}</a></div></div>
         <div><div class="cbk">Intakes</div><div class="cbv">Jan · May · Sep 2026</div></div>
       </div>
       <p class="muted" style="margin-top:22px;text-align:center;font-size:0.86rem">Ruguna College · One Who Prevails · ruguna.ac.ug</p>

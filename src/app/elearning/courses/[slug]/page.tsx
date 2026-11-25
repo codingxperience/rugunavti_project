@@ -6,6 +6,14 @@ import { CourseEnrollButton } from "@/components/elearning/course-enroll-button"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getElearningCourseBySlug } from "@/data";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const course = getElearningCourseBySlug((await params).slug);
+  if (!course) notFound();
+
+  return pageMetadata(`/elearning/courses/${course.slug}`, course.title, course.overview);
+}
 
 export default async function ElearningCourseDetailPage({
   params,

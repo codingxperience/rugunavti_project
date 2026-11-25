@@ -6,6 +6,9 @@ import { CtaBanner } from "@/components/site/cta-banner";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { schools } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/schools");
 
 export default function SchoolsPage() {
   return (

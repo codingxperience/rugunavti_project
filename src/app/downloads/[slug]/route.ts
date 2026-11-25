@@ -1,3 +1,5 @@
+import { siteConfig } from "@/data/site-config";
+
 import { NextResponse } from "next/server";
 
 const documents: Record<string, { filename: string; body: string }> = {
@@ -11,7 +13,7 @@ const documents: Record<string, { filename: string; body: string }> = {
   },
   "fees-and-payment-guide": {
     filename: "ruguna-fees-and-payment-guide.txt",
-    body: `Ruguna College\nOne Who Prevails\nFees and Payment Guide\n\nFinance workflow:\n- Applicant or student receives invoice reference\n- Payment is submitted with reference number\n- Finance team verifies payment and updates status\n- Enrollment holds may apply where balances remain outstanding\n\nSupport:\n- admissions@ruguna.ac.ug\n- +256 700 123 456\n- WhatsApp: +256 754 000 321`,
+    body: `Ruguna College\nOne Who Prevails\nFees and Payment Guide\n\nFinance workflow:\n- Applicant or student receives invoice reference\n- Payment is submitted with reference number\n- Finance team verifies payment and updates status\n- Enrollment holds may apply where balances remain outstanding\n\nSupport:\n- ${siteConfig.email}\n- ${siteConfig.phone}`,
   },
 };
 

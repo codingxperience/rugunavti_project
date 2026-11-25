@@ -1,9 +1,8 @@
-import type { Metadata } from "next";
-
 import { PrototypeRuntime } from "@/components/site/proto-runtime";
 import { elearningHtml } from "@/proto/elearning.html";
+import { publicPageMetadata } from "@/lib/site-metadata";
 
-export const metadata: Metadata = { title: "E-Learning" };
+export const metadata = publicPageMetadata("/elearning");
 
 export default function ElearningLandingPage() {
   return (

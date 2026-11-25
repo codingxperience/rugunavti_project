@@ -5,6 +5,9 @@ import { CtaBanner } from "@/components/site/cta-banner";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { admissionRequirements, applyTracks, intakeMoments, programs, siteConfig } from "@/data";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/apply");
 
 export default async function ApplyPage({
   searchParams,
@@ -102,8 +105,8 @@ export default async function ApplyPage({
                 <div className="mt-4 grid gap-2 text-sm font-semibold text-[var(--color-ink)]">
                   <Link href={siteConfig.prospectusHref}>Download prospectus</Link>
                   <Link href="/contact">Talk to admissions</Link>
-                  <Link href="https://wa.me/256754000321" target="_blank" rel="noreferrer">
-                    WhatsApp inquiry
+                  <Link href={siteConfig.social.whatsappAdmissions} target="_blank" rel="noreferrer">
+                    Join the admissions WhatsApp group
                   </Link>
                 </div>
               </CardContent>

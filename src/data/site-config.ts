@@ -8,10 +8,15 @@ export const siteConfig = {
   description:
     "Ruguna College offers practical academic pathways, short courses, and learner support from inquiry to completion.",
   location: "Uganda",
-  phone: "+256 700 123 456",
-  whatsapp: "+256 754 000 321",
+  phone: "+1 (978) 320-0909",
+  telephone: "+19783200909",
   email: "admissions@ruguna.ac.ug",
-  address: "Ruguna Campus, Kampala Road, Uganda",
+  logoPath: "/brand/ruguna_logo_v2.jpeg" as const,
+  social: {
+    facebook: "https://www.facebook.com/share/1dTC6mQbqX/",
+    whatsappChannel: "https://whatsapp.com/channel/0029VbEG2zBAu3aXWoFZuS3Y",
+    whatsappAdmissions: "https://chat.whatsapp.com/BR2TINQtjeM5TG3vUS4Vtt?s=cl&p=a&iam=2",
+  },
   hours: "Monday to Friday, 8:00 AM to 5:00 PM",
   prospectusHref: "/prospectus",
 };

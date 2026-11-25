@@ -1,3 +1,4 @@
+import { siteConfig } from "./site-config";
 import {
   faqs as institutionalFaqs,
   supportCategories,
@@ -584,9 +585,9 @@ export const learnerProfile = {
 
 export const learnerHelpChannels = [
   {
-    title: "WhatsApp learning support",
+    title: "Call Ruguna College",
     detail: "Fast assistance for access issues, class reminders, and support follow-up.",
-    action: `WhatsApp ${"+256 754 000 321"}`,
+    action: siteConfig.phone,
   },
   {
     title: "Academic support desk",
@@ -671,7 +672,7 @@ export const adminElearningUsers = [
 export const adminElearningSettings = [
   { label: "Utility-header eLearning destination", value: "/elearning" },
   { label: "Primary learner login route", value: "/elearning/login" },
-  { label: "WhatsApp support line", value: "+256 754 000 321" },
+  { label: "College contact number", value: siteConfig.phone },
   { label: "Default certificate verification route", value: "/verification" },
 ];
 

@@ -1,4 +1,4 @@
-// AUTO-GENERATED from the Claude Design prototype (News & Events.html). Do not edit; run scripts/gen-proto.py.
+// Adapted from the original design prototype.
 export const news_eventsHtml = `
     <section class="hero-x">
       <span class="hx-bgword" data-parallax="0.06">NEWS</span>
@@ -37,9 +37,9 @@ export const news_eventsHtml = `
     <section class="sec" id="latest"><div class="wrap">
       <div class="section-head"><div><p class="eyebrow reveal">Latest news</p><h2 class="display mt-s reveal">From the campus</h2></div><a class="arrow-link reveal" href="/news-events">All stories <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       <div class="news-grid">
-        <a class="news reveal" href="#"><div class="nimg"><img src="/img/graduation.jpg" alt=""></div><div class="nbody"><span class="ncat">Student Life</span><h3>Career readiness week connects students with employers</h3><p>A practical week of employer sessions, portfolio support, and interview coaching.</p><span class="ndate">20 June 2026</span></div></a>
-        <a class="news reveal d1" href="#"><div class="nimg"><img src="/img/solar.jpg" alt=""></div><div class="nbody"><span class="ncat">Campus</span><h3>Renewable energy lab upgrade expands solar training</h3><p>New equipment supports stronger lab-based learning for installation and systems practice.</p><span class="ndate">05 July 2026</span></div></a>
-        <a class="news reveal d2" href="#"><div class="nimg"><img src="/img/design.jpg" alt=""></div><div class="nbody"><span class="ncat">Creative</span><h3>Student design showcase opens to industry guests</h3><p>Graduating designers present brand and motion portfolios to studio partners.</p><span class="ndate">28 July 2026</span></div></a>
+        <a class="news reveal" href="#"><div class="nimg"><img src="/img/graduation.jpg" alt="A graduate raising a hand during a commencement ceremony"></div><div class="nbody"><span class="ncat">Student Life</span><h3>Career readiness week connects students with employers</h3><p>A practical week of employer sessions, portfolio support, and interview coaching.</p><span class="ndate">20 June 2026</span></div></a>
+        <a class="news reveal d1" href="#"><div class="nimg"><img src="/img/solar.jpg" alt="Portable solar panels arranged outdoors"></div><div class="nbody"><span class="ncat">Campus</span><h3>Renewable energy lab upgrade expands solar training</h3><p>New equipment supports stronger lab-based learning for installation and systems practice.</p><span class="ndate">05 July 2026</span></div></a>
+        <a class="news reveal d2" href="#"><div class="nimg"><img src="/img/design.jpg" alt="A person developing a design sketch by hand"></div><div class="nbody"><span class="ncat">Creative</span><h3>Student design showcase opens to industry guests</h3><p>Graduating designers present brand and motion portfolios to studio partners.</p><span class="ndate">28 July 2026</span></div></a>
       </div>
     </div></section>
 

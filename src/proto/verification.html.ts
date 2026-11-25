@@ -1,4 +1,4 @@
-// AUTO-GENERATED from the Claude Design prototype (Verification.html). Do not edit; run scripts/gen-proto.py.
+// Adapted from the original design prototype.
 export const verificationHtml = `
     <section class="page-hero"><div class="wrap center">
       <div class="breadcrumb reveal" style="justify-content:center"><a href="/">Home</a><span class="sep">/</span><span>Verification</span></div>
@@ -26,9 +26,9 @@ export const verificationHtml = `
     <section class="sec bg-soft" style="border-block:1px solid var(--border)"><div class="wrap">
       <div class="center maxw-sm mx-auto"><p class="eyebrow center reveal">How verification works</p><h2 class="display mt-s reveal">Trust, confirmed</h2></div>
       <div class="vsteps mt-l">
-        <div class="vstep reveal"><div class="vn">01</div><h4>Locate the code</h4><p>Find the document code, certificate number, or student identifier printed on the official document.</p></div>
-        <div class="vstep reveal d1"><div class="vn">02</div><h4>Enter &amp; verify</h4><p>Type the code above exactly as shown, then run the secure check against our records.</p></div>
-        <div class="vstep reveal d2"><div class="vn">03</div><h4>Read the result</h4><p>A verified result confirms the holder, programme, award, and issue date on record.</p></div>
+        <div class="vstep reveal"><div class="vn">01</div><h3>Locate the code</h3><p>Find the document code, certificate number, or student identifier printed on the official document.</p></div>
+        <div class="vstep reveal d1"><div class="vn">02</div><h3>Enter &amp; verify</h3><p>Type the code above exactly as shown, then run the secure check against our records.</p></div>
+        <div class="vstep reveal d2"><div class="vn">03</div><h3>Read the result</h3><p>A verified result confirms the holder, programme, award, and issue date on record.</p></div>
       </div>
       <p class="muted center mt-l reveal" style="font-size:0.88rem;max-width:60ch;margin-inline:auto">Verifying employers or institutions can also <a href="/contact" style="color:var(--accent-deep);font-weight:700">contact the registrar</a> for formal written confirmation.</p>
     </div></section>

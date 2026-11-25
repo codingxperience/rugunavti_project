@@ -1,4 +1,4 @@
-// AUTO-GENERATED from the Claude Design prototype (About.html). Do not edit; run scripts/gen-proto.py.
+// Adapted from the original design prototype.
 export const aboutHtml = `
     <!-- CINEMATIC HERO -->
     <section class="hero-x">
@@ -136,9 +136,9 @@ export const aboutHtml = `
         <figure class="figure warm hover-zoom reveal d2" style="margin:0;aspect-ratio:4/3"><img src="/img/design.jpg" alt="Studios"></figure>
       </div>
       <div class="detail-list mt-l reveal">
-        <div class="dl"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4M5 21l9-9M16 4l4 4-3 3-4-4z"/></svg></span><div><h4>Trade &amp; engineering workshops</h4><p>Equipped spaces for welding, automotive, construction, and electrical practice.</p></div><span class="dx">Hands-on</span></div>
-        <div class="dl"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-5 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-9V3"/><path d="M8 3h8"/></svg></span><div><h4>Computer labs, science &amp; health-skills rooms</h4><p>Supervised environments for digital, laboratory, and clinical-skills learning.</p></div><span class="dx">Supervised</span></div>
-        <div class="dl"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><div><h4>Creative studios &amp; an enterprise hub</h4><p>Design studios and a hub where students test and launch real business ideas.</p></div><span class="dx">Project-based</span></div>
+        <div class="dl"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l4 4M5 21l9-9M16 4l4 4-3 3-4-4z"/></svg></span><div><h3>Trade &amp; engineering workshops</h3><p>Equipped spaces for welding, automotive, construction, and electrical practice.</p></div><span class="dx">Hands-on</span></div>
+        <div class="dl"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-5 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-5-9V3"/><path d="M8 3h8"/></svg></span><div><h3>Computer labs, science &amp; health-skills rooms</h3><p>Supervised environments for digital, laboratory, and clinical-skills learning.</p></div><span class="dx">Supervised</span></div>
+        <div class="dl"><span class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><div><h3>Creative studios &amp; an enterprise hub</h3><p>Design studios and a hub where students test and launch real business ideas.</p></div><span class="dx">Project-based</span></div>
       </div>
     </div></section>
 
@@ -159,10 +159,10 @@ export const aboutHtml = `
     <section class="sec"><div class="wrap">
       <div class="section-head"><div><div class="kicker reveal"><span class="kn">08</span><span class="kl">Leadership</span><span class="kbar"></span></div><h2 class="display mt-m reveal">Led with intent</h2></div><p class="muted reveal" style="max-width:34ch">A team of educators and industry practitioners guiding the institute.</p></div>
       <div class="grid g4">
-        <div class="lead-card reveal"><div class="slot av"><span class="slot-label">Portrait</span></div><h4>The Principal</h4><div class="role">Office of the Principal</div><p class="bio">Sets academic direction and the institute's practical standard.</p></div>
-        <div class="lead-card reveal d1"><div class="slot av"><span class="slot-label">Portrait</span></div><h4>Academic Registrar</h4><div class="role">Academic affairs</div><p class="bio">Oversees programmes, assessment, and quality across all schools.</p></div>
-        <div class="lead-card reveal d2"><div class="slot av"><span class="slot-label">Portrait</span></div><h4>Dean of Students</h4><div class="role">Student life &amp; welfare</div><p class="bio">Leads support, clubs, and the wider student experience.</p></div>
-        <div class="lead-card reveal d3"><div class="slot av"><span class="slot-label">Portrait</span></div><h4>Director, Industry</h4><div class="role">Partnerships &amp; placement</div><p class="bio">Connects students to employers, attachments, and opportunity.</p></div>
+        <div class="lead-card reveal"><div class="slot av"><span class="slot-label">Portrait</span></div><h3>The Principal</h3><div class="role">Office of the Principal</div><p class="bio">Sets academic direction and the institute's practical standard.</p></div>
+        <div class="lead-card reveal d1"><div class="slot av"><span class="slot-label">Portrait</span></div><h3>Academic Registrar</h3><div class="role">Academic affairs</div><p class="bio">Oversees programmes, assessment, and quality across all schools.</p></div>
+        <div class="lead-card reveal d2"><div class="slot av"><span class="slot-label">Portrait</span></div><h3>Dean of Students</h3><div class="role">Student life &amp; welfare</div><p class="bio">Leads support, clubs, and the wider student experience.</p></div>
+        <div class="lead-card reveal d3"><div class="slot av"><span class="slot-label">Portrait</span></div><h3>Director, Industry</h3><div class="role">Partnerships &amp; placement</div><p class="bio">Connects students to employers, attachments, and opportunity.</p></div>
       </div>
     </div></section>
 

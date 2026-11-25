@@ -1,4 +1,4 @@
-// AUTO-GENERATED from the Claude Design prototype (Elearning.html). Do not edit; run scripts/gen-proto.py.
+// Adapted from the original design prototype.
 export const elearningHtml = `
     <!-- HERO -->
     <section class="hero-x">
@@ -35,9 +35,9 @@ export const elearningHtml = `
     <!-- QUICK LINKS -->
     <section class="sec-tight" style="border-block:1px solid var(--border);background:var(--cream)"><div class="wrap">
       <div class="icard-row">
-        <a class="icard reveal" href="#courses"><h3>Launch a new career</h3><span class="ic-ic"><i class="ic-lines"></i><span data-eic="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14l-1 7 4-2 4 2-1-7"/></svg></span></span></a>
-        <a class="icard reveal d1" href="#how"><h3>Study on any device</h3><span class="ic-ic"><i class="ic-lines"></i><span data-eic="device"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span></span></a>
-        <a class="icard reveal d2" href="/verification"><h3>Earn a verified certificate</h3><span class="ic-ic"><i class="ic-lines"></i><span data-eic="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 5 2 9l10 4 10-4z"/><path d="M6 11v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/></svg></span></span></a>
+        <a class="icard reveal" href="#courses"><span class="icard-title">Launch a new career</span><span class="ic-ic"><i class="ic-lines"></i><span data-eic="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14l-1 7 4-2 4 2-1-7"/></svg></span></span></a>
+        <a class="icard reveal d1" href="#how"><span class="icard-title">Study on any device</span><span class="ic-ic"><i class="ic-lines"></i><span data-eic="device"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span></span></a>
+        <a class="icard reveal d2" href="/verification"><span class="icard-title">Earn a verified certificate</span><span class="ic-ic"><i class="ic-lines"></i><span data-eic="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 5 2 9l10 4 10-4z"/><path d="M6 11v5c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5v-5"/></svg></span></span></a>
       </div>
     </div></section>
 
@@ -72,27 +72,27 @@ export const elearningHtml = `
       <div class="section-head"><div><div class="kicker reveal"><span class="kn">04</span><span class="kl">Featured courses</span><span class="kbar"></span></div><h2 class="display mt-m reveal">Start learning today</h2></div></div>
       <div class="grid g3">
         <div class="course reveal">
-          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/solar.jpg" alt=""></div>
+          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/solar.jpg" alt="Portable solar panels arranged outdoors"></div>
           <div class="cbody"><div class="cmeta"><span data-eic="play">6 hrs</span><span data-eic="layers">4 modules</span></div><h3>Solar PV Installation Essentials</h3><p>Learn solar components, safe installation, and small-system maintenance from the ground up.</p><div class="cfoot"><span class="cprice">UGX 180K</span><a class="arrow-link" style="font-size:.82rem" href="/elearning/register">Enrol <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
         </div>
         <div class="course reveal d1">
-          <div class="cimg"><span class="clevel">Intermediate</span><img src="/img/ict.jpg" alt=""></div>
+          <div class="cimg"><span class="clevel">Intermediate</span><img src="/img/ict.jpg" alt="A learner using a laptop while speaking on the phone"></div>
           <div class="cbody"><div class="cmeta"><span data-eic="play">10 hrs</span><span data-eic="layers">6 modules</span></div><h3>AI for Everyday Digital Work</h3><p>Use AI tools responsibly for research, productivity, and content — practical and current.</p><div class="cfoot"><span class="cprice"><span class="free">Free</span></span><a class="arrow-link" style="font-size:.82rem" href="/elearning/register">Enrol <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
         </div>
         <div class="course reveal d2">
-          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/business.jpg" alt=""></div>
+          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/business.jpg" alt="A woman working at a laptop"></div>
           <div class="cbody"><div class="cmeta"><span data-eic="play">8 hrs</span><span data-eic="layers">5 modules</span></div><h3>Start &amp; Run a Small Business</h3><p>From idea to first customers — planning, money basics, and selling with confidence.</p><div class="cfoot"><span class="cprice">UGX 150K</span><a class="arrow-link" style="font-size:.82rem" href="/elearning/register">Enrol <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
         </div>
         <div class="course reveal">
-          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/lab.jpg" alt=""></div>
+          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/lab.jpg" alt="Learners in protective gloves examining a specimen in a laboratory"></div>
           <div class="cbody"><div class="cmeta"><span data-eic="play">5 hrs</span><span data-eic="layers">4 modules</span></div><h3>Community Health &amp; First Aid</h3><p>Practical prevention, first response, and wellness skills for everyday settings.</p><div class="cfoot"><span class="cprice">UGX 120K</span><a class="arrow-link" style="font-size:.82rem" href="/elearning/register">Enrol <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
         </div>
         <div class="course reveal d1">
-          <div class="cimg"><span class="clevel">Intermediate</span><img src="/img/design.jpg" alt=""></div>
+          <div class="cimg"><span class="clevel">Intermediate</span><img src="/img/design.jpg" alt="A person developing a design sketch by hand"></div>
           <div class="cbody"><div class="cmeta"><span data-eic="play">12 hrs</span><span data-eic="layers">7 modules</span></div><h3>Graphic Design Foundations</h3><p>Build a portfolio with branding, layout, and digital graphics fundamentals.</p><div class="cfoot"><span class="cprice">UGX 220K</span><a class="arrow-link" style="font-size:.82rem" href="/elearning/register">Enrol <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
         </div>
         <div class="course reveal d2">
-          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/ict.jpg" alt=""></div>
+          <div class="cimg"><span class="clevel">Beginner</span><img src="/img/ict.jpg" alt="A learner using a laptop while speaking on the phone"></div>
           <div class="cbody"><div class="cmeta"><span data-eic="play">7 hrs</span><span data-eic="layers">5 modules</span></div><h3>Digital Literacy Essentials</h3><p>Confident computing: files, internet, email, and the everyday digital office.</p><div class="cfoot"><span class="cprice"><span class="free">Free</span></span><a class="arrow-link" style="font-size:.82rem" href="/elearning/register">Enrol <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
         </div>
       </div>
@@ -102,10 +102,10 @@ export const elearningHtml = `
     <section class="sec bg-soft" id="how" style="border-block:1px solid var(--border)"><div class="wrap">
       <div class="center maxw-md mx-auto"><div class="kicker reveal" style="justify-content:center"><span class="kn">05</span><span class="kl">How it works</span></div><h2 class="display mt-m reveal">From sign-up to certificate</h2></div>
       <div class="hiw mt-l reveal">
-        <div class="h"><div class="hx" data-eic="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="hn">Step 01</div><h4>Create an account</h4><p>Sign up free and set up your learner profile in minutes.</p></div>
-        <div class="h"><div class="hx" data-eic="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><div class="hn">Step 02</div><h4>Pick a course</h4><p>Browse by category, preview the syllabus, and enrol.</p></div>
-        <div class="h"><div class="hx" data-eic="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none"/></svg></div><div class="hn">Step 03</div><h4>Learn &amp; practise</h4><p>Watch lessons, complete tasks, and track your progress.</p></div>
-        <div class="h"><div class="hx" data-eic="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14l-1 7 4-2 4 2-1-7"/></svg></div><div class="hn">Step 04</div><h4>Earn your certificate</h4><p>Pass the assessment and receive a verifiable certificate.</p></div>
+        <div class="h"><div class="hx" data-eic="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></div><div class="hn">Step 01</div><h3>Create an account</h3><p>Sign up free and set up your learner profile in minutes.</p></div>
+        <div class="h"><div class="hx" data-eic="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><div class="hn">Step 02</div><h3>Pick a course</h3><p>Browse by category, preview the syllabus, and enrol.</p></div>
+        <div class="h"><div class="hx" data-eic="play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 16 12l-6 3.5z" fill="currentColor" stroke="none"/></svg></div><div class="hn">Step 03</div><h3>Learn &amp; practise</h3><p>Watch lessons, complete tasks, and track your progress.</p></div>
+        <div class="h"><div class="hx" data-eic="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14l-1 7 4-2 4 2-1-7"/></svg></div><div class="hn">Step 04</div><h3>Earn your certificate</h3><p>Pass the assessment and receive a verifiable certificate.</p></div>
       </div>
     </div></section>
 

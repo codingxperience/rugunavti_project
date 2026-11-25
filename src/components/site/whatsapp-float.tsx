@@ -9,14 +9,14 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { siteConfig } from "@/data";
+import { siteConfig } from "@/data/site-config";
 
 const supportTopics = [
-  "Apply to Ruguna College",
-  "Admissions guidance",
-  "eLearning access",
-  "Fees and payment guidance",
-  "Certificate verification",
+  { label: "Apply to Ruguna College", href: "/apply" },
+  { label: "Admissions guidance", href: "/admissions" },
+  { label: "eLearning access", href: "/elearning/contact" },
+  { label: "Fees and payment guidance", href: "/fees-funding" },
+  { label: "Certificate verification", href: "/verification" },
 ];
 
 type WhatsAppFloatProps = {
@@ -26,8 +26,6 @@ type WhatsAppFloatProps = {
 export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
   const [open, setOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const whatsappNumber = siteConfig.whatsapp.replace(/\D/g, "");
-  const whatsappHref = `https://wa.me/${whatsappNumber}`;
   const isSupportMode = variant === "support" || (variant === "auto" && authenticated);
 
   useEffect(() => {
@@ -63,7 +61,7 @@ export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
             onClick={() => setOpen(true)}
             className="rounded-full border border-black/8 bg-white px-5 py-3 text-sm font-bold text-[var(--color-ink)] shadow-[0_20px_60px_-42px_rgba(17,17,17,0.7)] transition hover:-translate-y-0.5 hover:bg-[#fbfaf4]"
           >
-            Live support
+            Support
           </button>
         ) : null}
         <button
@@ -95,7 +93,7 @@ export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
             Ruguna support
           </p>
           <h2 className="font-heading mt-1 text-xl font-bold text-[var(--color-ink)]">
-            Live support
+            How can we help?
           </h2>
           <p className="mt-1 text-sm leading-6 text-[var(--color-muted)]">
             Quick links for admissions, eLearning, fees, and records.
@@ -104,7 +102,7 @@ export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
         <button
           type="button"
           onClick={() => setOpen(false)}
-          aria-label="Close Ruguna live support"
+          aria-label="Close Ruguna support"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--color-ink)] transition hover:bg-[var(--color-soft-accent)]"
         >
           <ChevronDown className="h-4 w-4" />
@@ -113,29 +111,26 @@ export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
 
       <div className="max-h-[248px] overflow-y-auto p-4">
         <div className="grid gap-2">
-          {supportTopics.map((topic) => (
-            <button
-              key={topic}
-              type="button"
-              disabled
-              className="flex cursor-default items-center justify-between rounded-2xl border border-black/6 bg-white px-4 py-3 text-left text-sm font-semibold text-[var(--color-ink)]"
+          {supportTopics.map(({ label, href }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setOpen(false)}
+              className="rounded-2xl border border-black/6 bg-white px-4 py-3 text-sm font-semibold text-[var(--color-ink)] hover:bg-[#fbfaf4]"
             >
-              {topic}
-              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-muted)]">
-                Support
-              </span>
-            </button>
+              {label}
+            </Link>
           ))}
         </div>
 
         <Link
-          href={whatsappHref}
+          href={siteConfig.social.whatsappAdmissions}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#20bd5b]"
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#126342] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#0d5035]"
         >
           <MessageCircle className="h-4 w-4" />
-          WhatsApp support
+          Admissions WhatsApp group
         </Link>
       </div>
 
@@ -144,10 +139,10 @@ export function WhatsAppFloat({ variant = "auto" }: WhatsAppFloatProps) {
           <HelpCircle className="h-4 w-4" />
           Help
         </Link>
-        <Link href={whatsappHref} target="_blank" rel="noreferrer" className="grid justify-items-center gap-1 transition hover:text-[var(--color-ink)]">
-          <MessageCircle className="h-4 w-4" />
-          Chat
-        </Link>
+        <a href={`tel:${siteConfig.telephone}`} className="grid justify-items-center gap-1 transition hover:text-[var(--color-ink)]">
+          <Phone className="h-4 w-4" />
+          Call
+        </a>
       </div>
     </section>
   );

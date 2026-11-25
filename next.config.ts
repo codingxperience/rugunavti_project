@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 
 import type { NextConfig } from "next";
 
+import { productionSiteUrl } from "./src/lib/site-url";
+
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
@@ -10,6 +12,18 @@ const nextConfig: NextConfig = {
   compress: true,
   images: {
     formats: ["image/avif", "image/webp"],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www\\.ruguna\\.ac\\.ug" }],
+        destination: `${productionSiteUrl}/:path*`,
+        permanent: true,
+      },
+      { source: "/academics", destination: "/programs", permanent: true },
+      { source: "/e-learning", destination: "/elearning", permanent: true },
+    ];
   },
   async headers() {
     return [
@@ -41,6 +55,18 @@ const nextConfig: NextConfig = {
             value: "max-age=63072000; includeSubDomains; preload",
           },
         ],
+      },
+      {
+        source: "/:section(admin|finance|instructor|learn|registrar|student|account|api|__clerk|sign-in|sign-up|e-learning-login|staff-portal|student-portal)/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
+      {
+        source: "/elearning/:section(access-denied|auth-complete|forgot-password|login|logout|register|session-expired|tasks|verify-email)/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+      },
+      {
+        source: "/apply/status",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
     ];
   },

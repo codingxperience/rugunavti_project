@@ -4,6 +4,9 @@ import { BookCopy, FileText } from "lucide-react";
 import { PageHero } from "@/components/site/page-hero";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { publicPageMetadata } from "@/lib/site-metadata";
+
+export const metadata = publicPageMetadata("/e-library");
 
 export default function ELibraryPage() {
   return (

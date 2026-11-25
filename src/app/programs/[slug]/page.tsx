@@ -4,6 +4,14 @@ import { CtaBanner } from "@/components/site/cta-banner";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProgramBySlug, getSchoolBySlug, programs } from "@/data";
+import { pageMetadata } from "@/lib/site-metadata";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const program = getProgramBySlug((await params).slug);
+  if (!program) notFound();
+
+  return pageMetadata(`/programs/${program.slug}`, program.title, program.overview);
+}
 
 const defaultAssessments = ["Quizzes", "Assignments", "Practical tasks", "Final assessment"];
 const defaultTools = ["Smartphone or laptop", "Internet access for selected sessions", "Notebook and practical materials where relevant"];
