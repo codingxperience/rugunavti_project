@@ -1,4 +1,7 @@
 // Adapted from the original design prototype.
+import { intakeScheduleHref, shortCourseIntakes } from "@/data/intakes";
+import { siteConfig } from "@/data/site-config";
+
 export const homeHtml = `
     <!-- HERO -->
     <section class="hero"><div class="wrap">
@@ -31,11 +34,11 @@ export const homeHtml = `
     <!-- FACT CARDS -->
     <section class="sec-tight" style="border-block:1px solid var(--border);background:var(--cream)"><div class="wrap">
       <div class="fact-grid">
-        <div class="fact reveal"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><span><span class="fv">3 Intakes</span><span class="fl">Every year</span></span></div>
+        <a class="fact reveal" href="${intakeScheduleHref}"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><span><span class="fv">Short-course intakes</span><span class="fl">View planned windows</span></span></a>
         <div class="fact reveal d1"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span><span class="fv">5 Study modes</span><span class="fl">Flexible options</span></span></div>
         <div class="fact reveal d2"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><span class="fv">Day · Evening</span><span class="fl">&amp; Weekend classes</span></span></div>
         <div class="fact reveal d3"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><span><span class="fv">Blended &amp; Online</span><span class="fl">Learn remotely</span></span></div>
-        <div class="fact reveal d4"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span><span class="fv">Kampala</span><span class="fl">Uganda campus</span></span></div>
+        <div class="fact reveal d4"><span class="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span><span class="fv">${siteConfig.addressLocality}</span><span class="fl">Uganda campus</span></span></div>
       </div>
     </div></section>
 
@@ -118,7 +121,7 @@ export const homeHtml = `
         <div class="stat"><div class="n"><span data-count="13">13</span></div><div class="l">Specialist schools</div></div>
         <div class="stat"><div class="n"><span data-count="40" data-suffix="+">40+</span></div><div class="l">Career pathways</div></div>
         <div class="stat"><div class="n"><span data-count="5">5</span></div><div class="l">Study modes</div></div>
-        <div class="stat"><div class="n"><span data-count="3">3</span></div><div class="l">Intakes a year</div></div>
+        <div class="stat"><div class="n"><span data-count="${shortCourseIntakes.length}">${shortCourseIntakes.length}</span></div><div class="l">Planned short-course windows</div></div>
       </div>
     </div></section>
 

@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CtaBanner } from "@/components/site/cta-banner";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProgramBySlug, getSchoolBySlug, programs } from "@/data";
+import { formalAccreditationNote, formalIntakeSummary, intakeScheduleHref, shortCourseIntakes } from "@/data/intakes";
 import { pageMetadata } from "@/lib/site-metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -137,8 +139,13 @@ export default async function ProgramDetailPage({
                 <p className="text-xs uppercase tracking-[0.22em] text-white/56">Tuition and intakes</p>
                 <p className="font-heading mt-3 text-2xl font-bold">{program.tuitionText}</p>
                 <p className="mt-4 text-sm leading-7 text-white/72">
-                  Planned intake months: {program.intakeMonths.join(", ")}
+                  {program.level === "Short Course"
+                    ? `Planned Phase 1 windows: ${shortCourseIntakes.join(", ")}.`
+                    : `${formalAccreditationNote} ${formalIntakeSummary}`}
                 </p>
+                <Link href={intakeScheduleHref} className="mt-3 inline-block text-sm font-semibold underline">
+                  View intake guidance
+                </Link>
               </CardContent>
             </Card>
             <Card>
@@ -154,10 +161,10 @@ export default async function ProgramDetailPage({
       </section>
 
       <CtaBanner
-        title={`Ready to apply for ${program.title}?`}
-        description="Review requirements, download the prospectus, or continue directly into the admissions form."
-        primaryLabel="Apply Now"
-        primaryHref="/apply"
+        title={`Interested in ${program.title}?`}
+        description="Tell Admissions what you would like to study and ask about availability."
+        primaryLabel="Register your interest"
+        primaryHref={`/apply?program=${encodeURIComponent(program.title)}`}
         secondaryLabel="Download Prospectus"
         secondaryHref="/prospectus"
       />

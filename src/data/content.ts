@@ -124,11 +124,11 @@ export const faqs = [
 export const newsItems: NewsItem[] = [
   {
     slug: "digital-skills-intake-open",
-    title: "Next intake opens for digital, health, and technical programs",
+    title: "Plan your next step with Ruguna",
     category: "Admissions",
     date: "12 May 2026",
     excerpt:
-      "Applications are open for learners seeking practical pathways into work-ready certificate, diploma, and short-course study.",
+      "See the planned intake windows for short courses and for formal programmes once accredited.",
   },
   {
     slug: "career-readiness-week",

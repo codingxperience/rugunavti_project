@@ -1,3 +1,5 @@
+const addressLocality = "Kampala";
+
 export const siteConfig = {
   name: "Ruguna College",
   shortName: "Ruguna College",
@@ -7,7 +9,9 @@ export const siteConfig = {
     "Certificate, diploma, bachelor's, and short courses for learners ready to work, build, and lead.",
   description:
     "Ruguna College offers practical academic pathways, short courses, and learner support from inquiry to completion.",
-  location: "Uganda",
+  location: `${addressLocality}, Uganda`,
+  addressLocality,
+  addressCountry: "UG",
   phone: "+1 (978) 320-0909",
   telephone: "+19783200909",
   email: "admissions@ruguna.ac.ug",
@@ -126,13 +130,10 @@ export const applyTracks = [
   },
 ];
 
-export const intakeMoments = ["May", "September"] as const;
-
 export const publicStats = [
   { label: "Schools", value: "13" },
   { label: "Study modes", value: "5" },
   { label: "Career pathways", value: "40+" },
-  { label: "Flexible intakes", value: "3" },
 ];
 
 export const socialProof = [

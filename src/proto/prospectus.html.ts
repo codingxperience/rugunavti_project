@@ -1,6 +1,8 @@
 // Prospectus adapted from the original design prototype.
 import { siteConfig } from "@/data/site-config";
 
+import { formalIntakeSummary, intakeScheduleHref, shortCourseIntakeSummary, shortCourseIntakes } from "@/data/intakes";
+
 export const prospectusHtml = `
   <div class="pbar"><div class="wrap">
     <div class="pb-l"><span class="dot"></span>Ruguna College · Prospectus 2026</div>
@@ -19,7 +21,7 @@ export const prospectusHtml = `
         <h1>Build practical skills for the jobs of today and tomorrow.</h1>
         <p class="ctag">Certificate, diploma, bachelor's, and short courses across thirteen specialist schools — delivered for Uganda and the wider world.</p>
       </div>
-      <div class="cfoot"><span><b>13</b> specialist schools</span><span><b>40+</b> career pathways</span><span><b>3</b> intakes a year</span><span><b>5</b> study modes</span></div>
+      <div class="cfoot"><span><b>13</b> specialist schools</span><span><b>40+</b> career pathways</span><span><b>${shortCourseIntakes.length}</b> planned short-course windows</span><span><b>5</b> study modes</span></div>
     </section>
 
     <!-- WELCOME -->
@@ -91,10 +93,14 @@ export const prospectusHtml = `
         <div class="stp2"><span class="n">4</span><div><h3>Track the review</h3><p>Follow your status and respond to any requests.</p></div></div>
         <div class="stp2"><span class="n">5</span><div><h3>Confirm &amp; enrol</h3><p>Receive your decision and confirm your admission.</p></div></div>
       </div>
+      <div class="grid g2" style="margin-top:22px">
+        <div class="card"><h3>Phase 1 short and modular courses</h3><p>${shortCourseIntakeSummary}</p></div>
+        <div class="card"><h3>Formal programmes once accredited</h3><p>${formalIntakeSummary} <a href="${intakeScheduleHref}">See intake guidance</a>.</p></div>
+      </div>
       <div class="contact-band">
         <div><div class="cbk">Call</div><div class="cbv"><a href="tel:${siteConfig.telephone}">${siteConfig.phone}</a></div></div>
         <div><div class="cbk">Email</div><div class="cbv"><a href="mailto:${siteConfig.email}">${siteConfig.email}</a></div></div>
-        <div><div class="cbk">Intakes</div><div class="cbv">Jan · May · Sep 2026</div></div>
+        <div><div class="cbk">Campus location</div><div class="cbv">${siteConfig.location}</div></div>
       </div>
       <p class="muted" style="margin-top:22px;text-align:center;font-size:0.86rem">Ruguna College · One Who Prevails · ruguna.ac.ug</p>
     </section>

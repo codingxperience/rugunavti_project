@@ -6,6 +6,7 @@ import { CourseEnrollButton } from "@/components/elearning/course-enroll-button"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getElearningCourseBySlug } from "@/data";
+import { intakeScheduleHref } from "@/data/intakes";
 import { pageMetadata } from "@/lib/site-metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -49,7 +50,7 @@ export default async function ElearningCourseDetailPage({
                   ) : (
                     <Button asChild size="lg">
                       <Link href={`/apply?program=${encodeURIComponent(course.title)}`}>
-                        Apply for programme admission
+                        Register programme interest
                         <ArrowRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -85,7 +86,9 @@ export default async function ElearningCourseDetailPage({
                   </div>
                   <div className="flex items-center gap-3">
                     <BookMarked className="h-4 w-4 text-[var(--color-ink)]" />
-                    {course.startWindow}
+                    <Link href={intakeScheduleHref} className="underline">
+                      {course.startWindow}
+                    </Link>
                   </div>
                 </div>
               </div>

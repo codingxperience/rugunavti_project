@@ -1,4 +1,6 @@
 // Adapted from the original design prototype.
+import { intakeScheduleHref } from "@/data/intakes";
+
 export const news_eventsHtml = `
     <section class="hero-x">
       <span class="hx-bgword" data-parallax="0.06">NEWS</span>
@@ -17,19 +19,19 @@ export const news_eventsHtml = `
           <img class="oh-photo" src="/ppl/event.jpg" alt="Campus event" style="object-position:50% 40%">
           <div class="oh-tag t1"><span class="tg-ic" data-tic="spark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span><span><b>Live updates</b><i>Campus news</i></span></div>
           <div class="oh-tag t2"><span class="tg-ic" data-tic="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><span><b>Open days</b><i>&amp; showcases</i></span></div>
-          <div class="oh-tag t3"><span class="tg-ic" data-tic="clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>3 intakes</b><i>a year</i></span></div>
+          <div class="oh-tag t3"><span class="tg-ic" data-tic="clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span><b>Intake windows</b><i>Admissions</i></span></div>
         </div>
       </div>
     </div></section>
 
     <section class="sec-tight"><div class="wrap">
       <div class="feature-story reveal-scale">
-        <div class="fs-img"><img src="/img/students.jpg" alt="Intake open"></div>
+        <div class="fs-img"><img src="/img/students.jpg" alt="Learners studying together"></div>
         <div class="fs-body">
           <span class="tag">Featured · Admissions</span>
-          <h2>Next intake opens for digital, health, and technical programmes</h2>
-          <p class="muted">Applications are open for learners seeking practical pathways into work-ready certificate, diploma, and short-course study — with three flexible intakes across the year.</p>
-          <div class="flex gap-s wrap-flex items-center" style="margin-top:22px"><a class="btn btn-primary" href="/apply">Apply for this intake <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><span class="muted" style="font-size:0.82rem">12 May 2026</span></div>
+          <h2>Plan your next step with Ruguna</h2>
+          <p class="muted">See the planned windows for short and modular courses and the proposed schedule for formal programmes once accredited.</p>
+          <div class="flex gap-s wrap-flex items-center" style="margin-top:22px"><a class="btn btn-primary" href="${intakeScheduleHref}">View planned intake windows <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
         </div>
       </div>
     </div></section>

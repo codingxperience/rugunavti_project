@@ -8,6 +8,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
+import { intakeScheduleHref } from "@/data/intakes";
 import { siteConfig } from "@/data/site-config";
 
 /* Icons (verbatim from the prototype site.js) */
@@ -115,18 +116,18 @@ const ADMISSIONS: Mega = {
       h: "Related",
       links: [
         { t: "Programme directory", href: "/programs" },
-        { t: "Intake calendar", href: "/news-events#calendar" },
+        { t: "Planned intake windows", href: intakeScheduleHref },
         { t: "Student life", href: "/student-life" },
         { t: "Contact admissions", href: "/contact" },
       ],
     },
   ],
   feature: {
-    eb: "Admissions 2026",
+    eb: "Admissions",
     title: "Interest to enrolment in five clear steps.",
-    body: "Intakes in May and September. Apply from any device, anywhere in the world.",
-    cta: "Begin application",
-    href: "/apply",
+    body: "Explore the planned windows for short courses and formal programmes from anywhere in the world.",
+    cta: "View intake windows",
+    href: intakeScheduleHref,
     img: "/brand/3d/memo.png",
   },
 };
@@ -138,7 +139,7 @@ const NEWS: Mega = {
       links: [
         { t: "Latest news", d: "Campus stories & updates", href: "/news-events" },
         { t: "Upcoming events", d: "Open days, webinars, showcases", href: "/news-events#calendar" },
-        { t: "Intake announcements", d: "Deadlines & dates", href: "/news-events" },
+        { t: "Planned intake windows", d: "When courses are planned to begin", href: intakeScheduleHref },
       ],
     },
     {
@@ -479,6 +480,7 @@ export function ProtoFooter() {
                 Practical academic pathways, short courses, and learner support — from inquiry to
                 completion, for learners across Uganda and beyond.
               </p>
+              <p>{siteConfig.location}</p>
             </div>
             {FOOT_COLS.map((col) => (
               <div key={col.h}>

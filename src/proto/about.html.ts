@@ -1,4 +1,6 @@
 // Adapted from the original design prototype.
+import { shortCourseIntakes } from "@/data/intakes";
+
 export const aboutHtml = `
     <!-- CINEMATIC HERO -->
     <section class="hero-x">
@@ -32,7 +34,7 @@ export const aboutHtml = `
         <div class="stat"><div class="n"><span data-count="13">13</span></div><div class="l">Specialist schools</div></div>
         <div class="stat"><div class="n"><span data-count="40" data-suffix="+">40+</span></div><div class="l">Career pathways</div></div>
         <div class="stat"><div class="n"><span data-count="8000" data-suffix="+">8000+</span></div><div class="l">Graduates trained</div></div>
-        <div class="stat"><div class="n"><span data-count="3">3</span></div><div class="l">Intakes a year</div></div>
+        <div class="stat"><div class="n"><span data-count="${shortCourseIntakes.length}">${shortCourseIntakes.length}</span></div><div class="l">Planned short-course windows</div></div>
       </div>
     </div></section>
 

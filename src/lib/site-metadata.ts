@@ -8,7 +8,7 @@ const publicPageTitles = {
   "/about": "About",
   "/academic-overview": "Academics",
   "/admissions": "Admissions",
-  "/apply": "Apply Online",
+  "/apply": "Register Study Interest",
   "/blog": "Blog & Insights",
   "/contact": "Contact",
   "/e-library": "E-Library",

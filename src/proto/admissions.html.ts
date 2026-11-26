@@ -1,4 +1,6 @@
 // Adapted from the original design prototype.
+import { formalAccreditationNote, formalIntakeSummary, shortCourseIntakeSummary } from "@/data/intakes";
+
 export const admissionsHtml = `
     <section class="hero-x">
       <span class="hx-bgword" data-parallax="0.06">APPLY</span>
@@ -6,7 +8,7 @@ export const admissionsHtml = `
       <div class="wrap">
       <div class="breadcrumb reveal"><a href="/">Home</a><span class="sep">/</span><span>Admissions</span></div>
       <div class="ph-grid">
-        <div><div class="kicker reveal"><span class="kn">01</span><span class="kl">Admissions · Intakes May &amp; Sep 2026</span><span class="kbar"></span></div><h1 class="display mt-m reveal d1">From interest to enrolment, made <span class="hl">simple</span></h1>
+        <div><div class="kicker reveal"><span class="kn">01</span><span class="kl">Admissions</span><span class="kbar"></span></div><h1 class="display mt-m reveal d1">From interest to enrolment, made <span class="hl">simple</span></h1>
         <p class="lede mt-m reveal d2">Apply from any device, anywhere in the world. Clear requirements, mobile uploads, and a responsive admissions team who guide you to the right pathway.</p>
         <div class="flex gap-s wrap-flex mt-m reveal d3"><a class="btn btn-primary btn-lg" href="#apply">Start your application <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-outline btn-lg" href="#fees">View fees &amp; funding</a></div>
         </div>
@@ -15,7 +17,7 @@ export const admissionsHtml = `
           <span class="oh-ring"></span>
           <span class="oh-splash s2"></span><span class="oh-splash s1"></span>
           <img class="oh-photo" src="/ppl/laptop.jpg" alt="Applying online" style="object-position:50% 35%">
-          <div class="oh-tag t1"><span class="tg-ic" data-tic="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg></span><span><b>Open now</b><i>May &amp; Sep 2026</i></span></div>
+          <div class="oh-tag t1"><span class="tg-ic" data-tic="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg></span><span><b>Short courses</b><i>First phase</i></span></div>
           <div class="oh-tag t2"><span class="tg-ic" data-tic="phone"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></svg></span><span><b>Mobile</b><i>Apply anywhere</i></span></div>
           <div class="oh-tag t3"><span class="tg-ic" data-tic="layers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span><b>5 steps</b><i>To enrolment</i></span></div>
         </div>
@@ -79,20 +81,19 @@ export const admissionsHtml = `
         <div>
           <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 2.5 15 0 18M12 3c-2.5 2.6-2.5 15 0 18"/></svg></span><div><h3>Study online or blended</h3><p>Selected programmes run fully online or as online theory with scheduled practicals.</p></div></div>
           <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 0 2 2h12"/></svg></span><div><h3>Qualification equivalency</h3><p>We help you map prior qualifications and confirm English requirements.</p></div></div>
-          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><div><h3>Three intakes a year</h3><p>Flexible entry points so you can begin when you're ready.</p></div></div>
+          <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg></span><div><h3>Intake windows by study path</h3><p>Check the <a href="#dates">planned intake windows</a> and ask Admissions to confirm availability.</p></div></div>
           <div class="feat"><span class="fi">F<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 7.7-8 9-4.6-1.3-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><div><h3>A dedicated advisor</h3><p>One point of contact from application through to your first term.</p></div></div>
         </div>
       </div></div>
     </div></section>
 
     <section class="sec" id="dates"><div class="wrap">
-      <div class="section-head"><div><p class="eyebrow reveal">Key dates</p><h2 class="display mt-s reveal">Intakes &amp; deadlines 2026</h2></div><a class="arrow-link reveal" href="/news-events#calendar">See campus events <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-      <div class="grid g3">
-        <div class="card reveal"><div class="tag">Intake 01</div><h3 style="margin-top:8px">January</h3><p>Applications close <strong>10 Dec 2025</strong>. Classes begin late January.</p></div>
-        <div class="card reveal d1"><div class="tag">Intake 02</div><h3 style="margin-top:8px">May</h3><p>Applications close <strong>15 Apr 2026</strong>. Classes begin mid May.</p></div>
-        <div class="card reveal d2"><div class="tag">Intake 03</div><h3 style="margin-top:8px">September</h3><p>Applications close <strong>15 Aug 2026</strong>. Classes begin early September.</p></div>
+      <div class="section-head"><div><h2 class="display reveal">Planned intake windows</h2></div><a class="arrow-link reveal" href="/contact">Confirm availability with Admissions</a></div>
+      <div class="grid g2">
+        <div class="card reveal"><div class="tag">Phase 1</div><h3 style="margin-top:8px">Short and modular courses</h3><p>${shortCourseIntakeSummary}</p></div>
+        <div class="card reveal d1"><h3>Certificate, diploma and degree programmes</h3><p>${formalAccreditationNote}</p><p>${formalIntakeSummary}</p></div>
       </div>
-      <p class="muted center mt-m reveal" style="font-size:0.86rem">Short courses may have additional rolling start dates — <a href="/contact" style="color:var(--accent-deep);font-weight:700">ask admissions →</a></p>
+      <p class="muted mt-m reveal">Admissions can confirm which courses are available, application deadlines and exact start dates.</p>
     </div></section>
 
     <section class="sec bg-soft" id="funding" style="border-block:1px solid var(--border)"><div class="wrap">

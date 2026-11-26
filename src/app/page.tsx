@@ -16,7 +16,8 @@ const college = {
   telephone: siteConfig.telephone,
   address: {
     "@type": "PostalAddress",
-    addressCountry: "UG",
+    addressLocality: siteConfig.addressLocality,
+    addressCountry: siteConfig.addressCountry,
   },
 };
 

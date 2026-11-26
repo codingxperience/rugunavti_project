@@ -22,6 +22,7 @@ import {
   nationalityOptions,
   ugandaDialCode,
 } from "@/data/country-options";
+import { getIntakePreferences, noIntakePreference, rollingOnlineIntake } from "@/data/intakes";
 import {
   type ApplicationDocumentInput,
   type ApplicationFormInput,
@@ -31,7 +32,6 @@ import {
 import { cn } from "@/lib/utils";
 
 type ApplicationInterestFormProps = {
-  intakeOptions: string[];
   programOptions: string[];
   defaultProgram?: string;
   defaultLevel?: string;
@@ -59,7 +59,6 @@ const acceptedApplicationFiles = [
 const maxApplicationFileBytes = 20 * 1024 * 1024;
 const applicationDraftKey = "ruguna-application-draft-v2";
 const applicationSubmittedKey = "ruguna-application-submitted-v1";
-const intakeChoices = ["May", "September"];
 const referralOptions = [
   "Online Search Engines (Google, Bing, Yahoo, etc.)",
   "Social Media (Facebook, X, Instagram, TikTok)",
@@ -110,7 +109,7 @@ export function ApplicationInterestForm({
       nextOfKinPhone: "",
       nextOfKinPhoneCountryCode: ugandaDialCode,
       preferredLevel: defaultLevel ?? "Undecided / I need guidance",
-      preferredIntake: intakeChoices[0],
+      preferredIntake: noIntakePreference,
       firstChoice: defaultProgram ?? programOptions[0] ?? "",
       secondChoice: programOptions.find((option) => option !== defaultProgram) ?? "",
       studyMode: defaultStudyMode ?? "Blended",
@@ -128,7 +127,17 @@ export function ApplicationInterestForm({
   const whatsappCountryCode = form.watch("whatsappCountryCode");
   const alternativePhoneCountryCode = form.watch("alternativePhoneCountryCode");
   const nextOfKinPhoneCountryCode = form.watch("nextOfKinPhoneCountryCode");
+  const preferredLevel = form.watch("preferredLevel");
+  const studyMode = form.watch("studyMode");
+  const preferredIntake = form.watch("preferredIntake");
+  const intakeChoices = getIntakePreferences(preferredLevel, studyMode);
   const isSubmitting = form.formState.isSubmitting;
+
+  function updateIntakePreference(level: string, mode: string) {
+    if (!getIntakePreferences(level, mode).includes(form.getValues("preferredIntake"))) {
+      form.setValue("preferredIntake", noIntakePreference, { shouldDirty: true });
+    }
+  }
 
   useEffect(() => {
     try {
@@ -174,9 +183,13 @@ export function ApplicationInterestForm({
       if (savedDraft) {
         const parsed = JSON.parse(savedDraft) as Partial<ApplicationFormRawInput>;
 
+        const restored = { ...form.getValues(), ...parsed };
+        const restoredOptions = getIntakePreferences(restored.preferredLevel, restored.studyMode);
         form.reset({
-          ...form.getValues(),
-          ...parsed,
+          ...restored,
+          preferredIntake: restoredOptions.includes(restored.preferredIntake)
+            ? restored.preferredIntake
+            : noIntakePreference,
           confirmationAnswer: "",
           documentUploadChoice: parsed.documentUploadChoice === "now" ? "later" : "later",
           uploadedDocuments: [],
@@ -527,7 +540,10 @@ export function ApplicationInterestForm({
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Preferred award level" required error={form.formState.errors.preferredLevel?.message}>
             <Select
-              {...form.register("preferredLevel")}
+              {...form.register("preferredLevel", {
+                onChange: (event: ChangeEvent<HTMLSelectElement>) =>
+                  updateIntakePreference(event.target.value, form.getValues("studyMode")),
+              })}
               options={[
                 "Undecided / I need guidance",
                 "Short Course",
@@ -537,8 +553,17 @@ export function ApplicationInterestForm({
               ]}
             />
           </Field>
-          <Field label="Intake" required error={form.formState.errors.preferredIntake?.message}>
-            <Select {...form.register("preferredIntake")} options={intakeChoices} />
+          <Field label="Preferred intake window" required error={form.formState.errors.preferredIntake?.message}>
+            <Select
+              {...form.register("preferredIntake")}
+              value={preferredIntake}
+              options={intakeChoices}
+              aria-describedby="intake-preference-help"
+            />
+            <span id="intake-preference-help" className="text-xs font-normal text-[var(--color-muted)]">
+              Admissions will confirm dates and availability.
+              {intakeChoices.includes(rollingOnlineIntake) && " Rolling enrolment applies to selected online self-paced courses."}
+            </span>
           </Field>
           <Field label="First programme choice" required error={form.formState.errors.firstChoice?.message} className="md:col-span-2">
             <Select {...form.register("firstChoice")} options={programOptions} />
@@ -547,7 +572,13 @@ export function ApplicationInterestForm({
             <Select {...form.register("secondChoice")} options={["", ...programOptions]} />
           </Field>
           <Field label="Preferred study mode" required error={form.formState.errors.studyMode?.message}>
-            <Select {...form.register("studyMode")} options={["Day", "Evening", "Weekend", "Blended", "Online"]} />
+            <Select
+              {...form.register("studyMode", {
+                onChange: (event: ChangeEvent<HTMLSelectElement>) =>
+                  updateIntakePreference(form.getValues("preferredLevel"), event.target.value),
+              })}
+              options={["Day", "Evening", "Weekend", "Blended", "Online"]}
+            />
           </Field>
           <Field label="Credit transfer" required error={form.formState.errors.creditTransfer?.message}>
             <RadioGroup

@@ -4,7 +4,8 @@ import { ApplicationInterestForm } from "@/components/forms/application-interest
 import { CtaBanner } from "@/components/site/cta-banner";
 import { PageHero } from "@/components/site/page-hero";
 import { Card, CardContent } from "@/components/ui/card";
-import { admissionRequirements, applyTracks, intakeMoments, programs, siteConfig } from "@/data";
+import { admissionRequirements, applyTracks, programs, siteConfig } from "@/data";
+import { formalAccreditationNote, intakeScheduleHref } from "@/data/intakes";
 import { publicPageMetadata } from "@/lib/site-metadata";
 
 export const metadata = publicPageMetadata("/apply");
@@ -35,9 +36,9 @@ export default async function ApplyPage({
   return (
     <>
       <PageHero
-        eyebrow="Apply online"
-        title="Apply to Ruguna College in minutes"
-        description="Choose your study path, share your details, and send your application for admissions review."
+        eyebrow="Admissions"
+        title="Tell us what you’d like to study"
+        description="Choose a study path and submit your interest. Admissions will confirm availability and your next steps."
       />
 
       <section className="section-padding pt-0">
@@ -71,8 +72,15 @@ export default async function ApplyPage({
         <div className="container-width grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_340px]">
           <Card>
             <CardContent>
+              <p className="mb-5 text-sm leading-6 text-[var(--color-muted)]">
+                {formalAccreditationNote}{" "}
+                <Link href={intakeScheduleHref} className="font-semibold underline">
+                  View planned intake windows
+                </Link>
+                .
+              </p>
               <ApplicationInterestForm
-                intakeOptions={[...intakeMoments]}
+                key={`${selectedProgram?.slug ?? ""}:${selectedLevel}`}
                 programOptions={programOptions}
                 defaultProgram={selectedProgram?.title}
                 defaultLevel={selectedLevel}

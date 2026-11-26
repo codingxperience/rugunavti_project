@@ -36,7 +36,10 @@ export function CourseCard({ course, compact = false }: CourseCardProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge value={course.level} />
-          <StatusBadge value={course.enrollmentStatus} tone="success" />
+          <StatusBadge
+            value={course.level === "Short Course" ? course.enrollmentStatus : "Subject to accreditation"}
+            tone={course.level === "Short Course" ? "success" : "neutral"}
+          />
         </div>
 
         <div>

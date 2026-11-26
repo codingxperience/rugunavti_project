@@ -1,6 +1,9 @@
+import Link from "next/link";
+
 import { PageHero } from "@/components/site/page-hero";
 import { ProgramDirectory } from "@/components/site/program-directory";
 import { programs, schools } from "@/data";
+import { intakeScheduleHref, shortCourseIntakeSummary } from "@/data/intakes";
 import { publicPageMetadata } from "@/lib/site-metadata";
 
 export const metadata = publicPageMetadata("/short-courses");
@@ -16,10 +19,13 @@ export default function ShortCoursesPage() {
         description="Short courses are ideal for flexible entry, quick confidence building, and focused skill development."
         aside={
           <div className="grid gap-3 text-sm text-[var(--color-muted)]">
-            <p className="font-heading text-3xl font-bold text-[var(--color-ink)]">
-              {shortCourses.length}
+            <p className="font-heading text-xl font-bold text-[var(--color-ink)]">
+              Phase 1 intake windows
             </p>
-            <p>Short-format learning experiences prepared for weekend and selected online delivery.</p>
+            <p>{shortCourseIntakeSummary}</p>
+            <Link href={intakeScheduleHref} className="font-semibold underline">
+              See intake guidance
+            </Link>
           </div>
         }
       />

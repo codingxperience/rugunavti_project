@@ -157,14 +157,13 @@ export function ProgramDirectory({
                     <span className="rounded-full bg-[var(--color-soft-accent)] px-3 py-1 text-xs font-medium text-[var(--color-ink)]">
                       {skillAreaMap[program.schoolSlug] ?? "General"}
                     </span>
-                    {program.intakeMonths.map((month) => (
+                    {program.level !== "Short Course" && (
                       <span
-                        key={`${program.slug}-${month}`}
                         className="rounded-full bg-[var(--color-surface-alt)] px-3 py-1 text-xs font-medium text-[var(--color-muted)]"
                       >
-                        {month} intake
+                        Subject to accreditation
                       </span>
-                    ))}
+                    )}
                   </div>
                 </div>
                 <div className="rounded-[22px] bg-[var(--color-surface-alt)] px-4 py-3 text-right">
