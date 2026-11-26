@@ -231,6 +231,7 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
 .rg .footer-social{display:flex;gap:10px 18px;flex-wrap:wrap;}
 .rg .footer-social a{color:#d1d0ca;}
 .rg #programmes{scroll-margin-top:110px;}
+.rg #dates{scroll-margin-top:44px;}
 
 /* ---------- page hero (interior) ---------- */
 .rg .page-hero{position:relative;padding-top:clamp(44px,6vw,76px);padding-bottom:clamp(36px,5vw,60px);}
